@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kizu - Welcome</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .turquoise-gradient-btn {
+            background: linear-gradient(135deg, #006a6a 0%, #005959 100%);
+        }
+        .teno-bounce {
+            animation: soft-bounce 4s ease-in-out infinite;
+        }
+        @keyframes soft-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-container-highest": "#e2e2e5",
+                "on-primary-fixed": "#002020",
+                "surface": "#f9f9fc",
+                "on-error": "#ffffff",
+                "secondary": "#50606f",
+                "inverse-surface": "#2f3133",
+                "tertiary-fixed": "#dfe3e3",
+                "on-primary-container": "#005959",
+                "surface-bright": "#f9f9fc",
+                "on-background": "#1a1c1e",
+                "on-primary": "#ffffff",
+                "background": "#f9f9fc",
+                "secondary-fixed-dim": "#b8c8da",
+                "surface-variant": "#e2e2e5",
+                "on-surface-variant": "#3b4949",
+                "on-surface": "#1a1c1e",
+                "surface-container": "#eeeef0",
+                "secondary-container": "#d1e1f4",
+                "primary-fixed-dim": "#1adcdc",
+                "primary-fixed": "#50f9f9",
+                "tertiary": "#5a5f60",
+                "on-error-container": "#93000a",
+                "on-tertiary-container": "#4b5050",
+                "primary-container": "#00d7d7",
+                "on-tertiary": "#ffffff",
+                "inverse-on-surface": "#f0f0f3",
+                "surface-container-low": "#f3f3f6",
+                "on-tertiary-fixed": "#181c1d",
+                "surface-dim": "#dadadc",
+                "secondary-fixed": "#d4e4f6",
+                "tertiary-fixed-dim": "#c3c7c7",
+                "on-primary-fixed-variant": "#004f4f",
+                "surface-tint": "#006a6a",
+                "on-secondary": "#ffffff",
+                "surface-container-high": "#e8e8ea",
+                "primary": "#006a6a",
+                "tertiary-container": "#bec2c2",
+                "error-container": "#ffdad6",
+                "on-secondary-container": "#556474",
+                "on-secondary-fixed": "#0d1d2a",
+                "inverse-primary": "#1adcdc",
+                "error": "#ba1a1a",
+                "outline-variant": "#bacac9",
+                "outline": "#6b7a79",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-fixed-variant": "#394857",
+                "on-tertiary-fixed-variant": "#434848"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "sm": "12px",
+                "base": "8px",
+                "md": "24px",
+                "xs": "4px",
+                "margin-desktop": "64px",
+                "lg": "48px",
+                "xl": "80px",
+                "margin-mobile": "16px",
+                "gutter": "24px"
+        },
+        "fontFamily": {
+                "headline-sm": ["Plus Jakarta Sans"],
+                "headline-md": ["Plus Jakarta Sans"],
+                "label-md": ["Be Vietnam Pro"],
+                "headline-lg": ["Plus Jakarta Sans"],
+                "body-sm": ["Be Vietnam Pro"],
+                "body-lg": ["Be Vietnam Pro"],
+                "body-md": ["Be Vietnam Pro"],
+                "headline-lg-mobile": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-md": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+        }
+      },
+    },
+  }
+</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background font-body-md text-on-background overflow-x-hidden">
+<!-- Hero Background Section -->
+<div class="relative w-full h-[574px] md:h-[618px] overflow-hidden">
+<!-- Abstract Architectural Background -->
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A sprawling, high-end Dubai luxury penthouse interior featuring floor-to-ceiling glass windows overlooking a sun-drenched cityscape with palm trees. The space is filled with bright, high-key natural light and a clean, minimalist aesthetic that reflects the premium Kizu brand identity. Deep turquoise accents are subtly integrated into the modern decor." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAYKneehZSgGt-uVG2Jm3qmggx43hCMoP0tnvgBvhZ_W95ydtx8cRF1dEFcXUoPGahJG3aJbi4hVbjjN_Q8UssSn0XUv6__JXflkbPv7UBRi-PSyi740uapO8DedCIZ9yU-L3vel0Nu0aPS94jm8TmLBxaSXUvnPH66LLdugmaL0kYD7sfrLpmJVVlopwlN1poCvxPFRPSTt_ppootjhEJ_ITQ6O0ocw9kNsAlJAew5N-IxHNUjyjWPZ8U5Clel8R8FwMKrdpVlrTE');">
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background"></div>
+</div>
+<!-- Mascot Illustration: Teno -->
+<div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-margin-mobile flex justify-center items-end h-full">
+<div class="relative z-10 teno-bounce">
+<!-- Updated Mascot Image -->
+<img alt="Teno the baby snow leopard mascot sitting on a moving box" class="w-[280px] md:w-[350px] object-contain drop-shadow-2xl rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1Osj5_JChWfrLki1oWk8khudS8Rc19eF_a6XpGBA56snUUnKhKJPmKO37pw0iVwAGPRLMW_0JoAI0MvvvIaX3plQ8L49KTxph1ANPyI38Sk7Drw4o-BPHNacjq2dBNV_USUcsNx8GYdTyZwuJCA3rgKmEJcGqZdSEQI05N5QUJL7VE4HnhVNTclNeUIxWNu5HWRUQDWFvPDq-yEX0j7LZFVGOg7FTgILMCF61YCkvdSFBp72KOOzBFaJDzfTGLzByWd3YFOIzZfE"/>
+<!-- Floating Glassmorphic Bubble -->
+<div class="glass-card absolute top-10 -right-4 md:-right-8 p-4 rounded-xl shadow-xl animate-pulse">
+<span class="material-symbols-outlined text-primary text-[32px]">key</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Content Section -->
+<main class="relative z-20 -mt-12 px-margin-mobile pb-32">
+<div class="flex flex-col items-center text-center space-y-4">
+<!-- Branding Header -->
+<div class="mb-2">
+<span class="font-headline-md text-headline-md font-extrabold text-primary tracking-tight">Kizu</span>
+</div>
+<!-- Headline -->
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface max-w-xs md:max-w-md leading-tight">
+                Renting Shouldn't Be <span class="text-primary italic">Stressful</span>.
+            </h1>
+<!-- Subheadline -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm">
+                Track rent. Store documents. Never miss important tenancy dates.
+            </p>
+<!-- Features Bento Grid -->
+<div class="w-full grid grid-cols-2 gap-4 mt-8">
+<div class="glass-card p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 border-outline-variant/30">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Rent Tracking</span>
+</div>
+<div class="glass-card p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 border-outline-variant/30">
+<div class="bg-secondary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-secondary">description</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Digital Vault</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 w-full p-margin-mobile z-50 bg-gradient-to-t from-background via-background/95 to-transparent">
+<button class="turquoise-gradient-btn w-full py-5 rounded-2xl flex items-center justify-center space-x-3 shadow-lg hover:opacity-90 active:scale-95 transition-all group overflow-hidden relative">
+<span class="shimmer absolute inset-0 pointer-events-none opacity-50"></span>
+<span class="font-headline-sm text-headline-sm text-on-primary">Get Started</span>
+<span class="material-symbols-outlined text-on-primary group-hover:translate-x-2 transition-transform">arrow_forward</span>
+</button>
+<!-- Pagination Indicators -->
+<div class="flex justify-center mt-6 space-x-2">
+<div class="w-6 h-1.5 rounded-full bg-primary"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline-variant"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline-variant"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-outline-variant"></div>
+</div>
+</div>
+<!-- Interaction Logic -->
+<script>
+        document.querySelector('button').addEventListener('click', function() {
+            this.classList.add('scale-95');
+            setTimeout(() => {
+                this.classList.remove('scale-95');
+                console.log("Onboarding journey started with Kizu.");
+            }, 150);
+        });
+    </script>
+</body></html>

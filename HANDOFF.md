@@ -8,7 +8,7 @@ This file is the single source of truth for "what is in flight right now." The l
 
 ## Repo facts
 - GitHub: **`ademola25/kiizzu`** (name is legacy; the product was renamed **KIZU/Kizzu → Tentzu** everywhere in code, images, app.json).
-- Branch: **`main`**. Everything is committed + pushed. HEAD at write time: `c03a435` (+ this HANDOFF commit on top).
+- Branch: **`main`**. Everything is committed + pushed. Latest handoff commit: `b3b560d` (pull `main` to get it).
 - Layout: `ark-backend/` (Django REST API), `ark-mobile/` (Expo RN — **the active focus**), `ark-frontend/` (frozen web).
 - **Mobile only.** Web (`ark-frontend`) is frozen. Native is the source of truth — do not "verify" via the web export.
 
@@ -19,7 +19,25 @@ as equal first-class targets.
 
 ---
 
-## 🔴 IN FLIGHT — finish this first
+## ✅ CURRENT STATUS (2026-08-05) — deployed & shipped for team testing
+
+Both launch tasks are **DONE and verified**. Nothing is blocking.
+- **Backend:** Live at `https://tentzu-api.onrender.com` — `/api/v1/docs/` = 200, register = 201 with JWT + `dev_code`.
+- **Android APK:** Built, link below, points at the live backend, no rebuild needed. Team can install now.
+- **iOS:** No TestFlight/standalone build shipped this round (mac-only + needs Apple account — see "Next up").
+
+### Next up (nothing is in flight — pick with the user)
+1. **Collect team feedback** on the APK; triage into fixes.
+2. **Before real (non-team) users:** set `EXPOSE_OTP_CODES=false` in Render → `tentzu-api` → Environment,
+   and add a real `SENDGRID_API_KEY` so verify/reset codes go by email instead of the API response.
+3. **iOS distribution** — needs an Apple account for TestFlight (or the free-team standalone recipe, mac-only).
+4. **Backend follow-ups** (all disclosed in-app, non-blocking): `/push/register/` + Expo push dispatch,
+   real Stripe price IDs + `/billing/portal/`, reminder task consulting `Subscription.tier`. See MOBILE.md table.
+5. **Render free-tier caveats:** cold-starts ~30–50s after idle; free Postgres expires ~30 days after creation.
+
+---
+
+## Reference — how the two launch tasks were done
 
 ### 1. Deploy the backend on Render — ✅ DONE (2026-08-05)
 Live and verified at **`https://tentzu-api.onrender.com`** — `/api/v1/docs/` returns 200,

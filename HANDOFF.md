@@ -21,9 +21,11 @@ as equal first-class targets.
 
 ## 🔴 IN FLIGHT — finish this first
 
-### 1. Deploy the backend on Render (NOT done yet)
-The user *thought* it was deployed, but the Render dashboard shows **no `tentzu-api` service** —
-the Blueprint was never applied. `render.yaml` is at the repo root and ready. Steps (browser, user does it):
+### 1. Deploy the backend on Render — ✅ DONE (2026-08-05)
+Live and verified at **`https://tentzu-api.onrender.com`** — `/api/v1/docs/` returns 200,
+register returns 201 with a JWT + `dev_code` (OTP exposure working). URL matches the APK's baked
+value, so the APK needs no rebuild. (Reference: original deploy steps below.)
+`render.yaml` is at the repo root. Steps (browser, user does it):
 1. Render dashboard → **＋ New → Blueprint** → pick repo **`ademola25/kiizzu`**.
 2. Render reads `render.yaml` → creates **`tentzu-db`** (free Postgres) + **`tentzu-api`** (free Python web).
 3. **Apply**, wait ~5–10 min for first deploy (install → collectstatic → migrate → gunicorn) → **Live**.

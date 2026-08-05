@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { PillButton } from '@/components/ui/PillButton';
 import { cn } from '@/lib/cn';
@@ -9,6 +9,8 @@ type CountdownHeroProps = {
   payment: PaymentSchedule | null;
   onMarkReady?: (id: number) => void;
   marking?: boolean;
+  onMarkPaid?: (id: number) => void;
+  paying?: boolean;
 };
 
 type Tone = 'calm' | 'urgent' | 'overdue';
@@ -26,7 +28,7 @@ type HeroCopy = {
  * Within 7 days we surface a "Mark funds ready" CTA + flame-border accent;
  * past-due reads as "overdue" with the same urgency tone; otherwise calm.
  */
-export function CountdownHero({ payment, onMarkReady, marking }: CountdownHeroProps) {
+export function CountdownHero({ payment, onMarkReady, marking, onMarkPaid, paying }: CountdownHeroProps) {
   if (!payment) {
     return (
       <Card className="items-center py-10">
@@ -40,10 +42,16 @@ export function CountdownHero({ payment, onMarkReady, marking }: CountdownHeroPr
   const copy = describeCountdown(days, isReady);
   const showCta = copy.tone !== 'calm' && !isReady && payment.status === 'pending' && onMarkReady;
 
+  // Overdue reads as an error (red), due-soon as caution (amber), calm stays neutral.
+  const toneBorder =
+    copy.tone === 'overdue' ? 'border-danger' : copy.tone === 'urgent' ? 'border-amber' : '';
+  const toneAccent =
+    copy.tone === 'overdue' ? 'text-danger' : copy.tone === 'urgent' ? 'text-amber' : 'text-muted';
+
   return (
-    <Card className={cn(copy.tone !== 'calm' && 'border-flame')}>
+    <Card className={cn(toneBorder)}>
       <View className="items-center py-4">
-        <Text className="text-xs uppercase tracking-widest text-muted">{copy.eyebrow}</Text>
+        <Text className={cn('text-xs uppercase tracking-widest', toneAccent)}>{copy.eyebrow}</Text>
         <Text className="text-6xl font-bold text-ink mt-2">{copy.bigNumber}</Text>
         <Text className="text-sm text-muted mt-1">{copy.bigSuffix}</Text>
 
@@ -72,6 +80,19 @@ export function CountdownHero({ payment, onMarkReady, marking }: CountdownHeroPr
               onPress={() => onMarkReady!(payment.id)}
             />
           </View>
+        ) : null}
+
+        {onMarkPaid && payment.status !== 'completed' ? (
+          <Pressable
+            onPress={() => onMarkPaid(payment.id)}
+            disabled={paying}
+            hitSlop={6}
+            className="mt-4"
+            accessibilityRole="button"
+            accessibilityLabel="Mark this cheque as paid"
+          >
+            <Text className="text-sm font-semibold text-brand">Mark as paid</Text>
+          </Pressable>
         ) : null}
       </View>
     </Card>

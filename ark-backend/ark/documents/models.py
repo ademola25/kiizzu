@@ -5,7 +5,10 @@ from django.db import models
 class Document(models.Model):
     class DocType(models.TextChoices):
         LEASE = "lease", "Tenancy Contract"
-        EJARI = "ejari", "EJARI Certificate"
+        EJARI = "ejari", "Ejari Certificate"
+        EMIRATES_ID = "emirates_id", "Emirates ID"
+        PASSPORT = "passport", "Passport"
+        LICENSE = "license", "Driver's License"
         OTHER = "other", "Other"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="documents")

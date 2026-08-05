@@ -87,12 +87,12 @@ export default function SettingsScreen() {
     try {
       await logout();
     } finally {
-      router.replace('/(auth)/sign-in');
+      router.replace('/');
     }
   };
 
   return (
-    <View className="flex-1 bg-mist">
+    <View className="flex-1">
       <ScrollView
         contentContainerStyle={{
           padding: 20,
@@ -197,7 +197,7 @@ export default function SettingsScreen() {
           accessibilityLabel="Delete account"
           accessibilityHint="Opens a confirmation sheet — destructive, can't be undone"
         >
-          <Text className="text-sm font-semibold text-flame">Delete account</Text>
+          <Text className="text-sm font-semibold text-danger">Delete account</Text>
         </Pressable>
       </ScrollView>
 

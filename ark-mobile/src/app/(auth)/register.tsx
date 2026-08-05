@@ -26,7 +26,8 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       await register({ name: name.trim(), email: email.trim(), phone: phone.trim(), password });
-      router.replace('/(tabs)');
+      // Let the gate route: a brand-new account has no lease yet → onboarding.
+      router.replace('/');
     } catch (e: unknown) {
       // DRF returns { field: ["msg"] } — flatten so each inline error binds
       // to the matching input. Anything else gets routed through the shared

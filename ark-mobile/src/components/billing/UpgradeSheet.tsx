@@ -81,7 +81,7 @@ export function UpgradeSheet({ visible, onClose }: UpgradeSheetProps) {
       <View className="gap-3 mb-4">
         {BENEFITS.map((line) => (
           <View key={line} className="flex-row items-start gap-3">
-            <Ionicons name="checkmark-circle" size={20} color={colors.ink} />
+            <Ionicons name="checkmark-circle" size={20} color={colors.brand} />
             <Text className="text-base text-ink flex-1">{line}</Text>
           </View>
         ))}

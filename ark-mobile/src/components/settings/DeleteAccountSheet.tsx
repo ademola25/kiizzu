@@ -43,7 +43,7 @@ export function DeleteAccountSheet({ visible, onClose }: DeleteAccountSheetProps
       // the redirect; the explicit replace below is a belt-and-braces guard
       // in case the redirect hasn't fired yet.
       await deleteAccount();
-      router.replace('/(auth)/sign-in');
+      router.replace('/');
     } catch (err) {
       setBusy(false);
       Alert.alert("Couldn't delete account", errorMessage(err, 'Please try again.'));

@@ -21,7 +21,7 @@ export function OptionCard({
     <Pressable
       className={cn(
         'rounded-2xl bg-paper border px-4 py-4 flex-row items-center justify-between',
-        selected ? 'border-ink' : 'border-line',
+        selected ? 'border-brand bg-wash' : 'border-line',
         className,
       )}
       {...props}
@@ -35,7 +35,7 @@ export function OptionCard({
       <View
         className={cn(
           'w-6 h-6 rounded-full items-center justify-center',
-          selected ? 'bg-ink' : 'border border-line',
+          selected ? 'bg-brand' : 'border border-line',
         )}
       >
         {selected ? <Ionicons name="checkmark" size={16} color="#FFFFFF" /> : null}

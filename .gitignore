@@ -61,6 +61,7 @@ lerna-debug.log*
 .claude/
 _bmad/
 _bmad-output/
+onboarding-flow/
 
 # Generated QA artifacts
 screenshots/

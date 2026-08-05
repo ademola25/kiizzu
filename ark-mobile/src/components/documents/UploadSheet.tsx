@@ -11,7 +11,10 @@ type UploadSheetProps = {
 
 const OPTIONS: { value: DocumentType; label: string; description: string }[] = [
   { value: 'lease', label: 'Tenancy Contract', description: 'Your signed lease agreement.' },
-  { value: 'ejari', label: 'EJARI Certificate', description: 'Your registered tenancy contract.' },
+  { value: 'ejari', label: 'Ejari Certificate', description: 'Your registered tenancy contract.' },
+  { value: 'emirates_id', label: 'Emirates ID', description: 'Front and back of your Emirates ID.' },
+  { value: 'passport', label: 'Passport', description: 'Your passport photo page.' },
+  { value: 'license', label: "Driver's License", description: 'Your UAE driving licence.' },
   { value: 'other', label: 'Other', description: 'Anything else worth keeping.' },
 ];
 

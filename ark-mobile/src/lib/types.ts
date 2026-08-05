@@ -23,7 +23,7 @@ export type Subscription = {
   created_at: string; // ISO datetime
 };
 
-export type DocumentType = 'lease' | 'ejari' | 'other';
+export type DocumentType = 'lease' | 'ejari' | 'emirates_id' | 'passport' | 'license' | 'other';
 
 export type Document = {
   id: number;

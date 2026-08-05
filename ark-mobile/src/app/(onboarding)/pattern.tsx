@@ -1,42 +1,45 @@
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import { OptionCard } from '@/components/ui/OptionCard';
-import { Step } from '@/components/ui/Step';
+
+import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
+import { TentzuOption } from '@/components/onboarding/TentzuOption';
+import { PayArt } from '@/components/onboarding/illustrations';
 import { useOnboarding, type ChequePattern } from '@/store/onboarding';
+import { patternLabel } from '@/lib/schedule';
 
-// Tenant-language labels — keep numbers in description for clarity.
-const OPTIONS: { value: ChequePattern; label: string; description: string }[] = [
-  { value: 1, label: 'Annual', description: '1 cheque per year' },
-  { value: 2, label: 'Bi-annual', description: '2 cheques per year' },
-  { value: 3, label: '3 cheques', description: 'Every 4 months' },
-  { value: 4, label: 'Quarterly', description: '4 cheques per year' },
-  { value: 6, label: 'Bi-monthly', description: '6 cheques per year' },
-];
+const ORDER: ChequePattern[] = [1, 2, 3, 4, 6];
 
+// Step 2/7 — cheque pattern. This single integer drives the whole schedule
+// (count, spacing and per-cheque amount) on the backend.
 export default function PatternStep() {
-  const { draft, set } = useOnboarding();
+  const draft = useOnboarding((s) => s.draft);
+  const set = useOnboarding((s) => s.set);
   const selected = draft.cheque_pattern;
 
   return (
-    <Step
-      step={3}
-      total={6}
+    <TentzuScreen
+      step={2}
+      total={7}
+      illustration={<PayArt />}
       title="How do you pay rent?"
-      subtitle="Choose your cheque pattern."
-      continueDisabled={selected === null}
-      onContinue={() => router.push('/(onboarding)/start-date')}
+      subtitle="Most Dubai leases are paid in a set number of cheques across the year. Pick yours."
+      primaryLabel="Continue"
+      primaryIcon="arrow-forward"
+      primaryDisabled={selected === null}
+      onPrimary={() => router.push('/(onboarding)/rent')}
     >
-      <View className="gap-3">
-        {OPTIONS.map((opt) => (
-          <OptionCard
-            key={opt.value}
-            label={opt.label}
-            description={opt.description}
-            selected={selected === opt.value}
-            onPress={() => set('cheque_pattern', opt.value)}
+      <View style={{ gap: 12 }}>
+        {ORDER.map((value) => (
+          <TentzuOption
+            key={value}
+            icon="document-text-outline"
+            title={patternLabel[value].title}
+            subtitle={patternLabel[value].sub}
+            selected={selected === value}
+            onPress={() => set('cheque_pattern', value)}
           />
         ))}
       </View>
-    </Step>
+    </TentzuScreen>
   );
 }

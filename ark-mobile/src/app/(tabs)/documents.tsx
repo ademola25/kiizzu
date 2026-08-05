@@ -99,7 +99,7 @@ export default function DocumentsScreen() {
   const uploadBusy = picking || upload.isPending;
 
   return (
-    <View className="flex-1 bg-mist">
+    <View className="flex-1">
       <ScrollView
         contentContainerStyle={{
           padding: 20,

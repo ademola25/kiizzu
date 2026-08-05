@@ -22,8 +22,8 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     <View
       className={cn(
         'rounded-pill px-2.5 py-1 self-start',
-        status === 'completed' && 'bg-mist',
-        status === 'ready' && 'bg-ink',
+        status === 'completed' && 'bg-wash',
+        status === 'ready' && 'bg-brand',
         status === 'pending' && 'border border-line bg-paper',
         className,
       )}
@@ -31,7 +31,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       <Text
         className={cn(
           'text-xs font-semibold',
-          status === 'completed' && 'text-muted',
+          status === 'completed' && 'text-brand',
           status === 'ready' && 'text-paper',
           status === 'pending' && 'text-ink',
         )}

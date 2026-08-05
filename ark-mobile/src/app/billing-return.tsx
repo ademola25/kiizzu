@@ -36,9 +36,9 @@ export default function BillingReturn() {
     );
   }
 
-  // Deep link is publicly reachable; punt a signed-out visitor to sign-in
-  // rather than into the authenticated tabs.
-  if (status === 'signedOut') return <Redirect href="/(auth)/sign-in" />;
+  // Deep link is publicly reachable; punt a signed-out visitor to the front
+  // door (gate → onboarding) rather than into the authenticated tabs.
+  if (status === 'signedOut') return <Redirect href="/" />;
 
   return (
     <View

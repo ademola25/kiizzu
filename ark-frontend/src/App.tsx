@@ -12,6 +12,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { DocumentsPage } from '@/features/documents/DocumentsPage'
 import { NotificationsPage } from '@/features/notifications/NotificationsPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
+import { WaitlistPage } from '@/features/waitlist/WaitlistPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,8 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="/" element={<WaitlistPage />} />
+      <Route path="/waitlist" element={<WaitlistPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
 

@@ -23,9 +23,30 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "email", "name", "phone", "onboarding_complete", "whatsapp_opted_in", "created_at")
-        read_only_fields = ("id", "created_at")
+        fields = (
+            "id",
+            "email",
+            "name",
+            "phone",
+            "email_verified",
+            "onboarding_complete",
+            "whatsapp_opted_in",
+            "created_at",
+        )
+        read_only_fields = ("id", "email_verified", "created_at")
+
+
+class CodeSerializer(serializers.Serializer):
+    """A 6-digit one-time code (email verification)."""
+
+    code = serializers.RegexField(r"^\d{6}$")
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.RegexField(r"^\d{6}$")
+    new_password = serializers.CharField(min_length=6)

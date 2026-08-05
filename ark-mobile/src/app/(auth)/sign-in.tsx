@@ -18,7 +18,7 @@ export default function SignInScreen() {
     >
       <View className="flex-1 justify-center">
         <Text className="text-4xl font-bold text-ink tracking-tight">Create an account</Text>
-        <Text className="text-base text-muted mt-2">Sign in to continue to Ark.</Text>
+        <Text className="text-base text-muted mt-2">Sign in to continue to Tentzu.</Text>
       </View>
 
       <View className="gap-3 mb-4">

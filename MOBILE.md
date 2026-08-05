@@ -84,7 +84,7 @@ ark-mobile/
 
 ```
 (root) /                        index.tsx       auth+onboarding gate → redirect
-(auth) /(auth)/welcome          welcome.tsx     Kizu landing (first screen, signedOut) → "Get Started"
+(auth) /(auth)/welcome          welcome.tsx     Tentzu landing (first screen, signedOut) → "Get Started"
        /(auth)/sign-in          sign-in.tsx     Apple/Google placeholder + "Continue with email"
        /(auth)/email            email.tsx       email login
        /(auth)/register         register.tsx    full register form

@@ -14,6 +14,15 @@ env.read_env(BASE_DIR / ".env", overwrite=False)
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="change-me-in-production")
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+# Render injects the service's public hostname at runtime.
+_render_host = env("RENDER_EXTERNAL_HOSTNAME", default="")
+if _render_host:
+    ALLOWED_HOSTS.append(_render_host)
+
+# Internal-testing escape hatch: return the one-time verify/reset code in the API
+# response even when DEBUG is off, so testers can verify without a mail provider.
+# MUST be turned off once SendGrid is configured / before real users.
+EXPOSE_OTP_CODES = env.bool("EXPOSE_OTP_CODES", default=False)
 
 # Application definition
 DJANGO_APPS = [
@@ -38,6 +47,7 @@ LOCAL_APPS = [
     "ark.reminders",
     "ark.documents",
     "ark.billing",
+    "ark.waitlist",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -106,6 +116,12 @@ USE_TZ = True
 # Static files
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Media — tenant document uploads. Local disk in dev; swap to S3/django-storages
+# in production. Files are served via signed URLs (see ark.documents), not MEDIA_URL.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",

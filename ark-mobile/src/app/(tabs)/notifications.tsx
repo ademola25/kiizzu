@@ -17,7 +17,7 @@ export default function NotificationsScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-mist"
+      className="flex-1"
       contentContainerStyle={{
         padding: 20,
         paddingTop: insets.top + 12,

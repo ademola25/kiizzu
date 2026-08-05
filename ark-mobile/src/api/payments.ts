@@ -36,3 +36,19 @@ export function useMarkReady() {
     },
   });
 }
+
+/** Mark a single cheque as paid (cleared). Works from pending or ready. */
+export function useMarkPaid() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await api.post<PaymentSchedule>(
+        `/payment-schedules/${id}/mark-paid/`,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY });
+    },
+  });
+}

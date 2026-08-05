@@ -24,7 +24,8 @@ export default function EmailLoginScreen() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      router.replace('/(tabs)');
+      // Let the gate decide: onboarded → tabs, not-onboarded → onboarding.
+      router.replace('/');
     } catch (e: unknown) {
       setError(errorMessage(e, 'Login failed. Check your credentials.'));
     } finally {
@@ -64,6 +65,14 @@ export default function EmailLoginScreen() {
           onChangeText={setPassword}
           error={error ?? undefined}
         />
+
+        <Pressable
+          onPress={() => router.push('/(auth)/forgot-password')}
+          hitSlop={6}
+          className="self-end py-1"
+        >
+          <Text className="text-sm font-semibold text-brand">Forgot password?</Text>
+        </Pressable>
 
         <View className="flex-1" />
 

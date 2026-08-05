@@ -96,7 +96,7 @@ function renderBody(state: CardState, busy: boolean, enable: () => void) {
           <Text className="text-xs text-muted mt-1 mb-3">
             {state.canAskAgain
               ? 'Tap below and accept the prompt to turn them back on.'
-              : 'Open Settings to allow notifications for Ark.'}
+              : 'Open Settings to allow notifications for Tentzu.'}
           </Text>
           {state.canAskAgain ? (
             <PillButton

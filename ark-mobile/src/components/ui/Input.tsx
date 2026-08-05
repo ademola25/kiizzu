@@ -18,15 +18,15 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
       {label ? <Text className="text-sm text-muted mb-2">{label}</Text> : null}
       <TextInput
         ref={ref}
-        placeholderTextColor="#8A8A8E"
+        placeholderTextColor="#6b7a79"
         className={cn(
           'h-14 px-4 rounded-2xl bg-paper border text-base text-ink',
-          error ? 'border-flame' : 'border-line',
+          error ? 'border-danger' : 'border-line',
           className,
         )}
         {...props}
       />
-      {error ? <Text className="text-xs text-flame mt-1">{error}</Text> : null}
+      {error ? <Text className="text-xs text-danger mt-1">{error}</Text> : null}
     </View>
   );
 });

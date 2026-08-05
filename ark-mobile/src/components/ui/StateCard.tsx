@@ -32,7 +32,7 @@ export function StateCard({
     const caption = message ?? 'Loading…';
     return (
       <Card className="py-8 items-center">
-        <ActivityIndicator color={colors.ink} />
+        <ActivityIndicator color={colors.brand} />
         <Text className="text-sm text-muted mt-3">{caption}</Text>
       </Card>
     );

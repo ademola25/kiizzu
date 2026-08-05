@@ -1,52 +1,40 @@
-"""S3 presigned URL generation for document upload/download."""
+"""Local document storage with short-lived signed access URLs.
+
+Files are written under MEDIA_ROOT (local disk in dev; swap to S3/django-storages
+in prod). Upload and download are gated by signed, expiring tokens, so the file
+endpoints need no session/JWT — the token *is* the capability. This mirrors the
+old S3 presigned-URL model, so the mobile client barely changes.
+"""
+import os
 import uuid
-import logging
 
-import boto3
 from django.conf import settings
-
-logger = logging.getLogger(__name__)
+from django.core import signing
 
 ALLOWED_TYPES = {"application/pdf", "image/jpeg", "image/png"}
-MAX_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_SIZE = 10 * 1024 * 1024  # 10 MB
+UPLOAD_MAX_AGE = 600  # 10 minutes
+DOWNLOAD_MAX_AGE = 3600  # 1 hour
+_SALT = "ark.documents.access"
 
 
-def generate_upload_url(user_id: int, filename: str, content_type: str) -> tuple[str, str]:
-    """Generate a presigned S3 upload URL. Returns (presigned_url, s3_key)."""
-    if content_type not in ALLOWED_TYPES:
-        raise ValueError(f"File type '{content_type}' not allowed. Allowed: PDF, JPG, PNG.")
-
-    s3_key = f"documents/{user_id}/{uuid.uuid4()}/{filename}"
-
-    s3 = boto3.client(
-        "s3",
-        region_name=settings.AWS_S3_REGION_NAME,
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-    )
-
-    url = s3.generate_presigned_url(
-        "put_object",
-        Params={
-            "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
-            "Key": s3_key,
-            "ContentType": content_type,
-        },
-        ExpiresIn=600,  # 10 minutes
-    )
-    return url, s3_key
+def build_storage_key(user_id: int, filename: str) -> str:
+    """Opaque per-file key stored on the Document row (the `s3_key` column)."""
+    return f"documents/{user_id}/{uuid.uuid4()}/{filename}"
 
 
-def generate_download_url(s3_key: str) -> str:
-    """Generate a presigned S3 download URL."""
-    s3 = boto3.client(
-        "s3",
-        region_name=settings.AWS_S3_REGION_NAME,
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-    )
-    return s3.generate_presigned_url(
-        "get_object",
-        Params={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": s3_key},
-        ExpiresIn=3600,  # 1 hour
-    )
+def storage_path(key: str) -> str:
+    return os.path.join(settings.MEDIA_ROOT, key)
+
+
+def make_token(doc_id: int, op: str) -> str:
+    """Signed, expiring capability token for a single document + operation."""
+    return signing.dumps({"id": doc_id, "op": op}, salt=_SALT)
+
+
+def read_token(token: str, op: str, max_age: int) -> int:
+    """Validate a token for `op`; returns the document id or raises BadSignature."""
+    data = signing.loads(token, salt=_SALT, max_age=max_age)
+    if data.get("op") != op:
+        raise signing.BadSignature("token op mismatch")
+    return int(data["id"])

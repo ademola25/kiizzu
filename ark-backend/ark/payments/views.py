@@ -39,3 +39,24 @@ class PaymentMarkReadyView(APIView):
         payment.status = PaymentSchedule.Status.READY
         payment.save(update_fields=["status", "updated_at"])
         return Response(PaymentScheduleSerializer(payment).data)
+
+
+class PaymentMarkPaidView(APIView):
+    """POST /api/v1/payment-schedules/{id}/mark-paid/ — Record a cheque as paid
+    (cleared) manually, from either 'pending' or 'ready'."""
+
+    def post(self, request, pk):
+        try:
+            payment = PaymentSchedule.objects.get(pk=pk, lease__user=request.user)
+        except PaymentSchedule.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if payment.status == PaymentSchedule.Status.COMPLETED:
+            return Response(
+                {"detail": "This cheque is already marked as paid."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        payment.status = PaymentSchedule.Status.COMPLETED
+        payment.save(update_fields=["status", "updated_at"])
+        return Response(PaymentScheduleSerializer(payment).data)

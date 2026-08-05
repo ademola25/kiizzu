@@ -13,7 +13,7 @@ export function ProgressBar({ step, total, className }: ProgressBarProps) {
   return (
     <View className={cn('h-1 w-full bg-line rounded-pill overflow-hidden', className)}>
       <View
-        className="h-full bg-ink rounded-pill"
+        className="h-full bg-brand rounded-pill"
         style={{ width: `${pct * 100}%` }}
       />
     </View>

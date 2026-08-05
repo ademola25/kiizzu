@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { colors } from '@/theme/tokens';
+import { tentzu } from '@/theme/tokens';
 
 export default function OnboardingLayout() {
   return (
@@ -8,7 +8,7 @@ export default function OnboardingLayout() {
         headerShown: false,
         gestureEnabled: false, // funnel-style: no swipe back mid-flow
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: colors.paper },
+        contentStyle: { backgroundColor: tentzu.bg },
       }}
     />
   );

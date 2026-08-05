@@ -15,6 +15,9 @@
     "preview": {
       "distribution": "internal",
       "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://tentzu-api.onrender.com/api/v1"
+      },
       "ios": {
         "simulator": false
       },

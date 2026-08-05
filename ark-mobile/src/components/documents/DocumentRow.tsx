@@ -13,8 +13,20 @@ type DocumentRowProps = {
 
 const TYPE_LABEL: Record<DocumentType, string> = {
   lease: 'Tenancy Contract',
-  ejari: 'EJARI',
+  ejari: 'Ejari',
+  emirates_id: 'Emirates ID',
+  passport: 'Passport',
+  license: "Driver's License",
   other: 'Other',
+};
+
+// A meaningful icon per document kind takes priority over the file-type icon.
+const TYPE_ICON: Partial<Record<DocumentType, keyof typeof Ionicons.glyphMap>> = {
+  lease: 'document-text',
+  ejari: 'ribbon-outline',
+  emirates_id: 'card',
+  license: 'card',
+  passport: 'person-circle-outline',
 };
 
 const ICON_FOR_CONTENT: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -25,7 +37,7 @@ const ICON_FOR_CONTENT: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 /** One uploaded document. Whole row opens it; trailing trash icon deletes. */
 export function DocumentRow({ doc, onView, onDelete }: DocumentRowProps) {
-  const icon = ICON_FOR_CONTENT[doc.content_type] ?? 'document';
+  const icon = TYPE_ICON[doc.document_type] ?? ICON_FOR_CONTENT[doc.content_type] ?? 'document';
   const typeLabel = TYPE_LABEL[doc.document_type] ?? 'Document';
 
   return (
@@ -35,8 +47,8 @@ export function DocumentRow({ doc, onView, onDelete }: DocumentRowProps) {
       accessibilityLabel={`Open ${doc.filename}`}
     >
       <Card className="py-3 flex-row items-center gap-3">
-        <View className="w-10 h-10 rounded-full bg-mist items-center justify-center">
-          <Ionicons name={icon} size={18} color={colors.ink} />
+        <View className="w-10 h-10 rounded-full bg-wash items-center justify-center">
+          <Ionicons name={icon} size={18} color={colors.brand} />
         </View>
 
         <View className="flex-1">

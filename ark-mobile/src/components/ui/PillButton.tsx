@@ -23,14 +23,14 @@ export function PillButton({
       disabled={disabled || loading}
       className={cn(
         'h-14 rounded-pill items-center justify-center px-6',
-        isPrimary ? 'bg-ink' : 'bg-mist border border-line',
+        isPrimary ? 'bg-brand' : 'bg-paper border border-line',
         (disabled || loading) && 'opacity-50',
         className,
       )}
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? '#FFFFFF' : '#000000'} />
+        <ActivityIndicator color={isPrimary ? '#FFFFFF' : '#006a6a'} />
       ) : (
         <Text className={cn('text-base font-semibold', isPrimary ? 'text-paper' : 'text-ink')}>
           {label}

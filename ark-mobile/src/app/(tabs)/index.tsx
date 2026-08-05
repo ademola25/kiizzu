@@ -7,7 +7,7 @@ import { PaymentCard } from '@/components/dashboard/PaymentCard';
 import { Card } from '@/components/ui/Card';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StateCard } from '@/components/ui/StateCard';
-import { useMarkReady, usePayments } from '@/api/payments';
+import { useMarkPaid, useMarkReady, usePayments } from '@/api/payments';
 import { useAuth } from '@/store/auth';
 import { errorMessage } from '@/lib/errors';
 import { formatAED } from '@/lib/format';
@@ -18,6 +18,7 @@ export default function HomeScreen() {
   const user = useAuth((s) => s.user);
   const payments = usePayments();
   const markReady = useMarkReady();
+  const markPaid = useMarkPaid();
 
   const view = useMemo(() => computeDashboardView(payments.data ?? []), [payments.data]);
 
@@ -33,11 +34,23 @@ export default function HomeScreen() {
     });
   };
 
+  const handleMarkPaid = (id: number) => {
+    if (markPaid.isPending) return;
+    markPaid.mutate(id, {
+      onError: (error: unknown) => {
+        Alert.alert(
+          'Something went wrong',
+          errorMessage(error, "Couldn't mark this cheque as paid. Try again."),
+        );
+      },
+    });
+  };
+
   const firstName = user?.name?.split(' ')[0];
 
   return (
     <ScrollView
-      className="flex-1 bg-mist"
+      className="flex-1"
       contentContainerStyle={{
         padding: 20,
         paddingTop: insets.top + 12,
@@ -52,7 +65,7 @@ export default function HomeScreen() {
       }
     >
       <ScreenHeader
-        title={firstName ? `Hi, ${firstName}` : 'Ark'}
+        title={firstName ? `Hi, ${firstName}` : 'Tentzu'}
         subtitle="Your cheque schedule"
       />
 
@@ -60,6 +73,8 @@ export default function HomeScreen() {
         payment={view.next}
         onMarkReady={handleMarkReady}
         marking={markReady.isPending}
+        onMarkPaid={handleMarkPaid}
+        paying={markPaid.isPending}
       />
 
       {view.total > 0 ? (
@@ -90,7 +105,12 @@ export default function HomeScreen() {
           <Text className="text-lg font-semibold text-ink mt-1">Schedule</Text>
           <View className="gap-2.5">
             {view.rest.map((p) => (
-              <PaymentCard key={p.id} payment={p} />
+              <PaymentCard
+                key={p.id}
+                payment={p}
+                onMarkPaid={handleMarkPaid}
+                marking={markPaid.isPending}
+              />
             ))}
           </View>
         </>

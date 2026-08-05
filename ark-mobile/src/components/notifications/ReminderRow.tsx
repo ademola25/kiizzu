@@ -19,13 +19,13 @@ type Tone = 'ok' | 'pending' | 'error';
 const TONE_TEXT: Record<Tone, string> = {
   ok: 'text-ink',
   pending: 'text-muted',
-  error: 'text-flame',
+  error: 'text-danger',
 };
 
 const TONE_COLOR: Record<Tone, string> = {
   ok: colors.ink,
   pending: colors.muted,
-  error: colors.flame,
+  error: colors.danger,
 };
 
 const CHANNEL: Record<
@@ -77,15 +77,15 @@ export function ReminderRow({ log }: ReminderRowProps) {
       accessible
       accessibilityLabel={accessibilityLabel}
     >
-      <View className="w-10 h-10 rounded-full bg-mist items-center justify-center">
-        <Ionicons name={channel.icon} size={18} color={colors.ink} />
+      <View className="w-10 h-10 rounded-full bg-wash items-center justify-center">
+        <Ionicons name={channel.icon} size={18} color={colors.brand} />
       </View>
 
       <View className="flex-1">
         <Text className="text-base font-semibold text-ink">{channel.label}</Text>
         <Text className="text-xs text-muted mt-0.5">{timing}</Text>
         {log.status === 'failed' && log.error_message ? (
-          <Text className="text-xs text-flame mt-1" numberOfLines={2}>
+          <Text className="text-xs text-danger mt-1" numberOfLines={2}>
             {log.error_message}
           </Text>
         ) : null}

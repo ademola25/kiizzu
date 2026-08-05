@@ -13,6 +13,7 @@ urlpatterns = [
     path("api/v1/reminders/", include("ark.reminders.urls")),
     path("api/v1/documents/", include("ark.documents.urls")),
     path("api/v1/billing/", include("ark.billing.urls")),
+    path("api/v1/waitlist/", include("ark.waitlist.urls")),
     # OpenAPI schema
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/v1/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),

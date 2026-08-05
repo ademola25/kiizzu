@@ -7,6 +7,7 @@ type User = {
   email: string;
   name: string;
   phone: string;
+  email_verified: boolean;
   onboarding_complete: boolean;
   whatsapp_opted_in: boolean;
 };
@@ -27,7 +28,9 @@ type AuthState = {
   status: 'loading' | 'signedIn' | 'signedOut';
   bootstrap: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  register: (input: RegisterInput) => Promise<void>;
+  register: (input: RegisterInput) => Promise<string | undefined>;
+  verifyEmail: (code: string) => Promise<void>;
+  resendVerification: () => Promise<string | undefined>;
   refreshUser: () => Promise<void>;
   updateProfile: (patch: ProfileUpdate) => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -63,6 +66,19 @@ export const useAuth = create<AuthState>((set) => ({
     await tokenStore.set(data.access, data.refresh);
     const me = await api.get<User>('/auth/me/');
     set({ user: me.data, status: 'signedIn' });
+    // `dev_code` is only present when the backend runs with DEBUG on — lets the
+    // verify screen show the code without checking a mail inbox during testing.
+    return data.dev_code as string | undefined;
+  },
+
+  verifyEmail: async (code) => {
+    const { data } = await api.post<User>('/auth/email/verify/', { code });
+    set({ user: data });
+  },
+
+  resendVerification: async () => {
+    const { data } = await api.post<{ dev_code?: string }>('/auth/email/verify/resend/', {});
+    return data.dev_code;
   },
 
   refreshUser: async () => {

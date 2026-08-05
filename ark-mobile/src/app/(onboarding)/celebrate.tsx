@@ -1,10 +1,17 @@
 import { Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
-import { PillButton } from '@/components/ui/PillButton';
+import { TentzuButton } from '@/components/onboarding/TentzuButton';
+import { MascotHero } from '@/components/onboarding/MascotHero';
+import { TentzuBackground } from '@/components/onboarding/TentzuBackground';
 import { useOnboarding } from '@/store/onboarding';
+import { tentzu, tentzuFont } from '@/theme/tokens';
 
+const MASCOT = require('../../../assets/images/mascot-portrait.png');
+
+// Final screen — the payoff. Clears the draft and opens the dashboard.
 export default function CelebrateStep() {
   const insets = useSafeAreaInsets();
   const reset = useOnboarding((s) => s.reset);
@@ -15,23 +22,44 @@ export default function CelebrateStep() {
   };
 
   return (
-    <View
-      className="flex-1 bg-paper px-5"
-      style={{ paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }}
-    >
-      <View className="flex-1 items-center justify-center">
-        <View className="w-24 h-24 rounded-full bg-mist items-center justify-center mb-6">
-          <Text className="text-5xl">🎉</Text>
-        </View>
-        <Text className="text-3xl font-bold text-ink tracking-tight text-center">
-          You're all set
+    <View style={{ flex: 1, backgroundColor: tentzu.bg, paddingTop: insets.top }}>
+      <StatusBar style="dark" />
+      <TentzuBackground />
+      <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 26 }}>
+        <MascotHero source={MASCOT} height={300} />
+        <Text
+          style={{
+            fontFamily: tentzuFont.headline,
+            fontSize: 29,
+            lineHeight: 35,
+            letterSpacing: -0.6,
+            color: tentzu.ink,
+            textAlign: 'center',
+            marginTop: 26,
+          }}
+        >
+          Your home, finally organized.
         </Text>
-        <Text className="text-base text-muted mt-2 text-center px-6">
-          Your cheque schedule is ready. We'll remind you before each one is due.
+        <Text
+          style={{
+            fontFamily: tentzuFont.body,
+            fontSize: 15,
+            lineHeight: 23,
+            color: tentzu.inkVariant,
+            textAlign: 'center',
+            marginTop: 12,
+            maxWidth: 330,
+            alignSelf: 'center',
+          }}
+        >
+          Your cheque schedule is set and your documents are safe. Tentzu will remind you well
+          before each cheque is due — so rent day never sneaks up on you again.
         </Text>
       </View>
 
-      <PillButton label="Go to dashboard" onPress={goToDashboard} />
+      <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 16 }}>
+        <TentzuButton label="Go to my dashboard" onPress={goToDashboard} icon="arrow-forward" />
+      </View>
     </View>
   );
 }

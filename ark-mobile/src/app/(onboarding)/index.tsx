@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
 
-// Entry into the onboarding flow — always start at building.
+// The onboarding group always enters at the "Meet Tentzu" welcome screen.
 export default function OnboardingEntry() {
-  return <Redirect href="/(onboarding)/building" />;
+  return <Redirect href="/(onboarding)/welcome" />;
 }

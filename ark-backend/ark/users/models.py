@@ -1,7 +1,12 @@
 import re
+import secrets
+from datetime import timedelta
+
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 def validate_uae_phone(value):
@@ -32,6 +37,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=15, validators=[validate_uae_phone])
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False)
     onboarding_complete = models.BooleanField(default=False)
     whatsapp_opted_in = models.BooleanField(default=False)
     whatsapp_opted_in_at = models.DateTimeField(null=True, blank=True)
@@ -47,3 +53,64 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class OneTimeCode(models.Model):
+    """Short-lived, hashed numeric code for email verification and password
+    reset. Codes are single-use, expire quickly, and are attempt-limited so a
+    6-digit code can't be brute-forced."""
+
+    CODE_LENGTH = 6
+    EXPIRY_MINUTES = 15
+    MAX_ATTEMPTS = 6
+
+    class Purpose(models.TextChoices):
+        VERIFY_EMAIL = "verify_email", "Verify email"
+        PASSWORD_RESET = "password_reset", "Password reset"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="otp_codes")
+    purpose = models.CharField(max_length=20, choices=Purpose.choices)
+    code_hash = models.CharField(max_length=256)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "purpose", "consumed_at"])]
+        ordering = ("-created_at",)
+
+    @classmethod
+    def issue(cls, user, purpose) -> str:
+        """Invalidate any outstanding codes for this purpose and mint a fresh
+        one. Returns the raw code (to be emailed — never stored in the clear)."""
+        cls.objects.filter(user=user, purpose=purpose, consumed_at__isnull=True).delete()
+        raw = f"{secrets.randbelow(10 ** cls.CODE_LENGTH):0{cls.CODE_LENGTH}d}"
+        cls.objects.create(
+            user=user,
+            purpose=purpose,
+            code_hash=make_password(raw),
+            expires_at=timezone.now() + timedelta(minutes=cls.EXPIRY_MINUTES),
+        )
+        return raw
+
+    @classmethod
+    def redeem(cls, user, purpose, raw: str) -> bool:
+        """Validate `raw` against the newest active code. Consumes it on success.
+        Returns False for missing / expired / exhausted / mismatched codes."""
+        code = (
+            cls.objects.filter(user=user, purpose=purpose, consumed_at__isnull=True)
+            .order_by("-created_at")
+            .first()
+        )
+        if code is None or timezone.now() > code.expires_at:
+            return False
+        if code.attempts >= cls.MAX_ATTEMPTS:
+            return False
+        code.attempts += 1
+        if check_password(raw, code.code_hash):
+            code.consumed_at = timezone.now()
+            code.save(update_fields=["attempts", "consumed_at"])
+            return True
+        code.save(update_fields=["attempts"])
+        return False

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Ark",
+    "name": "Tentzu",
     "slug": "ark-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,9 +8,10 @@
     "scheme": "arkmobile",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.tentzu.app"
     },
     "android": {
+      "package": "com.tentzu.app",
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -28,21 +29,16 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FFFFFF",
+          "backgroundColor": "#e8f6f6",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 140,
           "android": {
             "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
+            "imageWidth": 120
           }
         }
       ],
-      "expo-secure-store",
-      [
-        "expo-notifications",
-        {
-          "color": "#000000",
-          "defaultChannel": "default"
-        }
-      ]
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": false,

@@ -60,7 +60,7 @@ export function BottomSheet({
                 accessibilityLabel="Close"
                 className="w-9 h-9 items-center justify-center rounded-full"
               >
-                <Ionicons name="close" size={22} color="#000000" />
+                <Ionicons name="close" size={22} color="#1a1c1e" />
               </Pressable>
             </View>
             {subtitle ? <Text className="text-sm text-muted mb-4">{subtitle}</Text> : null}

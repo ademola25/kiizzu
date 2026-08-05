@@ -1,5 +1,5 @@
 ---
-name: Kizu
+name: Tentzu
 colors:
   surface: '#f9f9fc'
   surface-dim: '#dadadc'
@@ -113,7 +113,7 @@ spacing:
 
 ## Brand & Style
 
-The brand personality for Kizu is centered around nurturing guidance, youthful energy, and effortless reliability. It is designed to evoke a sense of safety and wonder, much like its mascot, Teno—a baby snow leopard characterized by soft features, large expressive eyes, and a small, approachable stature.
+The brand personality for Tentzu is centered around nurturing guidance, youthful energy, and effortless reliability. It is designed to evoke a sense of safety and wonder, much like its mascot, Teno—a baby snow leopard characterized by soft features, large expressive eyes, and a small, approachable stature.
 
 The design style follows a **Modern Minimalism** approach with **Soft Tactile** accents. This means the interface prioritizes clarity and heavy whitespace to ensure ease of use, while using rounded corners and subtle depth to mirror the plush, friendly nature of Teno. The goal is to make the user feel supported by a system that is as intelligent as it is endearing.
 
@@ -121,7 +121,7 @@ Targeting a modern, tech-savvy audience that values both efficiency and personal
 
 ## Colors
 
-The palette is anchored by a **vibrant turquoise blue**, serving as the primary brand color. This color represents clarity, vitality, and the modern spirit of Kizu. It is used strategically for primary actions, progress indicators, and key brand moments.
+The palette is anchored by a **vibrant turquoise blue**, serving as the primary brand color. This color represents clarity, vitality, and the modern spirit of Tentzu. It is used strategically for primary actions, progress indicators, and key brand moments.
 
 The secondary palette utilizes "Snow Leopard" tones—cool slates and soft grays—to provide a sophisticated backdrop that allows the turquoise to pop. The neutral tones are deep and high-contrast to ensure maximum legibility, while the tertiary background colors are kept extremely light and cool-toned to maintain an airy, open feel throughout the application.
 
@@ -129,7 +129,7 @@ The secondary palette utilizes "Snow Leopard" tones—cool slates and soft grays
 
 This design system uses **Plus Jakarta Sans** for headlines to provide a soft, rounded, and welcoming geometric look that complements the mascot's features. Headlines utilize a tighter letter spacing and bold weights to establish a clear hierarchy.
 
-**Be Vietnam Pro** is used for body text and labels. Its contemporary, humanist qualities ensure high readability and a friendly tone for long-form content and data. The typographic scale is generous, prioritizing whitespace between lines to prevent cognitive overload, maintaining the "light and airy" brand promise of Kizu.
+**Be Vietnam Pro** is used for body text and labels. Its contemporary, humanist qualities ensure high readability and a friendly tone for long-form content and data. The typographic scale is generous, prioritizing whitespace between lines to prevent cognitive overload, maintaining the "light and airy" brand promise of Tentzu.
 
 ## Layout & Spacing
 

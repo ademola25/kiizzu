@@ -35,7 +35,10 @@ the Blueprint was never applied. `render.yaml` is at the repo root and ready. St
   verify / password-reset code in the API response so testers can verify without a mail provider.
   **Turn this off (and configure `SENDGRID_API_KEY`) before real users.**
 
-### 2. Android APK build (was in progress)
+### 2. Android APK build — ✅ FINISHED
+- **Download (installable APK):** https://expo.dev/artifacts/eas/Y6bkNM_T2Lv-yuDbNQja4IJJabztYjXCzcaqKDIquNo.apk
+- ⚠️ This APK bakes in `https://tentzu-api.onrender.com/api/v1`. It only works once the Render
+  backend (task 1) is Live at that exact URL. If Render assigns a different URL, rebuild (below).
 - EAS build ID **`8c823140-e711-49c9-aa5f-1baf59d63d85`** (profile `preview`, internal distribution, `apk`).
 - Page: https://expo.dev/accounts/ademola25/projects/ark-mobile/builds/8c823140-e711-49c9-aa5f-1baf59d63d85
 - Check status: `cd ark-mobile && npx --yes eas-cli build:view 8c823140-e711-49c9-aa5f-1baf59d63d85`

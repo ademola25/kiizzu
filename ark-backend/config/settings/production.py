@@ -20,7 +20,16 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 
-if EMAIL_HOST:
+# Django sets no socket timeout on SMTP by default, so an unreachable mail host
+# blocks the worker until gunicorn SIGKILLs it — which took registration down
+# with a 500 the moment EMAIL_HOST pointed somewhere that wouldn't answer.
+# Sending mail must never be able to fail a request that isn't about mail.
+EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
+
+# Only switch to SMTP when a host AND credentials are present. A half-configured
+# SMTP setup is worse than none: it cannot deliver, and it costs EMAIL_TIMEOUT
+# seconds of a worker on every send attempt.
+if EMAIL_HOST and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

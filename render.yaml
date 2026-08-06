@@ -35,8 +35,21 @@ services:
       # mail provider. Set to "false" once SENDGRID_API_KEY is configured.
       - key: EXPOSE_OTP_CODES
         value: "true"
+      # Sender address. Dashboard-managed (sync: false) rather than a literal,
+      # because it MUST match whatever the mail provider has verified — Gmail
+      # SMTP rejects/rewrites any From that isn't the authenticated account.
       - key: DEFAULT_FROM_EMAIL
-        value: "reminders@tentzu.app"
+        sync: false
+      # Email delivery. Set EITHER the SMTP trio (any provider: Gmail app
+      # password, Resend, Mailgun…) OR SENDGRID_API_KEY. With neither set,
+      # production falls back to the console backend and codes reach testers
+      # only via the EXPOSE_OTP_CODES response field.
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
       # Fill these in the Render dashboard when ready (kept out of the repo):
       - key: SENDGRID_API_KEY
         sync: false

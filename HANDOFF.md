@@ -19,6 +19,65 @@ as equal first-class targets.
 
 ---
 
+## 🟠 ACTIVE INVESTIGATION (2026-08-06) — "invisible deep-green nav buttons" bug
+
+**Symptom (user, on real iPhone standalone build):** the deep-green (`#006a6a`) primary/nav
+buttons and green fills render with **no background** — white label text floats on the light
+backdrop, nearly invisible. Happens on **every** onboarding page; user has to guess-tap. The
+"Get started" button on Welcome is the flagship example.
+- User's device screenshot saved in repo: `ark-mobile/screenshots/device-report-welcome-invisible-buttons.jpeg`
+- The web/Playwright screenshots I took earlier showed the teal buttons FINE — so it's a web-vs-native (or stale-build) discrepancy.
+
+**What I found in the CODE (all committed, HEAD):**
+- Onboarding screens use **inline** styles, NOT className: `welcome.tsx` "Get started" =
+  `backgroundColor: tentzu.primary` (`#006a6a`); same for `TentzuButton`, `TentzuScreen` (sticky
+  action bar), `TentzuOption`, `TentzuProgress`. Inline solid `backgroundColor` on a `Pressable`
+  **always paints on native** — there is no RN path where it silently drops. So the current code
+  *should* show teal buttons on a fresh build.
+- `tentzu.primary` in `src/theme/tokens.ts` = `#006a6a` (valid). Not undefined.
+- NativeWind IS correctly wired (babel `nativewind/babel` + preset jsxImportSource, metro
+  `withNativeWind` input `./src/global.css`, `import '@/global.css'` in `src/app/_layout.tsx`,
+  tailwind content `./src/**/*.{js,jsx,ts,tsx}`). So the className-based backgrounds on the
+  `(auth)`/`(tabs)` screens (`bg-paper`, `bg-brand`, `bg-mist`, `bg-wash`) should also render.
+
+**Leading hypothesis:** the user's iPhone has a **STALE standalone build** made BEFORE the
+inline-style rebuild (commit `e6ff51a`), when buttons likely used a NativeWind className that a
+release build didn't compile → transparent pill + white text = exactly this symptom on every page.
+The fix would then be a **rebuild** (fresh iOS build; the Android APK at `c03a435` already has the
+inline styles). **NOT YET CONFIRMED** — must see the current code render on a device/sim first.
+
+**Verification attempt (incomplete):** launched the app in the **iOS Simulator** (iPhone 17 Pro,
+Expo Go, SDK 56) via `npx expo start --ios` (Metro on port **8081**, log `/tmp/expo-ios3.log`).
+Blocked by the Expo Go **dev-menu intro sheet** covering the screen on every launch — couldn't
+dismiss it: no `idb`/`cliclick` initially, AppleScript blocked (no accessibility grant),
+`screencapture` blocked (no screen-recording grant), `cliclick` installed but its synthetic click
+isn't delivered (Terminal lacks Accessibility permission). Behind the sheet the Welcome bg + title
+render on a LIGHT background, but the button is hidden by the sheet — **teal button not yet observed.**
+
+**NEXT STEPS (do these to resolve):**
+1. **Get a clean render of Welcome.** Best: `cd ark-mobile && npx expo run:ios` — builds the REAL
+   native app (no Expo Go dev-menu overlay; boots straight to Welcome; simulator build skips code
+   signing + push entitlement). `ios/` prebuild likely already exists. Then
+   `xcrun simctl io booted screenshot ark-mobile/screenshots/sim-welcome.png` and LOOK at it.
+   (Alt: grant Terminal Accessibility in System Settings → Privacy, then `cliclick` the dev-menu
+   "Continue" — but `run:ios` avoids the dev menu entirely and is a more faithful repro.)
+2. **If the teal button SHOWS in current code** → user's device is a stale build. Rebuild iOS
+   (and reconfirm the Android APK). Tell the user to reinstall. Done — no code changes needed.
+3. **If the teal button is MISSING in current code** → real bug. Inspect: is `TentzuBackground`'s
+   final white scrim (`<Rect ... fill="#ffffff" opacity=0.36>`) or the whole SVG painting OVER
+   content on native? (It's `pointerEvents="none"` + first-in-tree, so it shouldn't — but verify
+   paint order on native.) Check font load (labels are inline-styled with `tentzuFont.*`). Then
+   audit EVERY screen's primary/nav button and convert any fragile className backgrounds to inline
+   token styles.
+4. **Regardless:** the user wants ALL pages audited for nav-button/green-fill visibility. Screens to
+   check: `(onboarding)/{welcome,home,pattern,rent,due-date,reminders,plan,save,verify-email,celebrate}`,
+   `(auth)/{sign-in,email,register,forgot-password}`, `(tabs)/{index,documents,notifications,settings}`.
+
+**Background processes left running (kill on cleanup):** an Expo dev server (nohup, port 8081) and
+a booted iPhone 17 Pro simulator. Screenshots live in `ark-mobile/screenshots/`.
+
+---
+
 ## ✅ CURRENT STATUS (2026-08-05) — deployed & shipped for team testing
 
 Both launch tasks are **DONE and verified**. Nothing is blocking.

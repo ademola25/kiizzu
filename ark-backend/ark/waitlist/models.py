@@ -4,6 +4,11 @@ from django.db import models
 
 
 class WaitlistSignup(models.Model):
+    REFERRAL_CODE_LENGTH = 8
+    # Unambiguous uppercase set — no I/L/O/0/1, since people read these codes off a
+    # screen and type them back in. 31 chars ** 8 ≈ 8.5e11 combinations.
+    REFERRAL_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+
     class Audience(models.TextChoices):
         TENANT = "tenant", "Tenant"
         EXPAT = "expat", "Expat relocating"
@@ -45,8 +50,16 @@ class WaitlistSignup(models.Model):
 
     @classmethod
     def _make_referral_code(cls):
+        # Build from an explicit alphabet so the length is exact. The old version
+        # took token_urlsafe(6) — 8 base64url chars — and stripped "-" and "_" out
+        # of it, which shortened the code whenever either appeared. That happened
+        # 1 - (62/64)**8 ≈ 23% of the time, yielding 6- and 7-character codes and
+        # shrinking the keyspace on a unique column.
         while True:
-            code = secrets.token_urlsafe(6).replace("-", "").replace("_", "")[:8].upper()
+            code = "".join(
+                secrets.choice(cls.REFERRAL_CODE_ALPHABET)
+                for _ in range(cls.REFERRAL_CODE_LENGTH)
+            )
             if not cls.objects.filter(referral_code=code).exists():
                 return code
 

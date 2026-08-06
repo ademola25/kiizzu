@@ -28,6 +28,21 @@ class TestWaitlistSignup:
         assert response.data["founding_member"] is True
         assert len(response.data["referral_code"]) == 8
 
+    def test_referral_code_is_always_exactly_eight_chars(self):
+        """Regression: codes were built by stripping "-"/"_" out of
+        token_urlsafe(6), which shortened them ~23% of the time. A single
+        signup only caught that on roughly one run in four, so generate
+        enough codes that a length bug cannot slip through."""
+        codes = [WaitlistSignup._make_referral_code() for _ in range(200)]
+
+        wrong_length = {c for c in codes if len(c) != WaitlistSignup.REFERRAL_CODE_LENGTH}
+        assert not wrong_length, f"codes with wrong length: {sorted(wrong_length)}"
+
+        allowed = set(WaitlistSignup.REFERRAL_CODE_ALPHABET)
+        assert all(set(c) <= allowed for c in codes)
+        # Ambiguous glyphs must never appear — these get read aloud and retyped.
+        assert not (set("".join(codes)) & set("ILO01"))
+
     def test_duplicate_email_returns_existing_signup(self):
         first = self.client.post(
             "/api/v1/waitlist/",

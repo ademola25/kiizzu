@@ -11,6 +11,16 @@ from .base import env
 # Two supported routes:
 #   1. SENDGRID_API_KEY set  -> emails.py uses the SendGrid HTTP API directly.
 #   2. EMAIL_HOST_* set      -> standard SMTP (Resend, Mailgun, Gmail app password…).
+#
+# ON RENDER, USE ROUTE 1. Outbound SMTP is blocked on this host — measured
+# 2026-08-06 from inside the container:
+#   smtp.gmail.com:587/465/25  -> OSError 101 Network is unreachable
+#   smtp.resend.com:587        -> timeout
+#   api.sendgrid.com:443       -> connected in 0.01s
+#   api.resend.com:443         -> connected in 0.01s
+# So any SMTP provider (Gmail app password included) cannot deliver from here,
+# regardless of credentials. Only HTTPS-API providers work. The EMAIL_HOST_*
+# route is kept for other hosts and local use.
 # With neither configured we use the console backend, which logs the message
 # rather than pretending to deliver it. Codes still reach testers through the
 # EXPOSE_OTP_CODES response field.

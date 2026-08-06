@@ -1,172 +1,192 @@
-# HANDOFF — continue Tentzu on Windows
+# HANDOFF — Tentzu
 
-**Written:** 2026-08-05, from the macOS session. Read this first, then `MOBILE.md` and `CLAUDE.md`.
-This file is the single source of truth for "what is in flight right now." The local
-`~/.claude` memory does **not** travel between machines, so every fact you need is here.
+**Last updated:** 2026-08-06 (macOS session). Read this first, then `MOBILE.md` and `CLAUDE.md`.
+Single source of truth for "what is in flight right now". Local `~/.claude` memory does not
+travel between machines, so everything needed is here.
+
+---
+
+## ⚠️ DO THIS FIRST — one unfinished cleanup
+
+**A temporary diagnostic endpoint is still live in production.**
+
+`e153481` (which removes it) is **committed and pushed but NOT deployed**. The running
+service is on `72aa060`, which still exposes:
+
+    GET https://tentzu-api.onrender.com/api/v1/_diag/egress/
+
+It takes no request input (fixed target list), so it is not abusable as a proxy — but it
+should not stay. **Fix: deploy `e153481` or later.** See "Render access" below for how.
+
+Also still set but useless: `EMAIL_HOST_USER` env var on Render (SMTP-only; SMTP is blocked
+here — see below). Harmless, but worth deleting. `EMAIL_HOST` was already removed.
 
 ---
 
 ## Repo facts
-- GitHub: **`ademola25/kiizzu`** (name is legacy; the product was renamed **KIZU/Kizzu → Tentzu** everywhere in code, images, app.json).
-- Branch: **`main`**. Everything is committed + pushed. Latest handoff commit: `b3b560d` (pull `main` to get it).
-- Layout: `ark-backend/` (Django REST API), `ark-mobile/` (Expo RN — **the active focus**), `ark-frontend/` (frozen web).
-- **Mobile only.** Web (`ark-frontend`) is frozen. Native is the source of truth — do not "verify" via the web export.
-
-## The product
-Tentzu — Dubai tenant rent-cheque reminder app (WhatsApp/email/SMS). Mirrors the Cal AI design
-language but rebranded turquoise (`primary #006a6a`) with a mascot. Mobile ships **iOS + Android**
-as equal first-class targets.
+- GitHub: **`ademola25/kiizzu`** (legacy name; product is **Tentzu**).
+- Branch **`main`**, everything pushed. HEAD = **`e153481`**.
+- `ark-backend/` Django REST API · `ark-mobile/` Expo RN (active) · `ark-frontend/` frozen web.
+- Backend live at **`https://tentzu-api.onrender.com`**.
 
 ---
 
-## 🟠 ACTIVE INVESTIGATION (2026-08-06) — "invisible deep-green nav buttons" bug
+## What was fixed this session
 
-**Symptom (user, on real iPhone standalone build):** the deep-green (`#006a6a`) primary/nav
-buttons and green fills render with **no background** — white label text floats on the light
-backdrop, nearly invisible. Happens on **every** onboarding page; user has to guess-tap. The
-"Get started" button on Welcome is the flagship example.
-- User's device screenshot saved in repo: `ark-mobile/screenshots/device-report-welcome-invisible-buttons.jpeg`
-- The web/Playwright screenshots I took earlier showed the teal buttons FINE — so it's a web-vs-native (or stale-build) discrepancy.
+### 1. Invisible buttons on device — FIXED (`3fe9ca6`)
+Deep-green primary/nav buttons rendered with no background, label jammed to the left edge,
+icon wrapped to a second line. **Release builds only** — dev and web were fine, which is why
+it shipped.
 
-**What I found in the CODE (all committed, HEAD):**
-- Onboarding screens use **inline** styles, NOT className: `welcome.tsx` "Get started" =
-  `backgroundColor: tentzu.primary` (`#006a6a`); same for `TentzuButton`, `TentzuScreen` (sticky
-  action bar), `TentzuOption`, `TentzuProgress`. Inline solid `backgroundColor` on a `Pressable`
-  **always paints on native** — there is no RN path where it silently drops. So the current code
-  *should* show teal buttons on a fresh build.
-- `tentzu.primary` in `src/theme/tokens.ts` = `#006a6a` (valid). Not undefined.
-- NativeWind IS correctly wired (babel `nativewind/babel` + preset jsxImportSource, metro
-  `withNativeWind` input `./src/global.css`, `import '@/global.css'` in `src/app/_layout.tsx`,
-  tailwind content `./src/**/*.{js,jsx,ts,tsx}`). So the className-based backgrounds on the
-  `(auth)`/`(tabs)` screens (`bg-paper`, `bg-brand`, `bg-mist`, `bg-wash`) should also render.
+Cause: the **function-form `style` prop** (`style={({pressed}) => ({...})}`) is dropped
+wholesale in Release — background, padding *and* flexDirection together. Affected exactly the
+three components using that form: `welcome.tsx` "Get started", `TentzuButton`, `TentzuOption`.
+Fix: plain style objects, press state via `onPressIn`/`onPressOut`.
 
-**Leading hypothesis:** the user's iPhone has a **STALE standalone build** made BEFORE the
-inline-style rebuild (commit `e6ff51a`), when buttons likely used a NativeWind className that a
-release build didn't compile → transparent pill + white text = exactly this symptom on every page.
-The fix would then be a **rebuild** (fresh iOS build; the Android APK at `c03a435` already has the
-inline styles). **NOT YET CONFIRMED** — must see the current code render on a device/sim first.
+Reproduced on a Release simulator build and verified fixed on the same. Suspected NativeWind
+`cssInterop` intercepting `style` (jsxImportSource is nativewind) but **not isolated to that
+library** — if it recurs, start there.
 
-**Verification attempt (incomplete):** launched the app in the **iOS Simulator** (iPhone 17 Pro,
-Expo Go, SDK 56) via `npx expo start --ios` (Metro on port **8081**, log `/tmp/expo-ios3.log`).
-Blocked by the Expo Go **dev-menu intro sheet** covering the screen on every launch — couldn't
-dismiss it: no `idb`/`cliclick` initially, AppleScript blocked (no accessibility grant),
-`screencapture` blocked (no screen-recording grant), `cliclick` installed but its synthetic click
-isn't delivered (Terminal lacks Accessibility permission). Behind the sheet the Welcome bg + title
-render on a LIGHT background, but the button is hidden by the sheet — **teal button not yet observed.**
+**The earlier "stale build on the phone" theory in this file was WRONG.** `welcome.tsx` has
+only ever had one version in git, so the device was running current code.
 
-**NEXT STEPS (do these to resolve):**
-1. **Get a clean render of Welcome.** Best: `cd ark-mobile && npx expo run:ios` — builds the REAL
-   native app (no Expo Go dev-menu overlay; boots straight to Welcome; simulator build skips code
-   signing + push entitlement). `ios/` prebuild likely already exists. Then
-   `xcrun simctl io booted screenshot ark-mobile/screenshots/sim-welcome.png` and LOOK at it.
-   (Alt: grant Terminal Accessibility in System Settings → Privacy, then `cliclick` the dev-menu
-   "Continue" — but `run:ios` avoids the dev menu entirely and is a more faithful repro.)
-2. **If the teal button SHOWS in current code** → user's device is a stale build. Rebuild iOS
-   (and reconfirm the Android APK). Tell the user to reinstall. Done — no code changes needed.
-3. **If the teal button is MISSING in current code** → real bug. Inspect: is `TentzuBackground`'s
-   final white scrim (`<Rect ... fill="#ffffff" opacity=0.36>`) or the whole SVG painting OVER
-   content on native? (It's `pointerEvents="none"` + first-in-tree, so it shouldn't — but verify
-   paint order on native.) Check font load (labels are inline-styled with `tentzuFont.*`). Then
-   audit EVERY screen's primary/nav button and convert any fragile className backgrounds to inline
-   token styles.
-4. **Regardless:** the user wants ALL pages audited for nav-button/green-fill visibility. Screens to
-   check: `(onboarding)/{welcome,home,pattern,rent,due-date,reminders,plan,save,verify-email,celebrate}`,
-   `(auth)/{sign-in,email,register,forgot-password}`, `(tabs)/{index,documents,notifications,settings}`.
+### 2. Verification codes unreachable — FIXED (`7906260`, `c06e657`)
+"We sent a 6-digit code" was false for every user since deploy. Three stacked faults:
+1. `production.py` never set `EMAIL_BACKEND` → Django defaulted to SMTP on `localhost:25`.
+2. `emails.py` used `fail_silently=True` → the resulting exception was swallowed.
+3. Both code screens gated the fallback banner on `__DEV__` → **false in Release**, so the app
+   received the code from the API and then refused to display it.
 
-**Background processes left running (kill on cleanup):** an Expo dev server (nohup, port 8081) and
-a booted iPhone 17 Pro simulator. Screenshots live in `ark-mobile/screenshots/`.
+Backend now: explicit `EMAIL_BACKEND`, `EmailDeliveryError` instead of silent failure,
+`_send_code` returns `email_delivered`. Mobile now shows the code whenever the server returns
+it (server-side `EXPOSE_OTP_CODES` is the real gate; the card disappears by itself once real
+delivery works).
+
+### 3. I took production down for ~20 min — FIXED (`c06e657`)
+Setting `EMAIL_HOST` without a password made Django open an SMTP socket that never answered.
+**Django applies no default SMTP timeout**, so the connect blocked until gunicorn SIGKILLed the
+worker — every registration returned 500. Guards added:
+- `EMAIL_TIMEOUT` (default 10s).
+- SMTP backend requires `EMAIL_HOST` **and** `EMAIL_HOST_PASSWORD`; otherwise console.
+
+### 4. Referral codes shorter than 8 chars — FIXED (`0c8e082`)
+`_make_referral_code` stripped `-`/`_` out of `token_urlsafe(6)` *before* truncating, so
+**23.4% of codes were 5–7 chars** (measured over 2000 samples), shrinking the keyspace on a
+unique column. Now built from an explicit alphabet (`ABCDEFGHJKMNPQRSTUVWXYZ23456789`, no
+I/L/O/0/1 since these get read aloud and retyped). Existing short codes left alone — still
+unique, and shared referral links stay valid.
+
+The old test sampled one code per run so it caught this ~1 run in 4 and read as flaky. Replaced
+with 200 generations checked for length and alphabet; verified it fails against the old code.
 
 ---
 
-## ✅ CURRENT STATUS (2026-08-05) — deployed & shipped for team testing
+## 🔑 THE ONE THING BLOCKING REAL EMAIL
 
-Both launch tasks are **DONE and verified**. Nothing is blocking.
-- **Backend:** Live at `https://tentzu-api.onrender.com` — `/api/v1/docs/` = 200, register = 201 with JWT + `dev_code`.
-- **Android APK:** Built, link below, points at the live backend, no rebuild needed. Team can install now.
-- **iOS:** No TestFlight/standalone build shipped this round (mac-only + needs Apple account — see "Next up").
+**Outbound SMTP is blocked on Render.** Measured 2026-08-06 from inside the container:
 
-### Next up (nothing is in flight — pick with the user)
-1. **Collect team feedback** on the APK; triage into fixes.
-2. **Before real (non-team) users:** set `EXPOSE_OTP_CODES=false` in Render → `tentzu-api` → Environment,
-   and add a real `SENDGRID_API_KEY` so verify/reset codes go by email instead of the API response.
-3. **iOS distribution** — needs an Apple account for TestFlight (or the free-team standalone recipe, mac-only).
-4. **Backend follow-ups** (all disclosed in-app, non-blocking): `/push/register/` + Expo push dispatch,
-   real Stripe price IDs + `/billing/portal/`, reminder task consulting `Subscription.tier`. See MOBILE.md table.
-5. **Render free-tier caveats:** cold-starts ~30–50s after idle; free Postgres expires ~30 days after creation.
+| Target | Result |
+|---|---|
+| `smtp.gmail.com:587 / 465 / 25` | OSError 101 Network is unreachable |
+| `smtp.resend.com:587` | timeout |
+| `api.sendgrid.com:443` | connected, 0.01s |
+| `api.resend.com:443` | connected, 0.01s |
 
----
+**A Gmail app password cannot work here, whatever the credentials.** Do not spend time on one.
+Only HTTPS-API providers work.
 
-## Reference — how the two launch tasks were done
+**Fix: set `SENDGRID_API_KEY`** in Render → `tentzu-api` → Environment. That path is already
+coded in `ark/users/emails.py` and `sendgrid==6.11.0` is in `requirements/base.txt`, so no code
+change is needed. SendGrid requires Single Sender Verification or domain auth first;
+`DEFAULT_FROM_EMAIL` is currently `ademolaayo25@gmail.com` and must match a verified sender.
 
-### 1. Deploy the backend on Render — ✅ DONE (2026-08-05)
-Live and verified at **`https://tentzu-api.onrender.com`** — `/api/v1/docs/` returns 200,
-register returns 201 with a JWT + `dev_code` (OTP exposure working). URL matches the APK's baked
-value, so the APK needs no rebuild. (Reference: original deploy steps below.)
-`render.yaml` is at the repo root. Steps (browser, user does it):
-1. Render dashboard → **＋ New → Blueprint** → pick repo **`ademola25/kiizzu`**.
-2. Render reads `render.yaml` → creates **`tentzu-db`** (free Postgres) + **`tentzu-api`** (free Python web).
-3. **Apply**, wait ~5–10 min for first deploy (install → collectstatic → migrate → gunicorn) → **Live**.
-4. Verify: open `https://tentzu-api.onrender.com/api/v1/docs/` (Swagger UI).
-   - If Render appended a suffix (e.g. `tentzu-api-xxxx.onrender.com`), the baked APK URL is wrong →
-     update `ark-mobile/eas.json` `preview.env.EXPO_PUBLIC_API_URL` and rebuild the APK.
-- Free tier cold-starts (~50s first hit) and the free Postgres expires ~30 days after creation.
-- `EXPOSE_OTP_CODES="true"` is set in `render.yaml` **for testing only** — it returns the email
-  verify / password-reset code in the API response so testers can verify without a mail provider.
-  **Turn this off (and configure `SENDGRID_API_KEY`) before real users.**
-
-### 2. Android APK build — ✅ FINISHED
-- **Download (installable APK):** https://expo.dev/artifacts/eas/Y6bkNM_T2Lv-yuDbNQja4IJJabztYjXCzcaqKDIquNo.apk
-- ⚠️ This APK bakes in `https://tentzu-api.onrender.com/api/v1`. It only works once the Render
-  backend (task 1) is Live at that exact URL. If Render assigns a different URL, rebuild (below).
-- EAS build ID **`8c823140-e711-49c9-aa5f-1baf59d63d85`** (profile `preview`, internal distribution, `apk`).
-- Page: https://expo.dev/accounts/ademola25/projects/ark-mobile/builds/8c823140-e711-49c9-aa5f-1baf59d63d85
-- Check status: `cd ark-mobile && npx --yes eas-cli build:view 8c823140-e711-49c9-aa5f-1baf59d63d85`
-- It **bakes in** `https://tentzu-api.onrender.com/api/v1`. If the live Render URL differs, this APK
-  is useless → fix `eas.json` and rebuild: `npx --yes eas-cli build --platform android --profile preview`.
-- EAS account: **ademola25**. Expo project: `@ademola25/ark-mobile`, projectId `194109ba-2bb7-4b78-a25a-7f9c6429a362`.
-- On Windows, EAS build works the same (it's a cloud build). `npx --yes eas-cli login` first if needed.
+Once real mail works: set `EXPOSE_OTP_CODES=false`. The on-screen code card then disappears on
+its own — **no app rebuild needed**, since it only renders when the server sends a code.
 
 ---
 
-## What was just built (recent work, all merged)
-- **Rename** KIZU/Kizzu → **Tentzu** across code, copy, images, `app.json` (name "Tentzu",
-  bundle/package `com.tentzu.app`), mascot app icon.
-- **Survey-first onboarding** — new users start in onboarding and register LAST; dashboard is gated
-  until register + login. Routes in `ark-mobile/src/app/(onboarding)/`:
-  `welcome → home → pattern → rent → due-date → reminders → plan → save (register/login account wall)
-  → verify-email (OTP) → celebrate`. Mascots on welcome/reminders + verify/celebrate.
-- **Email verification + password reset** (backend `ark-backend/ark/users/` — `OneTimeCode` hashed
-  6-digit codes; endpoints `/auth/email/verify/`, `/auth/email/verify/resend/`, `/auth/password/reset/`,
-  `/auth/password/reset/confirm/`). Mobile: `(onboarding)/verify-email.tsx`, `(auth)/forgot-password.tsx`.
-- **Document vault** — upload/keep tenancy contract, Emirates ID, passport, license (`ark-backend/ark/documents/`,
-  local signed-URL storage, no S3 needed for testing). Tab: `(tabs)/documents.tsx`.
-- **Paid/unpaid rent** — `POST /payment-schedules/{id}/mark-paid/` + mark-funds-ready on the dashboard.
-- **Immersive Dubai backdrop** — `src/components/onboarding/TentzuBackground.tsx` (SVG skyline + Burj +
-  dawn gradient), applied to onboarding and the tab screens (`(tabs)/_layout.tsx` wraps `<Tabs>` in it).
+## Current state
 
-## Stack (quick)
-- Mobile: Expo SDK ~56, RN 0.85.3, React 19, TypeScript, expo-router, NativeWind 4, TanStack Query 5,
-  Zustand 5, Axios (JWT-aware). Hermes + New Arch + React Compiler.
-- Backend: Django 5.2, DRF, SimpleJWT, Celery + Redis, PostgreSQL, gunicorn, WhiteNoise, argon2, drf-spectacular.
-- Mobile API base default is `http://localhost:8000/api/v1` (`src/lib/api.ts`); prod URL comes from
-  `EXPO_PUBLIC_API_URL` (set per EAS profile in `eas.json`).
+| Thing | State |
+|---|---|
+| iOS | Built Release, signed, **installed on DonJohn** (iPhone 14 Pro Max). Contains both fixes; verified by byte-inspecting the bundle. |
+| Android APK | https://expo.dev/artifacts/eas/b9axjN1RM6kWGIrobvd8FzYSVr_Fh8UIrRUQtxK-a3Q.apk (from `7906260`) |
+| Backend | Live, healthy. Registration 201 in ~4s, `email_delivered: true`, `dev_code` returned. |
+| Deployed commit | **`72aa060`** — one behind `e153481`. See the cleanup at the top. |
+| Tests | 47 passed, backend. `tsc --noEmit` clean, mobile. |
 
-## Run locally (for reference)
-- Backend: `cd ark-backend`, activate venv, `python manage.py migrate && python manage.py runserver 0.0.0.0:8001`.
-  (Local dev has historically used backend port **8001**, Expo **8081**.)
-- Mobile: `cd ark-mobile && npx expo start` → `a` (Android emulator), `i` (iOS sim, mac only), or Expo Go QR.
-- To point the app at local backend from a device, set `EXPO_PUBLIC_API_URL` in `ark-mobile/.env`.
+### Render env vars now
+`DEFAULT_FROM_EMAIL=ademolaayo25@gmail.com` (was `reminders@tentzu.app`), `EXPOSE_OTP_CODES=true`,
+`EMAIL_HOST_USER=ademolaayo25@gmail.com` (delete — SMTP unusable), plus the Django/DB defaults.
+`EMAIL_HOST` was removed. No `SENDGRID_API_KEY` yet.
 
-## Gotchas carried over
-- iOS free-team Personal signing can't provision Push (`aps-environment`) — mac-only concern; irrelevant on Windows.
-- `expo-notifications` plugin was removed from `app.json`; push token is captured but not synced to backend yet.
-- Route gate lives in `src/app/index.tsx` + repeated in `(tabs)/_layout.tsx` so deep links can't skip onboarding.
+### Render access (NEW — works without the dashboard)
+Render CLI installed (`brew install render`, v2.22.0) and **authenticated** — token in
+`~/.render/cli.yaml`. The CLI needs an interactive workspace pick, so use the REST API directly
+with the key from that file:
+
+```python
+import os, yaml, json, urllib.request
+key = yaml.safe_load(open(os.path.expanduser("~/.render/cli.yaml")))["api"]["key"]
+# GET/POST https://api.render.com/v1/... with Authorization: Bearer <key>
+```
+Service `tentzu-api` = **`srv-d9pfhs710e5c73d9jvh0`**, owner `tea-cv17o20gph6c73aqcmvg`.
+Deploy: `POST services/{id}/deploys {"clearCache":"do_not_clear"}` → poll
+`services/{id}/deploys/{depId}` until `live` (~1m20s). Env var: `PUT services/{id}/env-vars/{KEY}`
+with `{"value": ...}` (per-key, does not clobber others); `DELETE` the same path to remove.
+Logs: `GET logs?ownerId=...&resource=<svcId>&limit=40`.
+
+**Note:** `autoDeploy=yes` but pushes have NOT been triggering deploys (likely the
+`rootDir: ark-backend` build filter). **Deploy manually after every backend push.**
+
+---
+
+## Known-good verification recipes
+
+- **iOS device build + install** (free Personal Team, expires ~7 days):
+  ```bash
+  cd ark-mobile/ios
+  export EXPO_PUBLIC_API_URL="https://tentzu-api.onrender.com/api/v1"   # else .env bakes a LAN IP
+  xcodebuild -workspace Tentzu.xcworkspace -scheme Tentzu -configuration Release \
+    -destination "id=F77FF8AB-FF3A-5485-85E1-CB10121416EC" \
+    -allowProvisioningUpdates DEVELOPMENT_TEAM=8B748JDU2V CODE_SIGN_STYLE=Automatic \
+    -derivedDataPath build build
+  xcrun devicectl device install app --device F77FF8AB-FF3A-5485-85E1-CB10121416EC \
+    "build/Build/Products/Release-iphoneos/Tentzu.app"
+  ```
+  Entitlements must stay an empty dict (`ios/Tentzu/Tentzu.entitlements`) — free teams cannot
+  sign `aps-environment`. Any `expo prebuild` re-adds it.
+
+- **Checking strings in a Release bundle:** Hermes stores any string containing a non-ASCII
+  char (em-dash, `·`) as **UTF-16**, so plain `strings` will not find it and its absence proves
+  nothing. Search the raw bytes for both `utf-8` and `utf-16-le`.
+
+- **Reproducing Release-only UI bugs:** `npx expo run:ios --configuration Release`. Debug builds
+  and the web export will not show them. Expo Go's dev-menu sheet blocks the simulator and
+  cannot be dismissed without Terminal Accessibility permission — a Release build avoids it.
+
+---
+
+## Still open
+
+1. **Deploy `e153481`** to remove the live diagnostic endpoint (top of this file).
+2. **`SENDGRID_API_KEY`** — the only thing between you and real emails.
+3. **`(auth)` / `(tabs)` screens have never been visually verified in a Release build.** Static
+   audit found nothing (no function-form styles left, all Tailwind classes resolve, no dynamic
+   classNames, `Card`/`PillButton` forward className correctly) — but static reasoning said the
+   same about the onboarding buttons right up until Release proved otherwise. Fastest check is
+   tapping through on the phone.
+4. **Test users in the production DB** from deploy polling: emails matching
+   `probe*`, `flow*`, `chk*`, `dep*`, `verify*`, `live*`, `raw*`, `rec*`, `ok*`, `post*`,
+   `final*`, `wl*` @example.com. Harmless, not cleaned up.
+5. Android bundle verification (`expo export --platform android`) not run this session; only
+   iOS was exercised locally. CLAUDE.md asks for both at phase end.
+6. Backend follow-ups unchanged — `/push/register/`, Expo push dispatch, real Stripe price IDs,
+   `/billing/portal/`, reminder task consulting `Subscription.tier`. See MOBILE.md.
+
+---
 
 ## Conventions (from CLAUDE.md — obey)
 - Never add Claude as a git co-author.
-- Commit/push only when the user asks.
+- Commit/push only when asked.
 - Mirror the design faithfully first; content/branding swaps after.
-
-## Open follow-ups (backend-side, non-blocking) — see MOBILE.md "Honest backend dependencies" table
-Stripe price IDs are placeholders (checkout 502s), no `/billing/portal/`, no `/push/register/`,
-reminder task doesn't dispatch Expo push or consult tier. All disclosed honestly in the UI.

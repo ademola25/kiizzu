@@ -114,10 +114,32 @@ export default function ForgotPasswordScreen() {
         autoComplete="password-new"
       />
 
-      {__DEV__ && devCode ? (
-        <Text style={{ fontFamily: tentzuFont.body, fontSize: 12, color: tentzu.mutedInk, textAlign: 'center' }}>
-          Dev build · your code is {devCode}
-        </Text>
+      {/* Not gated on __DEV__ — see the note in (onboarding)/verify-email.tsx. */}
+      {devCode ? (
+        <View
+          style={{
+            marginTop: 4,
+            backgroundColor: tentzu.tintSurface,
+            borderRadius: 14,
+            borderWidth: 1.5,
+            borderColor: tentzu.primary,
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: 12, color: tentzu.inkVariant, textAlign: 'center' }}>
+            Testing mode — email delivery isn&apos;t configured yet, so your code is:
+          </Text>
+          <Text
+            style={{ fontFamily: tentzuFont.headlineBold, fontSize: 26, letterSpacing: 4, color: tentzu.primary }}
+            accessibilityLabel={`Your reset code is ${devCode.split('').join(' ')}`}
+            selectable
+          >
+            {devCode}
+          </Text>
+        </View>
       ) : null}
     </TentzuScreen>
   );

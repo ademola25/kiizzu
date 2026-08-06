@@ -13,6 +13,15 @@ from .models import OneTimeCode
 
 logger = logging.getLogger(__name__)
 
+
+class EmailDeliveryError(Exception):
+    """Raised when a code email could not be delivered.
+
+    Callers must decide how to respond — the important thing is that they cannot
+    mistake a failed send for a successful one, which is what fail_silently=True
+    allowed for every send before this existed.
+    """
+
 _COPY = {
     OneTimeCode.Purpose.VERIFY_EMAIL: {
         "subject": "Your Tentzu verification code",
@@ -52,10 +61,25 @@ def send_code_email(to_email: str, code: str, purpose: str) -> None:
         except Exception as e:  # pragma: no cover - network path
             logger.error(f"SendGrid auth email failed, falling back to backend: {e}")
 
-    send_mail(
-        subject=copy["subject"],
-        message=body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[to_email],
-        fail_silently=True,
-    )
+    # fail_silently=False so a broken transport is visible in the logs. It used to
+    # be True, which meant every failed send looked identical to a successful one —
+    # the API kept reporting "we've sent a code" while nothing was ever delivered.
+    # The caller decides what to do with the failure; it must not surface a success
+    # message for a send that did not happen.
+    try:
+        send_mail(
+            subject=copy["subject"],
+            message=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[to_email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.error(
+            "Auth email delivery FAILED for purpose=%s via backend=%s: %s. "
+            "Configure SENDGRID_API_KEY or EMAIL_HOST_* to enable real delivery.",
+            purpose,
+            settings.EMAIL_BACKEND,
+            e,
+        )
+        raise EmailDeliveryError(str(e)) from e

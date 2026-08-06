@@ -99,12 +99,37 @@ export default function VerifyEmailScreen() {
         </Pressable>
       </View>
 
-      {__DEV__ && devCode ? (
-        <Text
-          style={{ fontFamily: tentzuFont.body, fontSize: 12, color: tentzu.mutedInk, marginTop: 18, textAlign: 'center' }}
+      {/* The server only returns a code when EXPOSE_OTP_CODES is on (test builds).
+          Do NOT gate this on __DEV__ — release builds set it to false, which hid the
+          code on-device and left testers with no way to verify at all. The gate that
+          matters is server-side, and this block disappears on its own once real email
+          delivery is configured. */}
+      {devCode ? (
+        <View
+          style={{
+            marginTop: 18,
+            marginHorizontal: 4,
+            backgroundColor: tentzu.tintSurface,
+            borderRadius: 14,
+            borderWidth: 1.5,
+            borderColor: tentzu.primary,
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            alignItems: 'center',
+            gap: 4,
+          }}
         >
-          Dev build · your code is {devCode}
-        </Text>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: 12, color: tentzu.inkVariant, textAlign: 'center' }}>
+            Testing mode — email delivery isn&apos;t configured yet, so your code is:
+          </Text>
+          <Text
+            style={{ fontFamily: tentzuFont.headlineBold, fontSize: 26, letterSpacing: 4, color: tentzu.primary }}
+            accessibilityLabel={`Your verification code is ${devCode.split('').join(' ')}`}
+            selectable
+          >
+            {devCode}
+          </Text>
+        </View>
       ) : null}
     </TentzuScreen>
   );

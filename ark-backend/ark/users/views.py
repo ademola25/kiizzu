@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from ark.billing.models import Subscription
-from .emails import send_code_email
+from .emails import EmailDeliveryError, send_code_email
 from .models import OneTimeCode
 from .serializers import (
     CodeSerializer,
@@ -21,12 +21,28 @@ User = get_user_model()
 
 
 def _send_code(user, purpose) -> dict:
-    """Issue + email a one-time code. In DEBUG we also echo it in the response
-    so on-device testing doesn't require reading the mail server console."""
+    """Issue + email a one-time code.
+
+    A delivery failure must not fail the surrounding request — the account and the
+    code are both valid, and the user can retry via resend. But it must not be
+    reported as a success either, so we return `email_delivered` and let the client
+    word its copy honestly.
+
+    When EXPOSE_OTP_CODES (or DEBUG) is on we also echo the code so on-device
+    testing works without a mail provider.
+    """
     code = OneTimeCode.issue(user, purpose)
-    send_code_email(user.email, code, purpose)
-    expose = settings.DEBUG or getattr(settings, "EXPOSE_OTP_CODES", False)
-    return {"dev_code": code} if expose else {}
+
+    delivered = True
+    try:
+        send_code_email(user.email, code, purpose)
+    except EmailDeliveryError:
+        delivered = False  # already logged with the failing backend in emails.py
+
+    payload = {"email_delivered": delivered}
+    if settings.DEBUG or getattr(settings, "EXPOSE_OTP_CODES", False):
+        payload["dev_code"] = code
+    return payload
 
 
 class RegisterView(generics.CreateAPIView):

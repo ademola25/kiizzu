@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +15,8 @@ const MASCOT = require('../../../assets/images/mascot-assistant.png');
 // a clean background so it stays perfectly legible.
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+  // Plain style object, never a function — see the note in TentzuButton.
+  const [pressed, setPressed] = useState(false);
 
   return (
     <View style={{ flex: 1, backgroundColor: tentzu.bg, paddingTop: insets.top }}>
@@ -70,8 +73,10 @@ export default function WelcomeScreen() {
       <View style={{ paddingHorizontal: 24, paddingTop: 14, paddingBottom: insets.bottom + 12 }}>
         <Pressable
           onPress={() => router.push('/(onboarding)/home')}
+          onPressIn={() => setPressed(true)}
+          onPressOut={() => setPressed(false)}
           accessibilityRole="button"
-          style={({ pressed }) => ({
+          style={{
             backgroundColor: tentzu.primary,
             borderRadius: 18,
             paddingVertical: 18,
@@ -85,7 +90,7 @@ export default function WelcomeScreen() {
             shadowRadius: 16,
             shadowOffset: { width: 0, height: 8 },
             elevation: 4,
-          })}
+          }}
         >
           <Text style={{ fontFamily: tentzuFont.headlineBold, fontSize: 18, color: '#ffffff' }}>
             Get started

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { tentzu, tentzuFont } from '@/theme/tokens';
@@ -12,12 +13,17 @@ type Props = {
 
 // Selectable card. Turquoise fill + border + check bubble when selected.
 export function TentzuOption({ title, subtitle, selected, onPress, icon }: Props) {
+  // Plain style object, never a function — see the note in TentzuButton.
+  const [pressed, setPressed] = useState(false);
+
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
       accessibilityRole="radio"
       accessibilityState={{ selected: !!selected }}
-      style={({ pressed }) => ({
+      style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
@@ -33,7 +39,7 @@ export function TentzuOption({ title, subtitle, selected, onPress, icon }: Props
         shadowRadius: 12,
         shadowOffset: { width: 0, height: 6 },
         elevation: selected ? 2 : 1,
-      })}
+      }}
     >
       {icon ? (
         <View

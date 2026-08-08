@@ -6,26 +6,21 @@ travel between machines, so everything needed is here.
 
 ---
 
-## ⚠️ DO THIS FIRST — one unfinished cleanup
+## ✅ Nothing is half-done
 
-**A temporary diagnostic endpoint is still live in production.**
+The temporary egress diagnostic has been removed and deployed — `/api/v1/_diag/egress/`
+returns 404. **Production runs `d8afcfd`, matching `origin/main`.** Verified after deploy:
+register 201 (~4.4s), `/api/v1/docs/` 200.
 
-`e153481` (which removes it) is **committed and pushed but NOT deployed**. The running
-service is on `72aa060`, which still exposes:
-
-    GET https://tentzu-api.onrender.com/api/v1/_diag/egress/
-
-It takes no request input (fixed target list), so it is not abusable as a proxy — but it
-should not stay. **Fix: deploy `e153481` or later.** See "Render access" below for how.
-
-Also still set but useless: `EMAIL_HOST_USER` env var on Render (SMTP-only; SMTP is blocked
-here — see below). Harmless, but worth deleting. `EMAIL_HOST` was already removed.
+Minor leftover, harmless: the `EMAIL_HOST_USER` env var is still set on Render. It is
+SMTP-only and SMTP is blocked on this host (see below), so it does nothing. Delete it
+whenever convenient.
 
 ---
 
 ## Repo facts
 - GitHub: **`ademola25/kiizzu`** (legacy name; product is **Tentzu**).
-- Branch **`main`**, everything pushed. HEAD = **`e153481`**.
+- Branch **`main`**, everything pushed. HEAD = **`d8afcfd`** (also what production runs).
 - `ark-backend/` Django REST API · `ark-mobile/` Expo RN (active) · `ark-frontend/` frozen web.
 - Backend live at **`https://tentzu-api.onrender.com`**.
 
@@ -112,7 +107,7 @@ its own — **no app rebuild needed**, since it only renders when the server sen
 | iOS | Built Release, signed, **installed on DonJohn** (iPhone 14 Pro Max). Contains both fixes; verified by byte-inspecting the bundle. |
 | Android APK | https://expo.dev/artifacts/eas/b9axjN1RM6kWGIrobvd8FzYSVr_Fh8UIrRUQtxK-a3Q.apk (from `7906260`) |
 | Backend | Live, healthy. Registration 201 in ~4s, `email_delivered: true`, `dev_code` returned. |
-| Deployed commit | **`72aa060`** — one behind `e153481`. See the cleanup at the top. |
+| Deployed commit | **`d8afcfd`** — matches `origin/main`, no drift. |
 | Tests | 47 passed, backend. `tsc --noEmit` clean, mobile. |
 
 ### Render env vars now
@@ -169,19 +164,18 @@ Logs: `GET logs?ownerId=...&resource=<svcId>&limit=40`.
 
 ## Still open
 
-1. **Deploy `e153481`** to remove the live diagnostic endpoint (top of this file).
-2. **`SENDGRID_API_KEY`** — the only thing between you and real emails.
-3. **`(auth)` / `(tabs)` screens have never been visually verified in a Release build.** Static
+1. **`SENDGRID_API_KEY`** — the only thing between you and real emails.
+2. **`(auth)` / `(tabs)` screens have never been visually verified in a Release build.** Static
    audit found nothing (no function-form styles left, all Tailwind classes resolve, no dynamic
    classNames, `Card`/`PillButton` forward className correctly) — but static reasoning said the
    same about the onboarding buttons right up until Release proved otherwise. Fastest check is
    tapping through on the phone.
-4. **Test users in the production DB** from deploy polling: emails matching
+3. **Test users in the production DB** from deploy polling: emails matching
    `probe*`, `flow*`, `chk*`, `dep*`, `verify*`, `live*`, `raw*`, `rec*`, `ok*`, `post*`,
    `final*`, `wl*` @example.com. Harmless, not cleaned up.
-5. Android bundle verification (`expo export --platform android`) not run this session; only
+4. Android bundle verification (`expo export --platform android`) not run this session; only
    iOS was exercised locally. CLAUDE.md asks for both at phase end.
-6. Backend follow-ups unchanged — `/push/register/`, Expo push dispatch, real Stripe price IDs,
+5. Backend follow-ups unchanged — `/push/register/`, Expo push dispatch, real Stripe price IDs,
    `/billing/portal/`, reminder task consulting `Subscription.tier`. See MOBILE.md.
 
 ---

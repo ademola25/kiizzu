@@ -20,7 +20,9 @@ whenever convenient.
 
 ## Repo facts
 - GitHub: **`ademola25/kiizzu`** (legacy name; product is **Tentzu**).
-- Branch **`main`**, everything pushed. HEAD = **`d8afcfd`** (also what production runs).
+- Branch **`main`**, everything pushed. Production runs **`d8afcfd`**; any commits after it on
+  `main` are documentation only, so a gap between HEAD and the deployed commit is expected and
+  is not drift. Check with `git log --oneline d8afcfd..HEAD`.
 - `ark-backend/` Django REST API · `ark-mobile/` Expo RN (active) · `ark-frontend/` frozen web.
 - Backend live at **`https://tentzu-api.onrender.com`**.
 

@@ -1,6 +1,6 @@
 # HANDOFF — Tentzu
 
-**Last updated:** 2026-08-06 (macOS session). Read this first, then `MOBILE.md` and `CLAUDE.md`.
+**Last updated:** 2026-08-08 (macOS session). Read this first, then `MOBILE.md` and `CLAUDE.md`.
 Single source of truth for "what is in flight right now". Local `~/.claude` memory does not
 travel between machines, so everything needed is here.
 
@@ -134,6 +134,45 @@ Logs: `GET logs?ownerId=...&resource=<svcId>&limit=40`.
 **Note:** `autoDeploy=yes` but pushes have NOT been triggering deploys (likely the
 `rootDir: ark-backend` build filter). **Deploy manually after every backend push.**
 
+### Production database access
+Render's free tier has no shell, but the Postgres instance is reachable externally.
+Instance `tentzu-db` = **`dpg-d9pffan10e5c73d9d7l0-a`**. Fetch a connection string with
+`GET postgres/{id}/connection-info` → `externalConnectionString`, then either use `psycopg`
+directly or point Django at it:
+
+```bash
+export DATABASE_URL="<externalConnectionString>"
+export DJANGO_SETTINGS_MODULE=config.settings.production
+export DJANGO_SECRET_KEY=throwaway DJANGO_ALLOWED_HOSTS="*"
+# then django.setup() and use the ORM
+```
+Prefer the **ORM over raw SQL** for deletes so each model's `on_delete` is honoured —
+raw SQL will trip foreign keys or silently leave children behind. Wipe the connection
+string from disk afterwards; it contains the DB password.
+
+### DB state (cleaned 2026-08-08)
+The throwaway accounts created by deploy-polling were removed: **146 rows** —
+36 `users.User`, 36 `billing.Subscription`, 37 `users.OneTimeCode`,
+37 `token_blacklist.OutstandingToken`. Users went **37 → 1**.
+
+Scoped on `email LIKE '%@example.com'` (RFC 2606 reserved domain — cannot be a real
+person), *not* on the `probe*`/`dep*`/`flow*` prefixes, which could collide with a genuine
+signup. Guarded by assertions that abort if any non-test address, the real account, or any
+staff/superuser lands in scope. Verified afterwards: zero orphans in every child table, no
+leases/documents/payments/reminders were ever attached, `/api/v1/docs/` 200, login 401 on a
+bad password.
+
+**The only remaining user is `ademolaayo25@gmail.com` (id=2)** — currently
+`email_verified=False`, `onboarding_complete=False`. To use it for real testing, run through
+verification; the code shows on-screen while `EXPOSE_OTP_CODES=true`.
+
+The 3 `waitlist_waitlistsignup` rows are the referral-code fix verification and were kept.
+
+Gotcha for next time: SimpleJWT's `OutstandingToken.user` is `on_delete=SET_NULL`, so
+deleting a user leaves the token row behind with a NULL user rather than cascading. Those
+rows are inert but accumulate — flush with
+`OutstandingToken.objects.filter(user__isnull=True).delete()`.
+
 ---
 
 ## Known-good verification recipes
@@ -170,12 +209,9 @@ Logs: `GET logs?ownerId=...&resource=<svcId>&limit=40`.
    classNames, `Card`/`PillButton` forward className correctly) — but static reasoning said the
    same about the onboarding buttons right up until Release proved otherwise. Fastest check is
    tapping through on the phone.
-3. **Test users in the production DB** from deploy polling: emails matching
-   `probe*`, `flow*`, `chk*`, `dep*`, `verify*`, `live*`, `raw*`, `rec*`, `ok*`, `post*`,
-   `final*`, `wl*` @example.com. Harmless, not cleaned up.
-4. Android bundle verification (`expo export --platform android`) not run this session; only
+3. Android bundle verification (`expo export --platform android`) not run this session; only
    iOS was exercised locally. CLAUDE.md asks for both at phase end.
-5. Backend follow-ups unchanged — `/push/register/`, Expo push dispatch, real Stripe price IDs,
+4. Backend follow-ups unchanged — `/push/register/`, Expo push dispatch, real Stripe price IDs,
    `/billing/portal/`, reminder task consulting `Subscription.tier`. See MOBILE.md.
 
 ---

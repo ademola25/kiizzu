@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 
 import { api } from '@/lib/api';
+import { currencyForCountry, deviceTimezone } from '@/lib/countries';
 import { useAuth } from '@/store/auth';
 import { composeAddress, useOnboarding } from '@/store/onboarding';
 
@@ -21,10 +22,19 @@ export async function finishOnboarding(): Promise<void> {
   }
 
   const draft = useOnboarding.getState().draft;
-  await auth.updateProfile({ whatsapp_opted_in: draft.whatsapp_opted_in });
+  // Send the device timezone alongside the WhatsApp preference: reminder
+  // windows are computed in the tenant's own local day server-side, and the
+  // default (Asia/Dubai) is wrong for everyone outside the Gulf.
+  await auth.updateProfile({
+    whatsapp_opted_in: draft.whatsapp_opted_in,
+    timezone: deviceTimezone(),
+  });
   await api.post('/leases/create/', {
     building_name: draft.building_name.trim(),
     area: draft.area.trim(),
+    city: draft.city.trim(),
+    country: draft.country,
+    currency: currencyForCountry(draft.country),
     unit_number: draft.unit_number.trim(),
     address: composeAddress(draft),
     cheque_pattern: draft.cheque_pattern,

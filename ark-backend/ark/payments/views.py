@@ -18,7 +18,9 @@ class PaymentScheduleListView(generics.ListAPIView):
         qs.filter(due_date__lt=today, status=PaymentSchedule.Status.PENDING).update(
             status=PaymentSchedule.Status.COMPLETED
         )
-        return qs
+        # select_related because the serializer now reads lease.currency —
+        # without it this is one extra query per cheque in the list.
+        return qs.select_related("lease")
 
 
 class PaymentMarkReadyView(APIView):

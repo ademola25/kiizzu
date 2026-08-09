@@ -9,10 +9,29 @@ from django.db import models
 from django.utils import timezone
 
 
-def validate_uae_phone(value):
-    """Validate UAE phone number format: +971XXXXXXXXX (9 digits after +971)."""
-    if not re.match(r"^\+971\d{9}$", value):
-        raise ValidationError("Phone must be in format +971XXXXXXXXX (9 digits after +971).")
+def validate_international_phone(value):
+    """Validate an E.164 international phone number: +<country code><number>.
+
+    E.164 allows at most 15 digits in total and the first digit of a country
+    code is never 0, which is what the pattern below encodes. We deliberately
+    do NOT validate per-country number lengths: those rules change, vary by
+    carrier, and getting them wrong locks real users out of signing up. The
+    delivery provider is the authority on whether a number is reachable.
+
+    Replaces the old UAE-only +971XXXXXXXXX rule — Tentzu is no longer
+    Dubai-only, and that pattern rejected every non-UAE tenant.
+    """
+    if not re.match(r"^\+[1-9]\d{7,14}$", value):
+        raise ValidationError(
+            "Enter the number in international format, starting with + and the "
+            "country code — for example +14155552671 or +971501234567."
+        )
+
+
+# Old name kept so historical migrations that reference it still import.
+# Django serialises validators into migration files by path, and 0001_initial
+# names this function; renaming it outright breaks `migrate` on a fresh DB.
+validate_uae_phone = validate_international_phone
 
 
 class UserManager(BaseUserManager):
@@ -34,7 +53,12 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=15, validators=[validate_uae_phone])
+    # 16 chars: E.164 permits 15 digits plus the leading "+".
+    phone = models.CharField(max_length=16, validators=[validate_international_phone])
+    # IANA zone (e.g. "Europe/London", "America/Toronto"). Reminders are only
+    # meaningful in the tenant's own local calendar — a 30-day warning computed
+    # in Asia/Dubai lands a day out for most of the Americas.
+    timezone = models.CharField(max_length=64, default="Asia/Dubai")
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)

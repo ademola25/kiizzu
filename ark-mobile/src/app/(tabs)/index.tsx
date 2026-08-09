@@ -10,7 +10,7 @@ import { StateCard } from '@/components/ui/StateCard';
 import { useMarkPaid, useMarkReady, usePayments } from '@/api/payments';
 import { useAuth } from '@/store/auth';
 import { errorMessage } from '@/lib/errors';
-import { formatAED } from '@/lib/format';
+import { formatMoney } from '@/lib/format';
 import type { PaymentSchedule } from '@/lib/types';
 
 export default function HomeScreen() {
@@ -80,7 +80,7 @@ export default function HomeScreen() {
       {view.total > 0 ? (
         <View className="flex-row gap-3">
           <Stat label="Cleared" value={`${view.cleared}/${view.total}`} />
-          <Stat label="Remaining" value={formatAED(view.remainingAmount)} />
+          <Stat label="Remaining" value={formatMoney(view.remainingAmount, view.currency)} />
         </View>
       ) : null}
 
@@ -125,6 +125,7 @@ type DashboardView = {
   cleared: number;
   total: number;
   remainingAmount: number;
+  currency?: string;
 };
 
 // Picks the cheque the user actually cares about right now:
@@ -145,7 +146,10 @@ function computeDashboardView(list: PaymentSchedule[]): DashboardView {
     .filter((p) => p.status !== 'completed')
     .reduce((sum, p) => sum + Number(p.amount), 0);
 
-  return { next, rest, cleared, total: list.length, remainingAmount };
+  // All of a user's cheques belong to one lease today, so the first row's
+  // currency describes the set. Taken from the data rather than assumed so a
+  // future multi-lease dashboard shows the right symbol instead of AED.
+  return { next, rest, cleared, total: list.length, remainingAmount, currency: list[0]?.currency };
 }
 
 function Stat({ label, value }: { label: string; value: string }) {

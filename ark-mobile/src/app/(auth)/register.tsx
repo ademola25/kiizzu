@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { Input } from '@/components/ui/Input';
+import { deviceTimezone, dialForCountry, guessCountryFromTimezone } from '@/lib/countries';
 import { PillButton } from '@/components/ui/PillButton';
 import { errorMessage } from '@/lib/errors';
 import { useAuth } from '@/store/auth';
@@ -16,7 +17,8 @@ export default function RegisterScreen() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('+971');
+  // Seeded from the device's country rather than a hardcoded +971.
+  const [phone, setPhone] = useState(dialForCountry(guessCountryFromTimezone(deviceTimezone())));
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -79,7 +81,7 @@ export default function RegisterScreen() {
           error={errors.email}
         />
         <Input
-          label="Phone (+971…)"
+          label="Phone (with country code)"
           keyboardType="phone-pad"
           value={phone}
           onChangeText={setPhone}

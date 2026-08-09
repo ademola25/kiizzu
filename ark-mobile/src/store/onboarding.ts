@@ -1,13 +1,19 @@
 import { create } from 'zustand';
 
+import { countryByCode, deviceTimezone, guessCountryFromTimezone } from '@/lib/countries';
+
 // Lease fields match the backend POST /leases/create/ payload directly.
 // `whatsapp_opted_in` is a *user* preference (PATCH /auth/me/), captured here
 // during the survey and applied right after the account is created.
-export type ChequePattern = 1 | 2 | 3 | 4 | 6;
+// Must divide 12 — the schedule engine spaces cheques 12/pattern months apart.
+export type ChequePattern = 1 | 2 | 3 | 4 | 6 | 12;
 
 export type OnboardingDraft = {
   building_name: string;
   area: string;
+  city: string;
+  /** ISO 3166-1 alpha-2 — drives currency and the phone dial code. */
+  country: string;
   unit_number: string;
   cheque_pattern: ChequePattern | null;
   start_date: string; // YYYY-MM-DD (first cheque due date)
@@ -18,6 +24,10 @@ export type OnboardingDraft = {
 const empty: OnboardingDraft = {
   building_name: '',
   area: '',
+  city: '',
+  // Guessed from the device timezone so the common case needs no tapping;
+  // the user can change it on the property step.
+  country: guessCountryFromTimezone(deviceTimezone()),
   unit_number: '',
   cheque_pattern: null,
   start_date: '',
@@ -40,7 +50,14 @@ export const useOnboarding = create<OnboardingState>((set) => ({
 // The backend Lease has a single free-text `address` field in addition to the
 // structured parts. We compose it from what the survey collects so the user
 // never has to retype their address.
+//
+// Previously this appended a literal ", Dubai, UAE" to every address, which was
+// wrong for every tenant outside the UAE. Parts are now filtered so an empty
+// area or city cannot leave a dangling comma.
 export function composeAddress(d: OnboardingDraft): string {
-  const unit = d.unit_number.trim() ? `Unit ${d.unit_number.trim()}, ` : '';
-  return `${unit}${d.building_name.trim()}, ${d.area.trim()}, Dubai, UAE`;
+  const unit = d.unit_number.trim() ? `Unit ${d.unit_number.trim()}` : '';
+  const country = countryByCode(d.country).name;
+  return [unit, d.building_name.trim(), d.area.trim(), d.city.trim(), country]
+    .filter(Boolean)
+    .join(', ');
 }

@@ -5,6 +5,7 @@ import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Input } from '@/components/ui/Input';
 import { PillButton } from '@/components/ui/PillButton';
 import { errorMessage } from '@/lib/errors';
+import { isValidPhone } from '@/lib/phone';
 import { useAuth } from '@/store/auth';
 
 type EditProfileSheetProps = {
@@ -12,9 +13,9 @@ type EditProfileSheetProps = {
   onClose: () => void;
 };
 
-// Backend's User.phone column has a UAE validator; mirror it here so the
+// Backend's User.phone column validates E.164; mirror it here so the
 // user sees the constraint locally instead of waiting for a 400.
-const UAE_PHONE = /^\+971\d{9}$/;
+
 
 /** Edit name + phone. Email is read-only (backend doesn't support change yet). */
 export function EditProfileSheet({ visible, onClose }: EditProfileSheetProps) {
@@ -39,7 +40,7 @@ export function EditProfileSheet({ visible, onClose }: EditProfileSheetProps) {
   const trimmedName = name.trim();
   const trimmedPhone = phone.trim();
   const dirty = trimmedName !== (user?.name ?? '') || trimmedPhone !== (user?.phone ?? '');
-  const phoneValid = UAE_PHONE.test(trimmedPhone);
+  const phoneValid = isValidPhone(trimmedPhone);
   const nameValid = trimmedName.length >= 2;
   const valid = nameValid && phoneValid;
 
@@ -76,8 +77,12 @@ export function EditProfileSheet({ visible, onClose }: EditProfileSheetProps) {
         onChangeText={setPhone}
         keyboardType="phone-pad"
         autoComplete="tel"
-        placeholder="+971XXXXXXXXX"
-        error={phone.length >= 4 && !phoneValid ? 'Use UAE format: +971 followed by 9 digits' : undefined}
+        placeholder="+971 50 123 4567"
+        error={
+          phone.length >= 4 && !phoneValid
+            ? 'Include the country code, e.g. +44 7911 123456'
+            : undefined
+        }
       />
 
       {/* Email is intentionally read-only — backend doesn't support change yet. */}

@@ -1,8 +1,21 @@
-"""Daily reminder Celery task — runs at 6:00 AM Asia/Dubai."""
+"""Daily reminder Celery task.
+
+Reminder windows (30/7/1 days out) are evaluated against each tenant's OWN
+local calendar day, not the server's. With users outside the Gulf, a window
+computed in Asia/Dubai lands a day early or late for most of the Americas and
+Australia — "1 day away" would arrive after the cheque was due.
+
+Note: the *send hour* is still whatever the beat schedule fires at. Localising
+that as well needs the beat entry to run hourly and filter on each user's local
+hour. Not done here because no Celery worker is deployed yet (render.yaml has
+no worker service), so this task does not currently run in production.
+"""
 import logging
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 from celery import shared_task
+from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.utils import timezone
 
@@ -23,19 +36,47 @@ whatsapp_service = TwilioWhatsAppService()
 email_service = SendGridEmailService()
 
 
+def _local_today(tz_name: str):
+    """Today's calendar date in `tz_name`, falling back to server time.
+
+    A bad or retired zone name must not stop everyone else's reminders, so an
+    unknown zone degrades to the server's date rather than raising.
+    """
+    now = timezone.now()
+    try:
+        return now.astimezone(ZoneInfo(tz_name)).date()
+    except Exception:
+        logger.warning("Unknown timezone %r on a user record; using server date", tz_name)
+        return now.date()
+
+
 @shared_task(name="reminders.send_daily_reminders")
 def send_daily_reminders():
-    """Check all payment schedules and send reminders for due dates hitting 30d/7d/1d windows."""
-    today = timezone.now().date()
+    """Send reminders for due dates hitting the 30d/7d/1d windows.
+
+    Grouped by timezone so each tenant's window is measured against their own
+    local day. Query count is bounded by the number of distinct zones in use,
+    not the number of users.
+    """
     total_sent = 0
 
-    for days_before, reminder_type in REMINDER_WINDOWS:
-        target_date = today + timedelta(days=days_before)
+    tz_names = (
+        get_user_model()
+        .objects.filter(is_active=True)
+        .values_list("timezone", flat=True)
+        .distinct()
+    )
+
+    for tz_name, days_before, reminder_type in (
+        (tz, d, t) for tz in tz_names for d, t in REMINDER_WINDOWS
+    ):
+        target_date = _local_today(tz_name) + timedelta(days=days_before)
         flag_field = f"reminder_{reminder_type}_sent"
 
         payments = PaymentSchedule.objects.filter(
             due_date=target_date,
             status=PaymentSchedule.Status.PENDING,
+            lease__user__timezone=tz_name,
             **{flag_field: False},
         ).select_related("lease__user")
 
@@ -76,10 +117,12 @@ def send_daily_reminders():
 
 
 def _build_message(payment, days_before):
-    amount = f"AED {payment.amount:,.2f}"
+    # Currency follows the lease — Tentzu is no longer UAE-only, and quoting a
+    # Toronto tenant's rent in AED is worse than useless.
+    amount = f"{payment.lease.currency} {payment.amount:,.2f}"
     date_str = payment.due_date.strftime("%d %B %Y")
     return (
-        f"🏠 Ark Reminder\n"
+        f"🏠 Tentzu Reminder\n"
         f"Your rent cheque of {amount} is due on {date_str} "
         f"— {days_before} day{'s' if days_before != 1 else ''} away. "
         f"Make sure funds are ready."

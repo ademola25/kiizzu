@@ -16,16 +16,17 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StateCard } from '@/components/ui/StateCard';
 import { ToggleRow } from '@/components/ui/ToggleRow';
 import { errorMessage } from '@/lib/errors';
-import { formatAED, formatDate } from '@/lib/format';
+import { formatMoney, formatDate } from '@/lib/format';
 import type { ChequePattern } from '@/lib/types';
 import { useAuth } from '@/store/auth';
 
 const PATTERN_LABEL: Record<ChequePattern, string> = {
   1: 'Annual',
   2: 'Bi-annual',
-  3: '3 cheques',
+  3: '3 payments',
   4: 'Quarterly',
   6: 'Bi-monthly',
+  12: 'Monthly',
 };
 
 export default function SettingsScreen() {
@@ -162,11 +163,15 @@ export default function SettingsScreen() {
                 {lease.data.building_name}
               </Text>
               <Text className="text-sm text-muted">
-                {lease.data.area} · Unit {lease.data.unit_number}
+                {/* area is optional outside the Gulf — join only the parts we
+                    actually have so this never renders a dangling " · ". */}
+                {[lease.data.area, lease.data.city, `Unit ${lease.data.unit_number}`]
+                  .filter(Boolean)
+                  .join(' · ')}
               </Text>
               <Text className="text-sm text-muted mt-2">
                 {PATTERN_LABEL[lease.data.cheque_pattern]} ·{' '}
-                {formatAED(lease.data.rent_amount)} / year
+                {formatMoney(lease.data.rent_amount, lease.data.currency)} / year
               </Text>
               <Text className="text-xs text-muted mt-0.5">
                 Starts {formatDate(lease.data.start_date)}

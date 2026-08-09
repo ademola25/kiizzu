@@ -2,7 +2,7 @@ import { Pressable, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { PillButton } from '@/components/ui/PillButton';
 import { cn } from '@/lib/cn';
-import { daysUntil, formatAED, formatDate } from '@/lib/format';
+import { daysUntil, formatMoney, formatDate } from '@/lib/format';
 import type { PaymentSchedule } from '@/lib/types';
 
 type CountdownHeroProps = {
@@ -57,7 +57,7 @@ export function CountdownHero({ payment, onMarkReady, marking, onMarkPaid, payin
 
         <View className="h-px bg-line w-full my-5" />
 
-        <Text className="text-2xl font-bold text-ink">{formatAED(payment.amount)}</Text>
+        <Text className="text-2xl font-bold text-ink">{formatMoney(payment.amount, payment.currency)}</Text>
         <Text className="text-sm text-muted mt-1">Due {formatDate(payment.due_date)}</Text>
 
         {isReady ? (

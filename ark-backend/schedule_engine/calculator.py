@@ -21,14 +21,18 @@ def calculate_schedule(
 
     Args:
         start_date: Lease start date (first cheque date)
-        pattern: Number of cheques per year (1, 2, 3, 4, or 6)
-        annual_amount: Total annual rent in AED
+        pattern: Number of cheques per year (see ChequePattern)
+        annual_amount: Total annual rent, in the lease's own currency
 
     Returns:
         List of ChequeDate objects, one per cheque
     """
-    if pattern not in (p.value for p in ChequePattern):
-        raise ValueError(f"Invalid cheque pattern: {pattern}. Must be 1, 2, 3, 4, or 6.")
+    valid = sorted(p.value for p in ChequePattern)
+    if pattern not in valid:
+        raise ValueError(
+            f"Invalid cheque pattern: {pattern}. "
+            f"Must be one of {', '.join(str(v) for v in valid)}."
+        )
 
     if annual_amount <= 0:
         raise ValueError("Annual amount must be positive.")

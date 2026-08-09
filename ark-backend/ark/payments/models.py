@@ -23,4 +23,6 @@ class PaymentSchedule(models.Model):
         ordering = ["due_date"]
 
     def __str__(self):
-        return f"Cheque {self.cheque_number} - {self.due_date} - AED {self.amount}"
+        # Currency comes from the lease, not a hardcoded AED — leases exist
+        # outside the UAE now.
+        return f"Cheque {self.cheque_number} - {self.due_date} - {self.lease.currency} {self.amount}"

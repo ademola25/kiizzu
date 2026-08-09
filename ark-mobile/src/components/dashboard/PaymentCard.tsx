@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { formatAED, formatDate } from '@/lib/format';
+import { formatMoney, formatDate } from '@/lib/format';
 import type { PaymentSchedule } from '@/lib/types';
 
 type PaymentCardProps = {
@@ -19,7 +19,7 @@ export function PaymentCard({ payment, onMarkPaid, marking }: PaymentCardProps) 
         <View className="flex-1 pr-3">
           <Text className="text-sm text-muted">Cheque {payment.cheque_number}</Text>
           <Text className="text-base font-semibold text-ink mt-0.5">
-            {formatAED(payment.amount)}
+            {formatMoney(payment.amount, payment.currency)}
           </Text>
           <Text className="text-xs text-muted mt-0.5">{formatDate(payment.due_date)}</Text>
         </View>

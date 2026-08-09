@@ -39,7 +39,7 @@ export function previewSchedule(
   pattern: ChequePattern,
   annual: number,
 ): PreviewCheque[] {
-  const monthsBetween = 12 / pattern; // pattern ∈ {1,2,3,4,6} → always integer
+  const monthsBetween = 12 / pattern; // every pattern divides 12 → always integer
   const amount = perCheque(annual, pattern);
   return Array.from({ length: pattern }, (_, i) => ({
     cheque_number: i + 1,
@@ -50,11 +50,9 @@ export function previewSchedule(
 
 // —— formatting helpers ——
 
-export function formatAED(n: number): string {
-  const rounded = Math.round(n * 100) / 100;
-  const whole = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(2);
-  return `AED ${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
-}
+/** Re-exported so preview screens format money the same way the rest of the
+ *  app does. Currency is per-lease — see lib/countries.ts. */
+export { formatMoney } from './format';
 
 /** "14 Jul 2026" */
 export function formatLongDate(iso: string): string {
@@ -86,9 +84,10 @@ export function isValidISODate(iso: string): boolean {
 }
 
 export const patternLabel: Record<ChequePattern, { title: string; sub: string }> = {
-  1: { title: 'One cheque a year', sub: 'Annual · a single payment' },
-  2: { title: 'Two cheques a year', sub: 'Every 6 months' },
-  3: { title: 'Three cheques a year', sub: 'Every 4 months' },
-  4: { title: 'Four cheques a year', sub: 'Quarterly · every 3 months' },
-  6: { title: 'Six cheques a year', sub: 'Every 2 months' },
+  1: { title: 'Once a year', sub: 'Annual · a single payment' },
+  2: { title: 'Twice a year', sub: 'Every 6 months' },
+  3: { title: 'Three times a year', sub: 'Every 4 months' },
+  4: { title: 'Four times a year', sub: 'Quarterly · every 3 months' },
+  6: { title: 'Six times a year', sub: 'Every 2 months' },
+  12: { title: 'Every month', sub: 'Monthly · 12 payments a year' },
 };

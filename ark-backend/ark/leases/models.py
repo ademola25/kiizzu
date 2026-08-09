@@ -3,17 +3,29 @@ from django.db import models
 
 
 class Lease(models.Model):
+    # Every value must divide 12 exactly — the schedule engine spaces cheques
+    # `12 // pattern` months apart. Keep in sync with schedule_engine.ChequePattern.
     CHEQUE_PATTERN_CHOICES = [
         (1, "Annual (1 cheque)"),
         (2, "6-monthly (2 cheques)"),
         (3, "4-monthly (3 cheques)"),
         (4, "Quarterly (4 cheques)"),
         (6, "Bi-monthly (6 cheques)"),
+        (12, "Monthly (12 cheques)"),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="leases")
     building_name = models.CharField(max_length=255)
-    area = models.CharField(max_length=255)
+    # Neighbourhood / district. Optional outside the Gulf, where addresses are
+    # often just street + city.
+    area = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=255, blank=True)
+    # ISO 3166-1 alpha-2. Defaults to AE so existing Dubai leases stay correct
+    # without a data migration.
+    country = models.CharField(max_length=2, default="AE")
+    # ISO 4217. Held per-lease rather than per-user: rent is denominated by the
+    # property's country, and one person may hold leases in more than one.
+    currency = models.CharField(max_length=3, default="AED")
     unit_number = models.CharField(max_length=50)
     address = models.TextField()
     cheque_pattern = models.IntegerField(choices=CHEQUE_PATTERN_CHOICES)

@@ -9,6 +9,8 @@ export type PaymentSchedule = {
   due_date: string; // YYYY-MM-DD
   amount: string; // decimal as string
   status: PaymentStatus;
+  /** ISO 4217, denormalised from the lease so a payment formats standalone. */
+  currency?: string;
   reminder_30d_sent: boolean;
   reminder_7d_sent: boolean;
   reminder_1d_sent: boolean;
@@ -48,12 +50,17 @@ export type ReminderLog = {
   delivered_at: string | null;
 };
 
-export type ChequePattern = 1 | 2 | 3 | 4 | 6;
+export type ChequePattern = 1 | 2 | 3 | 4 | 6 | 12;
 
 export type Lease = {
   id: number;
   building_name: string;
   area: string;
+  city?: string;
+  /** ISO 3166-1 alpha-2 */
+  country?: string;
+  /** ISO 4217 */
+  currency?: string;
   unit_number: string;
   address: string;
   cheque_pattern: ChequePattern;

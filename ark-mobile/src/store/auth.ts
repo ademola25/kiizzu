@@ -21,6 +21,8 @@ export type RegisterInput = {
 
 export type ProfileUpdate = Partial<Pick<User, 'name' | 'phone'>> & {
   whatsapp_opted_in?: boolean;
+  /** IANA zone from the device — reminder windows are computed in it. */
+  timezone?: string;
 };
 
 type AuthState = {

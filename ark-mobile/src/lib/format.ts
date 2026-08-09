@@ -17,14 +17,30 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-/** AED 90,000 — no decimals for whole amounts, locale-grouped. */
-export function formatAED(value: number | string): string {
+/**
+ * "AED 90,000" / "£1,450" / "CA$2,100" — whole amounts, grouped.
+ *
+ * Currency comes from the lease, not from a hardcoded AED: leases exist outside
+ * the UAE now. Falls back to a plain "<CODE> <amount>" if the runtime's Intl
+ * data lacks the currency — Hermes ships a trimmed ICU on some Android builds,
+ * and a thrown RangeError here would blank the dashboard's hero number.
+ */
+export function formatMoney(value: number | string, currency = 'AED'): string {
   const n = typeof value === 'string' ? Number(value) : value;
-  if (!Number.isFinite(n)) return 'AED —';
-  return `AED ${n.toLocaleString('en-AE', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })}`;
+  if (!Number.isFinite(n)) return `${currency} —`;
+  try {
+    return n.toLocaleString(undefined, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+  } catch {
+    return `${currency} ${n.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })}`;
+  }
 }
 
 /**

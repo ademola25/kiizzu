@@ -4,8 +4,9 @@ import { router } from 'expo-router';
 import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { TentzuField } from '@/components/onboarding/TentzuField';
 import { RentArt } from '@/components/onboarding/illustrations';
+import { currencyForCountry } from '@/lib/countries';
 import { useOnboarding } from '@/store/onboarding';
-import { formatAED, patternLabel } from '@/lib/schedule';
+import { formatMoney, patternLabel } from '@/lib/schedule';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
 // Step 3/7 — total yearly rent. Stored as Lease.rent_amount (annual); the
@@ -13,6 +14,7 @@ import { tentzu, tentzuFont } from '@/theme/tokens';
 export default function RentStep() {
   const draft = useOnboarding((s) => s.draft);
   const set = useOnboarding((s) => s.set);
+  const currency = currencyForCountry(draft.country);
 
   const amount = Number(draft.rent_amount.replace(/,/g, ''));
   const valid = Number.isFinite(amount) && amount > 0;
@@ -33,7 +35,7 @@ export default function RentStep() {
     >
       <TentzuField
         label="Total annual rent"
-        prefix="AED"
+        prefix={currency}
         placeholder="90,000"
         keyboardType="number-pad"
         value={draft.rent_amount}
@@ -55,7 +57,7 @@ export default function RentStep() {
         >
           <Text style={{ fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.inkVariant, flex: 1 }}>
             That's{' '}
-            <Text style={{ fontFamily: tentzuFont.label, color: tentzu.primary }}>{formatAED(perCheque)}</Text> per
+            <Text style={{ fontFamily: tentzuFont.label, color: tentzu.primary }}>{formatMoney(perCheque, currency)}</Text> per
             cheque, {patternLabel[pattern].sub.toLowerCase()}.
           </Text>
         </View>

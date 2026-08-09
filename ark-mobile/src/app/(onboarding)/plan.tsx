@@ -4,14 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { PlanArt } from '@/components/onboarding/illustrations';
+import { currencyForCountry } from '@/lib/countries';
 import { composeAddress, useOnboarding } from '@/store/onboarding';
-import { formatAED, formatLongDate, isValidISODate, previewSchedule } from '@/lib/schedule';
+import { formatMoney, formatLongDate, isValidISODate, previewSchedule } from '@/lib/schedule';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
 // Step 6/7 — a preview of the cheque plan Tentzu will track. Computed locally to
 // mirror the backend engine; the real schedule is created on submit.
 export default function PlanStep() {
   const draft = useOnboarding((s) => s.draft);
+  const currency = currencyForCountry(draft.country);
 
   const amount = Number(draft.rent_amount.replace(/,/g, ''));
   const ready =
@@ -110,7 +112,7 @@ export default function PlanStep() {
               {formatLongDate(c.due_date)}
             </Text>
             <Text style={{ fontFamily: tentzuFont.label, fontSize: 14.5, color: tentzu.ink }}>
-              {formatAED(c.amount)}
+              {formatMoney(c.amount, currency)}
             </Text>
           </View>
         ))}

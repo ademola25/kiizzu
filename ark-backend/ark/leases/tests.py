@@ -149,3 +149,97 @@ class TestPaymentAPI:
         if completed:
             resp = api_client.post(f"/api/v1/payment-schedules/{completed[0]['id']}/mark-ready/")
             assert resp.status_code == 400
+
+
+@pytest.mark.django_db
+class TestWorldwideLeases:
+    """Tentzu started UAE-only. These lock in that it is not any more."""
+
+    def test_monthly_pattern_creates_twelve_cheques_one_month_apart(self, user):
+        lease = create_lease_with_schedule(
+            user,
+            {
+                "building_name": "Bloor Tower",
+                "area": "The Annex",
+                "city": "Toronto",
+                "country": "CA",
+                "currency": "CAD",
+                "unit_number": "804",
+                "address": "12 Bloor St W, Toronto",
+                "cheque_pattern": 12,
+                "start_date": date(2026, 1, 31),
+                "rent_amount": Decimal("36000.00"),
+            },
+        )
+        schedules = list(PaymentSchedule.objects.filter(lease=lease).order_by("cheque_number"))
+        assert len(schedules) == 12
+        assert schedules[0].amount == Decimal("3000.00")
+        assert schedules[0].due_date == date(2026, 1, 31)
+        # Day-of-month must clamp, not overflow: 31 Jan + 1 month is 28 Feb.
+        assert schedules[1].due_date == date(2026, 2, 28)
+        assert schedules[2].due_date == date(2026, 3, 31)
+        assert schedules[11].due_date == date(2026, 12, 31)
+
+    def test_monthly_pattern_accepted_by_api(self, api_client, lease_data):
+        resp = api_client.post(
+            "/api/v1/leases/create/",
+            {**lease_data, "cheque_pattern": 12, "country": "GB", "currency": "GBP", "city": "London"},
+            format="json",
+        )
+        assert resp.status_code == 201, resp.data
+        assert resp.data["cheque_pattern"] == 12
+        assert resp.data["currency"] == "GBP"
+        assert resp.data["country"] == "GB"
+        assert len(resp.data["payment_schedules"]) == 12
+
+    def test_pattern_that_does_not_divide_twelve_is_rejected(self, api_client, lease_data):
+        # 5 would space cheques 12//5 = 2 months apart and silently drift.
+        resp = api_client.post(
+            "/api/v1/leases/create/", {**lease_data, "cheque_pattern": 5}, format="json"
+        )
+        assert resp.status_code == 400
+        assert "cheque_pattern" in resp.data
+
+    def test_country_and_currency_default_to_uae_for_existing_callers(self, api_client, lease_data):
+        """Clients that predate the worldwide fields must keep working."""
+        resp = api_client.post("/api/v1/leases/create/", lease_data, format="json")
+        assert resp.status_code == 201, resp.data
+        assert resp.data["country"] == "AE"
+        assert resp.data["currency"] == "AED"
+
+
+@pytest.mark.django_db
+class TestInternationalPhones:
+    @pytest.mark.parametrize(
+        "phone",
+        [
+            "+971501234567",   # UAE — must still work
+            "+14155552671",    # US
+            "+14165551234",    # Canada
+            "+447911123456",   # UK
+            "+905301234567",   # Turkey
+            "+61412345678",    # Australia
+            "+4915112345678",  # Germany
+            "+33612345678",    # France
+        ],
+    )
+    def test_accepts_international_numbers(self, phone):
+        user = User(email=f"u{phone[1:]}@test.com", name="T", phone=phone)
+        user.full_clean(exclude=["password"])  # raises if the validator rejects
+
+    @pytest.mark.parametrize(
+        "phone",
+        [
+            "0501234567",      # no country code
+            "+0501234567",     # country code cannot start with 0
+            "971501234567",    # missing +
+            "+971",            # too short
+            "+9715012345678901",  # over E.164's 15 digits
+            "+971 50 123 4567",   # spaces
+            "not-a-phone",
+        ],
+    )
+    def test_rejects_malformed_numbers(self, phone):
+        user = User(email="bad@test.com", name="T", phone=phone)
+        with pytest.raises(Exception):
+            user.full_clean(exclude=["password"])

@@ -7,7 +7,7 @@ import { PayArt } from '@/components/onboarding/illustrations';
 import { useOnboarding, type ChequePattern } from '@/store/onboarding';
 import { patternLabel } from '@/lib/schedule';
 
-const ORDER: ChequePattern[] = [1, 2, 3, 4, 6];
+const ORDER: ChequePattern[] = [12, 6, 4, 3, 2, 1];
 
 // Step 2/7 — cheque pattern. This single integer drives the whole schedule
 // (count, spacing and per-cheque amount) on the backend.
@@ -22,7 +22,7 @@ export default function PatternStep() {
       total={7}
       illustration={<PayArt />}
       title="How do you pay rent?"
-      subtitle="Most Dubai leases are paid in a set number of cheques across the year. Pick yours."
+      subtitle="Rent is usually paid in a set number of instalments across the year. Pick yours."
       primaryLabel="Continue"
       primaryIcon="arrow-forward"
       primaryDisabled={selected === null}

@@ -8,9 +8,12 @@ import { SaveArt } from '@/components/onboarding/illustrations';
 import { useAuth } from '@/store/auth';
 import { finishOnboarding } from '@/lib/finishOnboarding';
 import { errorMessage } from '@/lib/errors';
+import { useOnboarding } from '@/store/onboarding';
+import { dialForCountry } from '@/lib/countries';
+import { composeE164, isValidPhone, phonePlaceholder } from '@/lib/phone';
+import { CountrySelect } from '@/components/onboarding/CountrySelect';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
-const PHONE_RE = /^\+971\d{9}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Mode = 'create' | 'login';
@@ -30,16 +33,21 @@ export default function SaveStep() {
   const [mode, setMode] = useState<Mode>('create');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('+971');
+  // Phone is captured as (country, local number) and composed to E.164 on
+  // submit. Defaulting the dial country to the property's country is right far
+  // more often than defaulting to the UAE, which is what this used to do.
+  const draftCountry = useOnboarding((s) => s.draft.country);
+  const [phoneCountry, setPhoneCountry] = useState(draftCountry);
+  const [phoneLocal, setPhoneLocal] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const cleanPhone = phone.replace(/\s/g, '');
+  const cleanPhone = composeE164(dialForCountry(phoneCountry), phoneLocal);
   const createValid =
     name.trim().length >= 2 &&
     EMAIL_RE.test(email.trim()) &&
-    PHONE_RE.test(cleanPhone) &&
+    isValidPhone(cleanPhone) &&
     password.length >= 6;
   const loginValid = EMAIL_RE.test(email.trim()) && password.length >= 1;
   const canSubmit = alreadySignedIn || (mode === 'create' ? createValid : loginValid);
@@ -159,14 +167,24 @@ export default function SaveStep() {
                 autoCapitalize="none"
                 autoComplete="email"
               />
+              <CountrySelect
+                label="Phone country"
+                value={phoneCountry}
+                onChange={setPhoneCountry}
+                mode="dial"
+              />
               <TentzuField
                 label="WhatsApp / phone"
-                placeholder="+9715XXXXXXXX"
-                value={phone}
-                onChangeText={setPhone}
+                placeholder={phonePlaceholder(phoneCountry)}
+                value={phoneLocal}
+                onChangeText={setPhoneLocal}
                 keyboardType="phone-pad"
                 autoComplete="tel"
-                hint="UAE number, format +971 followed by 9 digits."
+                hint={
+                  phoneLocal.length > 0 && !isValidPhone(cleanPhone)
+                    ? 'That does not look like a complete number yet.'
+                    : `We will send reminders to ${cleanPhone || dialForCountry(phoneCountry)}.`
+                }
               />
               <TentzuField
                 label="Password"

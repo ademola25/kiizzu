@@ -9,7 +9,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "email", "name", "phone", "password")
+        fields = ("id", "email", "name", "phone", "timezone", "password")
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -28,6 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "name",
             "phone",
+            "timezone",
             "email_verified",
             "onboarding_complete",
             "whatsapp_opted_in",

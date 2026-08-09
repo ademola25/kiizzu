@@ -191,4 +191,7 @@ TWILIO_WHATSAPP_FROM = env("TWILIO_WHATSAPP_FROM", default="whatsapp:+1415523888
 
 # SendGrid
 SENDGRID_API_KEY = env("SENDGRID_API_KEY", default="")
+# Resend is the preferred provider on Render: its HTTPS API is reachable where
+# outbound SMTP is blocked, and it has a standing free tier. See emails.py.
+RESEND_API_KEY = env("RESEND_API_KEY", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="reminders@ark-app.com")

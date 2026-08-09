@@ -1,8 +1,16 @@
+import io
+import json
+import urllib.error
+import urllib.request
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from rest_framework.test import APIClient
 from rest_framework import status
+
+from ark.users.emails import EmailDeliveryError, send_code_email
+from ark.users.models import OneTimeCode
 
 User = get_user_model()
 
@@ -147,3 +155,67 @@ class TestDeleteAccountAPI:
         resp = api_client.delete("/api/v1/auth/me/delete/")
         assert resp.status_code == status.HTTP_204_NO_CONTENT
         assert not User.objects.filter(id=user_id).exists()
+
+
+@pytest.mark.django_db
+class TestEmailDelivery:
+    """A send that did not reach anyone must never be reported as delivered.
+
+    This is the third time this class of bug appeared: fail_silently=True hid
+    SMTP errors, then the console backend "succeeded" while delivering nothing.
+    """
+
+    def test_console_backend_is_not_reported_as_delivered(self, settings):
+        settings.EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+        settings.RESEND_API_KEY = ""
+        settings.SENDGRID_API_KEY = ""
+        with pytest.raises(EmailDeliveryError, match="not delivered"):
+            send_code_email("nobody@example.com", "123456", OneTimeCode.Purpose.VERIFY_EMAIL)
+
+    def test_register_still_succeeds_when_delivery_fails(self, api_client, settings, user_data):
+        """A broken mail provider must not fail registration — the account and
+        code are valid, and the user can resend."""
+        settings.EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+        settings.RESEND_API_KEY = ""
+        settings.SENDGRID_API_KEY = ""
+        resp = api_client.post("/api/v1/auth/register/", user_data, format="json")
+        assert resp.status_code == status.HTTP_201_CREATED
+        assert resp.data["email_delivered"] is False
+
+    def test_resend_is_used_when_configured(self, settings, monkeypatch):
+        settings.RESEND_API_KEY = "re_test_key"
+        settings.DEFAULT_FROM_EMAIL = "noreply@tentzu.com"
+        captured = {}
+
+        class FakeResp:
+            status = 200
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+
+        def fake_urlopen(req, timeout=None):
+            captured["url"] = req.full_url
+            captured["timeout"] = timeout
+            captured["auth"] = req.get_header("Authorization")
+            captured["body"] = json.loads(req.data.decode())
+            return FakeResp()
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        send_code_email("tenant@example.com", "654321", OneTimeCode.Purpose.VERIFY_EMAIL)
+
+        assert captured["url"] == "https://api.resend.com/emails"
+        assert captured["auth"] == "Bearer re_test_key"
+        assert captured["body"]["to"] == ["tenant@example.com"]
+        assert captured["body"]["from"] == "noreply@tentzu.com"
+        assert "654321" in captured["body"]["text"]
+        # Must be bounded — an unbounded call previously hung workers to death.
+        assert captured["timeout"] is not None and captured["timeout"] <= 15
+
+    def test_resend_failure_raises_and_does_not_fall_back(self, settings, monkeypatch):
+        settings.RESEND_API_KEY = "re_test_key"
+
+        def boom(req, timeout=None):
+            raise urllib.error.HTTPError(req.full_url, 403, "Forbidden", {}, io.BytesIO(b"domain not verified"))
+
+        monkeypatch.setattr(urllib.request, "urlopen", boom)
+        with pytest.raises(EmailDeliveryError, match="403"):
+            send_code_email("tenant@example.com", "111111", OneTimeCode.Purpose.VERIFY_EMAIL)

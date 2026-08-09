@@ -1,15 +1,30 @@
 """Transactional auth emails (verification + password reset codes).
 
-Prefers SendGrid when configured (prod); otherwise falls back to Django's
-configured EMAIL_BACKEND — which is the console backend in local dev, so codes
-print to the runserver output and are easy to test with.
+Provider order: Resend, then SendGrid, then Django's configured EMAIL_BACKEND.
+
+Resend is first because it is what works on our host — Render blocks outbound
+SMTP entirely (measured: smtp.* unreachable, api.resend.com:443 connects in
+0.01s), so only an HTTPS-API provider can deliver. SendGrid is kept because the
+integration already existed, though its free plan was retired in 2025.
+
+Anything that cannot actually deliver raises EmailDeliveryError. In particular
+the console backend prints the message and delivers nothing, so it must not be
+reported as a successful send.
 """
+import json
 import logging
+import urllib.error
+import urllib.request
 
 from django.conf import settings
 from django.core.mail import send_mail
 
 from .models import OneTimeCode
+
+# Never block a request on the mail provider. Django applies no default socket
+# timeout, and an unreachable host previously hung workers until gunicorn killed
+# them, 500-ing registration. Every outbound call here is bounded.
+_HTTP_TIMEOUT = 10
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +49,38 @@ _COPY = {
 }
 
 
+def _send_via_resend(to_email: str, subject: str, body: str) -> None:
+    """POST to Resend's HTTPS API. Raises on any non-2xx or transport error."""
+    payload = json.dumps(
+        {
+            "from": settings.DEFAULT_FROM_EMAIL,
+            "to": [to_email],
+            "subject": subject,
+            "text": body,
+        }
+    ).encode()
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=payload,
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=_HTTP_TIMEOUT) as resp:
+            if not 200 <= resp.status < 300:
+                raise EmailDeliveryError(f"Resend returned HTTP {resp.status}")
+    except urllib.error.HTTPError as e:
+        # Resend puts the actual reason in the body — an unverified sending
+        # domain shows up here, and it is the most likely first failure.
+        detail = e.read().decode(errors="replace")[:300]
+        raise EmailDeliveryError(f"Resend HTTP {e.code}: {detail}") from e
+    except Exception as e:
+        raise EmailDeliveryError(f"Resend request failed: {e}") from e
+
+
 def send_code_email(to_email: str, code: str, purpose: str) -> None:
     copy = _COPY.get(purpose, _COPY[OneTimeCode.Purpose.VERIFY_EMAIL])
     body = (
@@ -42,6 +89,16 @@ def send_code_email(to_email: str, code: str, purpose: str) -> None:
         f"It expires in {OneTimeCode.EXPIRY_MINUTES} minutes. "
         f"If you didn't request this, you can safely ignore this email.\n\n— Tentzu"
     )
+
+    if settings.RESEND_API_KEY:
+        try:
+            _send_via_resend(to_email, copy["subject"], body)
+            return
+        except EmailDeliveryError as e:
+            # Do NOT fall through to the console backend on failure — that would
+            # print the mail locally and report it as delivered.
+            logger.error("Resend delivery FAILED for purpose=%s: %s", purpose, e)
+            raise
 
     if settings.SENDGRID_API_KEY:
         try:
@@ -77,9 +134,20 @@ def send_code_email(to_email: str, code: str, purpose: str) -> None:
     except Exception as e:
         logger.error(
             "Auth email delivery FAILED for purpose=%s via backend=%s: %s. "
-            "Configure SENDGRID_API_KEY or EMAIL_HOST_* to enable real delivery.",
+            "Configure RESEND_API_KEY (preferred) or SENDGRID_API_KEY to enable "
+            "real delivery.",
             purpose,
             settings.EMAIL_BACKEND,
             e,
         )
         raise EmailDeliveryError(str(e)) from e
+
+    # send_mail() succeeded — but the console backend "succeeds" by printing to
+    # stdout, having delivered nothing. Reporting that as a send is the same false
+    # claim as the old fail_silently=True, one layer down: the API would answer
+    # email_delivered: true while the user's inbox stayed empty.
+    if "console" in settings.EMAIL_BACKEND:
+        raise EmailDeliveryError(
+            "console EMAIL_BACKEND: message logged, not delivered — "
+            "set RESEND_API_KEY to send for real"
+        )

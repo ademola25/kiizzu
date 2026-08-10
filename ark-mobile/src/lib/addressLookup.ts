@@ -59,6 +59,13 @@ async function getJson(url: string): Promise<any | null> {
 export async function searchAddress(
   query: string,
   countryCode: string,
+  /**
+   * Optional centre to bias results toward — the postcode the user just
+   * entered. No free provider exposes "every address in a postcode" (that is
+   * PAF in the UK, licensed), so biasing by location is the closest we get:
+   * type a house number after a postcode and the right street ranks first.
+   */
+  near?: { lat: number; lon: number },
 ): Promise<AddressSuggestion[]> {
   const q = query.trim();
   if (q.length < 3) return [];
@@ -66,7 +73,8 @@ export async function searchAddress(
   const [minLon, minLat, maxLon, maxLat] = addressFormat(countryCode).bbox;
   const url =
     `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}` +
-    `&limit=8&lang=en&bbox=${minLon},${minLat},${maxLon},${maxLat}`;
+    `&limit=8&lang=en&bbox=${minLon},${minLat},${maxLon},${maxLat}` +
+    (near ? `&lat=${near.lat}&lon=${near.lon}` : '');
 
   const data = await getJson(url);
   const features: any[] = data?.features ?? [];
@@ -98,6 +106,9 @@ export type PostcodeResult = {
   /** Provider's region name — matched to our subdivision codes by the caller. */
   state: string;
   postcode: string;
+  /** Centre of the postcode, used to bias street suggestions to it. */
+  lat?: number;
+  lon?: number;
 };
 
 /**
@@ -117,7 +128,22 @@ export async function lookupPostcode(
       `https://api.postcodes.io/postcodes/${encodeURIComponent(pc.replace(/\s+/g, ''))}`,
     );
     const r = d?.result;
-    if (r) return { city: r.post_town ?? r.admin_district ?? '', state: r.region ?? '', postcode: r.postcode ?? pc };
+    if (r) {
+      // Post town, not local authority. postcodes.io exposes admin_district
+      // (e.g. "Ealing") and region (e.g. "London"); for London postcodes the
+      // post town is LONDON, so using admin_district put the borough in the
+      // city field and produced an address Royal Mail would not recognise.
+      const isLondon = r.region === 'London';
+      return {
+        city: isLondon ? 'London' : (r.post_town ?? r.admin_district ?? ''),
+        // admin_county is null across metropolitan areas; fall back to region
+        // so the optional county field still gets something useful.
+        state: r.admin_county ?? r.region ?? '',
+        postcode: r.postcode ?? pc,
+        lat: typeof r.latitude === 'number' ? r.latitude : undefined,
+        lon: typeof r.longitude === 'number' ? r.longitude : undefined,
+      };
+    }
   }
 
   const z = await getJson(
@@ -125,10 +151,14 @@ export async function lookupPostcode(
   );
   const place = z?.places?.[0];
   if (place) {
+    const lat = Number(place['latitude']);
+    const lon = Number(place['longitude']);
     return {
       city: place['place name'] ?? '',
       state: place['state'] ?? '',
       postcode: z['post code'] ?? pc,
+      lat: Number.isFinite(lat) ? lat : undefined,
+      lon: Number.isFinite(lon) ? lon : undefined,
     };
   }
 

@@ -112,6 +112,46 @@ const IE_COUNTIES = [
   ['WX', 'Wexford'], ['WW', 'Wicklow'],
 ] as const;
 
+const GB_COUNTIES = [
+  // England — ceremonial counties. Royal Mail dropped the postal-county
+  // requirement in 1996 (postcode + post town is sufficient), so this field is
+  // OPTIONAL. It exists because people expect to see it and because shire
+  // addresses still commonly carry it.
+  ['BDF','Bedfordshire'],['BRK','Berkshire'],['BST','Bristol'],['BKM','Buckinghamshire'],
+  ['CAM','Cambridgeshire'],['CHS','Cheshire'],['CON','Cornwall'],['CMA','Cumbria'],
+  ['DBY','Derbyshire'],['DEV','Devon'],['DOR','Dorset'],['DUR','County Durham'],
+  ['ESX','East Sussex'],['ERY','East Riding of Yorkshire'],['ESS','Essex'],
+  ['GLS','Gloucestershire'],['LON','Greater London'],['GTM','Greater Manchester'],
+  ['HAM','Hampshire'],['HEF','Herefordshire'],['HRT','Hertfordshire'],['IOW','Isle of Wight'],
+  ['KEN','Kent'],['LAN','Lancashire'],['LEC','Leicestershire'],['LIN','Lincolnshire'],
+  ['MSY','Merseyside'],['NFK','Norfolk'],['NYK','North Yorkshire'],['NTH','Northamptonshire'],
+  ['NBL','Northumberland'],['NTT','Nottinghamshire'],['OXF','Oxfordshire'],['RUT','Rutland'],
+  ['SHR','Shropshire'],['SOM','Somerset'],['SYK','South Yorkshire'],['STS','Staffordshire'],
+  ['SFK','Suffolk'],['SRY','Surrey'],['TWR','Tyne and Wear'],['WAR','Warwickshire'],
+  ['WMD','West Midlands'],['WSX','West Sussex'],['WYK','West Yorkshire'],['WIL','Wiltshire'],
+  ['WOR','Worcestershire'],
+  // Scotland — council areas (the practical equivalent in addresses)
+  ['ABE','Aberdeen City'],['ABD','Aberdeenshire'],['ANS','Angus'],['AGB','Argyll and Bute'],
+  ['CLK','Clackmannanshire'],['DGY','Dumfries and Galloway'],['DND','Dundee City'],
+  ['EAY','East Ayrshire'],['EDU','East Dunbartonshire'],['ELN','East Lothian'],
+  ['ERW','East Renfrewshire'],['EDH','City of Edinburgh'],['FAL','Falkirk'],['FIF','Fife'],
+  ['GLG','Glasgow City'],['HLD','Highland'],['IVC','Inverclyde'],['MLN','Midlothian'],
+  ['MRY','Moray'],['NAY','North Ayrshire'],['NLK','North Lanarkshire'],['ORK','Orkney Islands'],
+  ['PKN','Perth and Kinross'],['RFW','Renfrewshire'],['SCB','Scottish Borders'],
+  ['ZET','Shetland Islands'],['SAY','South Ayrshire'],['SLK','South Lanarkshire'],
+  ['STG','Stirling'],['WDU','West Dunbartonshire'],['WLN','West Lothian'],['ELS','Na h-Eileanan Siar'],
+  // Wales — principal areas
+  ['BGW','Blaenau Gwent'],['BGE','Bridgend'],['CAY','Caerphilly'],['CRF','Cardiff'],
+  ['CMN','Carmarthenshire'],['CGN','Ceredigion'],['CWY','Conwy'],['DEN','Denbighshire'],
+  ['FLN','Flintshire'],['GWN','Gwynedd'],['AGY','Isle of Anglesey'],['MTY','Merthyr Tydfil'],
+  ['MON','Monmouthshire'],['NTL','Neath Port Talbot'],['NWP','Newport'],['PEM','Pembrokeshire'],
+  ['POW','Powys'],['RCT','Rhondda Cynon Taf'],['SWA','Swansea'],['TOF','Torfaen'],
+  ['VGL','Vale of Glamorgan'],['WRX','Wrexham'],
+  // Northern Ireland
+  ['ANT','County Antrim'],['ARM','County Armagh'],['DOW','County Down'],
+  ['FER','County Fermanagh'],['LDY','County Londonderry'],['TYR','County Tyrone'],
+] as const;
+
 const NZ_REGIONS = [
   ['AUK', 'Auckland'], ['BOP', 'Bay of Plenty'], ['CAN', 'Canterbury'], ['GIS', 'Gisborne'],
   ['HKB', "Hawke's Bay"], ['MBH', 'Marlborough'], ['MWT', 'Manawatū-Whanganui'],
@@ -174,7 +214,15 @@ const FORMATS: Record<string, AddressFormat> = {
     bbox: [51.0, 22.6, 56.4, 26.1],
   },
   GB: {
-    subdivision: null, // Counties are not required in UK postal addresses.
+    // Optional by design: Royal Mail dropped the postal-county requirement in
+    // 1996 and postcode + post town is sufficient. Requiring it would block
+    // signups for correctly-formatted London addresses that have no county.
+    subdivision: {
+      label: 'County (optional)',
+      placeholder: 'Select county',
+      required: false,
+      options: opts(GB_COUNTIES),
+    },
     postal: { label: 'Postcode', placeholder: 'e.g. SW1A 1AA', required: true },
     city: CITY('Town or city', 'e.g. London'),
     street: STREET('e.g. 48 Devonshire Road'),

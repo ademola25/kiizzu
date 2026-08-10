@@ -42,6 +42,7 @@ export default function HomeStep() {
   useEffect(() => {
     if (prevCountry.current !== draft.country) {
       prevCountry.current = draft.country;
+      near.current = undefined;
       set('subdivision', '');
       set('postal_code', '');
       set('city', '');
@@ -49,8 +50,13 @@ export default function HomeStep() {
     }
   }, [draft.country, set]);
 
+  // Remember where the entered postcode is, so street suggestions rank that
+  // area first. No free provider lists every address in a postcode (PAF is
+  // licensed in the UK), so proximity bias is the closest achievable thing.
+  const near = useRef<{ lat: number; lon: number } | undefined>(undefined);
+
   const fetchAddresses = useCallback(
-    (q: string) => searchAddress(q, draft.country),
+    (q: string) => searchAddress(q, draft.country, near.current),
     [draft.country],
   );
   const fetchPostcodes = useCallback(
@@ -73,6 +79,9 @@ export default function HomeStep() {
     if (!code.trim()) return;
     const r = await lookupPostcode(code, draft.country);
     if (!r) return; // silent — the user can still type the city themselves
+    if (typeof r.lat === 'number' && typeof r.lon === 'number') {
+      near.current = { lat: r.lat, lon: r.lon };
+    }
     if (r.postcode) set('postal_code', r.postcode);
     if (r.city && !draft.city.trim()) set('city', r.city);
     const sub = matchSubdivision(draft.country, r.state);
@@ -150,7 +159,11 @@ export default function HomeStep() {
         fetcher={fetchAddresses}
         render={(s: AddressSuggestion) => s.label}
         onSelect={applySuggestion}
-        hint="Start typing and pick yours — we'll fill in the rest."
+        hint={
+          near.current
+            ? 'Type your house number — we\'ll look around your postcode first.'
+            : "Start typing and pick yours — we'll fill in the rest."
+        }
       />
 
       <TentzuField

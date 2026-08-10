@@ -28,6 +28,22 @@ export default function VerifyEmailScreen() {
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
   const submittedFor = useRef<string | null>(null);
 
+  // Re-sync when the screen is navigated to again with a fresh code.
+  // useState(params.dev) captures the value ONCE; returning to this screen
+  // (back, redoing the account step, any router.replace while mounted) issues a
+  // new code server-side while the old one stayed on screen. The user then
+  // typed a code the server had already superseded and got a 400 — which is
+  // exactly the "the testing code doesn't work" report.
+  useEffect(() => {
+    if (params.dev && params.dev !== devCode) {
+      setDevCode(params.dev);
+      setCode('');
+      setError(null);
+      submittedFor.current = null;
+      setCooldown(RESEND_COOLDOWN);
+    }
+  }, [params.dev, devCode]);
+
   useEffect(() => {
     if (cooldown <= 0) return;
     const t = setInterval(() => setCooldown((c) => (c <= 1 ? 0 : c - 1)), 1000);
@@ -46,6 +62,18 @@ export default function VerifyEmailScreen() {
       setError(errorMessage(e, 'That code is invalid or expired. Try again or resend.'));
       setCode('');
       submittedFor.current = null;
+      // A rejected code means what is on screen is dead. Issue a fresh one
+      // immediately so the user is never staring at a code that cannot work —
+      // in testing mode the card below updates to the new one automatically.
+      try {
+        const next = await resendVerification();
+        if (next) {
+          setDevCode(next);
+          setCooldown(RESEND_COOLDOWN);
+        }
+      } catch {
+        // Leave the original error visible; resend is a convenience here.
+      }
     } finally {
       setLoading(false);
     }

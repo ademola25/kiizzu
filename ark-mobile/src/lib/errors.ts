@@ -16,8 +16,11 @@ type AxiosLikeError = {
  * find. Falls back to `fallback` when nothing useful is present.
  */
 export function errorMessage(err: unknown, fallback: string): string {
-  if (err instanceof Error && err.message) return err.message;
-
+  // Read the server's message FIRST. Axios errors are Error instances, so
+  // checking `err instanceof Error` up front short-circuited every API failure
+  // in the app to the useless "Request failed with status code 400" and never
+  // reached the response body below. Users saw a status code where the backend
+  // had sent a plain-English reason — and so did we while debugging.
   const data = (err as AxiosLikeError)?.response?.data;
   if (data && typeof data === 'object') {
     const detail = (data as { detail?: unknown }).detail;
@@ -30,6 +33,13 @@ export function errorMessage(err: unknown, fallback: string): string {
         return value[0];
       }
     }
+  }
+
+  // Only now consider the thrown Error's own message, and only when it is not
+  // an axios status string — "Request failed with status code 400" tells a user
+  // nothing the fallback does not say better.
+  if (err instanceof Error && err.message && !/^Request failed with status code/.test(err.message)) {
+    return err.message;
   }
 
   return fallback;

@@ -82,7 +82,7 @@ export default function HomeStep() {
   const ready =
     draft.building_name.trim().length >= 2 &&
     draft.city.trim().length >= 2 &&
-    draft.unit_number.trim().length >= 1 &&
+    (!fmt.unit.required || draft.unit_number.trim().length >= 1) &&
     (!fmt.subdivision?.required || draft.subdivision.length > 0) &&
     (!fmt.postal?.required || draft.postal_code.trim().length >= 3);
 
@@ -172,8 +172,8 @@ export default function HomeStep() {
       />
 
       <TentzuField
-        label="Unit or apartment number"
-        placeholder="e.g. 1204"
+        label={fmt.unit.label}
+        placeholder={fmt.unit.placeholder}
         value={draft.unit_number}
         onChangeText={(v) => set('unit_number', v)}
         autoCapitalize="characters"

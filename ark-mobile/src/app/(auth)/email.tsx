@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -34,9 +35,14 @@ export default function EmailLoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    // KeyboardAwareScrollView, not KeyboardAvoidingView: Android 15 stopped
+    // resizing the window for adjustResize and Expo defaults to edge-to-edge,
+    // which together made the stock component a no-op on Android.
+    <KeyboardAwareScrollView
+      bottomOffset={72}
+      keyboardShouldPersistTaps="handled"
       className="flex-1 bg-paper"
+      contentContainerStyle={{ flexGrow: 1 }}
     >
       <View
         className="flex-1 px-5"
@@ -88,6 +94,6 @@ export default function EmailLoginScreen() {
           </Text>
         </Text>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }

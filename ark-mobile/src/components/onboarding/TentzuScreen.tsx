@@ -1,12 +1,6 @@
 import type { ReactNode } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
@@ -59,10 +53,13 @@ export function TentzuScreen({
   const insets = useSafeAreaInsets();
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1, backgroundColor: tentzu.bg }}
-    >
+    // KeyboardAwareScrollView (keyboard-controller) rather than the stock
+    // KeyboardAvoidingView: from Android 15 the window no longer resizes for
+    // adjustResize, and Expo's default edge-to-edge compounds it, so the stock
+    // component did nothing on Android and the keyboard covered the field being
+    // typed into. This one scrolls the focused input into view on both
+    // platforms and needs no per-platform behavior prop.
+    <View style={{ flex: 1, backgroundColor: tentzu.bg }}>
       <StatusBar style="dark" />
       <TentzuBackground />
 
@@ -93,10 +90,13 @@ export function TentzuScreen({
         {step && total ? <TentzuProgress step={step} total={total} /> : <View style={{ flex: 1 }} />}
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollView
         style={{ flex: 1 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        // Extra room so the focused field clears the keyboard *and* the sticky
+        // action bar that sits below the scroll area.
+        bottomOffset={96}
         contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: 24 }}
       >
         {illustration ? (
@@ -129,7 +129,7 @@ export function TentzuScreen({
         ) : null}
 
         <View style={{ marginTop: 24 }}>{children}</View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {/* Sticky action bar */}
       <View
@@ -158,6 +158,6 @@ export function TentzuScreen({
           </Pressable>
         ) : null}
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

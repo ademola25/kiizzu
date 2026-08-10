@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -50,19 +51,19 @@ export default function RegisterScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    // KeyboardAwareScrollView replaces the old KeyboardAvoidingView wrapper —
+    // see the note in components/onboarding/TentzuScreen.tsx.
+    <KeyboardAwareScrollView
       className="flex-1 bg-paper"
+      bottomOffset={72}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingTop: insets.top + 16,
+        paddingBottom: insets.bottom + 16,
+        paddingHorizontal: 20,
+      }}
     >
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingTop: insets.top + 16,
-          paddingBottom: insets.bottom + 16,
-          paddingHorizontal: 20,
-        }}
-      >
         <Pressable onPress={() => router.back()} className="w-10 h-10 -ml-2 mb-4 justify-center">
           <Ionicons name="chevron-back" size={26} color="#000000" />
         </Pressable>
@@ -105,7 +106,6 @@ export default function RegisterScreen() {
             Log in
           </Text>
         </Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }

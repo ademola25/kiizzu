@@ -27,6 +27,13 @@ export type AddressFormat = {
   postal: FieldSpec | null;
   city: FieldSpec;
   street: FieldSpec;
+  /**
+   * Unit / apartment / flat. Required only where a dwelling is normally
+   * identified by one — a UK terraced house at "48 Devonshire Road" has no unit
+   * number, and demanding one blocks the signup entirely. In the Gulf, where
+   * most rentals are apartments in named towers, it is how the flat is found.
+   */
+  unit: FieldSpec;
   /** Approximate [minLon, minLat, maxLon, maxLat] — biases autocomplete to this country. */
   bbox: [number, number, number, number];
 };
@@ -163,6 +170,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: null,
     city: CITY('Area or community', 'e.g. Dubai Marina'),
     street: STREET('e.g. Marina Heights, Al Marsa Street', 'Building and street'),
+    unit: { label: 'Unit or apartment number', placeholder: 'e.g. 1205', required: true },
     bbox: [51.0, 22.6, 56.4, 26.1],
   },
   GB: {
@@ -170,6 +178,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postcode', placeholder: 'e.g. SW1A 1AA', required: true },
     city: CITY('Town or city', 'e.g. London'),
     street: STREET('e.g. 48 Devonshire Road'),
+    unit: { label: 'Flat or apartment (optional)', placeholder: 'e.g. Flat 2', required: false },
     bbox: [-8.6, 49.9, 1.8, 60.9],
   },
   US: {
@@ -177,6 +186,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'ZIP code', placeholder: 'e.g. 90210', required: true },
     city: CITY('City', 'e.g. Beverly Hills'),
     street: STREET('e.g. 1600 Pennsylvania Ave NW'),
+    unit: { label: 'Apt, suite or unit (optional)', placeholder: 'e.g. Apt 4B', required: false },
     bbox: [-125.0, 24.4, -66.9, 49.4],
   },
   CA: {
@@ -184,6 +194,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postal code', placeholder: 'e.g. M5V 2T6', required: true },
     city: CITY('City', 'e.g. Toronto'),
     street: STREET('e.g. 12 Bloor St W'),
+    unit: { label: 'Unit or suite (optional)', placeholder: 'e.g. Suite 804', required: false },
     bbox: [-141.0, 41.7, -52.6, 70.0],
   },
   AU: {
@@ -191,6 +202,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postcode', placeholder: 'e.g. 2000', required: true },
     city: CITY('Suburb', 'e.g. Sydney'),
     street: STREET('e.g. 1 Macquarie Street'),
+    unit: { label: 'Unit (optional)', placeholder: 'e.g. Unit 5', required: false },
     bbox: [112.9, -43.7, 153.7, -10.0],
   },
   TR: {
@@ -198,6 +210,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Posta kodu (postcode)', placeholder: 'e.g. 34000', required: true },
     city: CITY('City', 'e.g. Istanbul'),
     street: STREET('e.g. Bağdat Caddesi 12'),
+    unit: { label: 'Daire (apartment, optional)', placeholder: 'e.g. Daire 3', required: false },
     bbox: [25.6, 35.8, 44.8, 42.2],
   },
   IE: {
@@ -205,6 +218,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Eircode', placeholder: 'e.g. D02 X285', required: false },
     city: CITY('Town or city', 'e.g. Dublin'),
     street: STREET('e.g. 12 Grafton Street'),
+    unit: { label: 'Apartment (optional)', placeholder: 'e.g. Apt 12', required: false },
     bbox: [-10.6, 51.4, -5.9, 55.4],
   },
   IN: {
@@ -212,6 +226,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'PIN code', placeholder: 'e.g. 110001', required: true },
     city: CITY('City', 'e.g. New Delhi'),
     street: STREET('e.g. 24 Connaught Place'),
+    unit: { label: 'Flat or house number', placeholder: 'e.g. 24B', required: true },
     bbox: [68.1, 6.5, 97.4, 35.5],
   },
   NG: {
@@ -219,6 +234,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postal code', placeholder: 'e.g. 101241', required: false },
     city: CITY('City', 'e.g. Lagos'),
     street: STREET('e.g. 12 Adeola Odeku Street'),
+    unit: { label: 'Flat or house number (optional)', placeholder: 'e.g. Flat 3', required: false },
     bbox: [2.6, 4.2, 14.7, 13.9],
   },
   ZA: {
@@ -226,6 +242,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postal code', placeholder: 'e.g. 8001', required: true },
     city: CITY('City', 'e.g. Cape Town'),
     street: STREET('e.g. 1 Long Street'),
+    unit: { label: 'Unit (optional)', placeholder: 'e.g. Unit 7', required: false },
     bbox: [16.4, -34.9, 32.9, -22.1],
   },
   NZ: {
@@ -233,6 +250,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postcode', placeholder: 'e.g. 6011', required: true },
     city: CITY('Suburb or city', 'e.g. Wellington'),
     street: STREET('e.g. 10 Lambton Quay'),
+    unit: { label: 'Unit (optional)', placeholder: 'e.g. Unit 2', required: false },
     bbox: [166.3, -47.4, 178.6, -34.3],
   },
   MY: {
@@ -240,6 +258,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postcode', placeholder: 'e.g. 50450', required: true },
     city: CITY('City', 'e.g. Kuala Lumpur'),
     street: STREET('e.g. 12 Jalan Ampang'),
+    unit: { label: 'Unit (optional)', placeholder: 'e.g. A-12-3', required: false },
     bbox: [99.6, 0.8, 119.3, 7.4],
   },
   SA: {
@@ -247,6 +266,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postal code', placeholder: 'e.g. 11564', required: false },
     city: CITY('City', 'e.g. Riyadh'),
     street: STREET('e.g. King Fahd Road 7'),
+    unit: { label: 'Apartment (optional)', placeholder: 'e.g. Apt 9', required: false },
     bbox: [34.5, 16.3, 55.7, 32.2],
   },
   BR: {
@@ -254,6 +274,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'CEP', placeholder: 'e.g. 01310-100', required: true },
     city: CITY('City', 'e.g. São Paulo'),
     street: STREET('e.g. Av. Paulista 1578'),
+    unit: { label: 'Apartamento (optional)', placeholder: 'e.g. Apto 51', required: false },
     bbox: [-74.0, -33.8, -34.8, 5.3],
   },
   DE: {
@@ -261,6 +282,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'PLZ (postcode)', placeholder: 'e.g. 10115', required: true },
     city: CITY('City', 'e.g. Berlin'),
     street: STREET('e.g. Torstraße 12'),
+    unit: { label: 'Wohnung (apartment, optional)', placeholder: 'e.g. 3. OG links', required: false },
     bbox: [5.9, 47.3, 15.0, 55.1],
   },
   FR: {
@@ -268,6 +290,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Code postal', placeholder: 'e.g. 75001', required: true },
     city: CITY('City', 'e.g. Paris'),
     street: STREET('e.g. 12 Rue de Rivoli'),
+    unit: { label: 'Appartement (optional)', placeholder: 'e.g. Apt 12', required: false },
     bbox: [-5.1, 41.3, 9.6, 51.1],
   },
   NL: {
@@ -275,6 +298,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Postcode', placeholder: 'e.g. 1011 AB', required: true },
     city: CITY('City', 'e.g. Amsterdam'),
     street: STREET('e.g. Damrak 12'),
+    unit: { label: 'Toevoeging (optional)', placeholder: 'e.g. 2-hoog', required: false },
     bbox: [3.3, 50.7, 7.2, 53.6],
   },
   ES: {
@@ -282,6 +306,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'Código postal', placeholder: 'e.g. 28001', required: true },
     city: CITY('City', 'e.g. Madrid'),
     street: STREET('e.g. Calle de Alcalá 12'),
+    unit: { label: 'Piso o puerta (optional)', placeholder: 'e.g. 3ºB', required: false },
     bbox: [-18.2, 27.6, 4.3, 43.8],
   },
   IT: {
@@ -289,6 +314,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: { label: 'CAP (postcode)', placeholder: 'e.g. 00118', required: true },
     city: CITY('City', 'e.g. Rome'),
     street: STREET('e.g. Via del Corso 12'),
+    unit: { label: 'Interno (optional)', placeholder: 'e.g. Int. 5', required: false },
     bbox: [6.6, 35.5, 18.5, 47.1],
   },
   HK: {
@@ -297,6 +323,7 @@ const FORMATS: Record<string, AddressFormat> = {
     postal: null,
     city: CITY('District', 'e.g. Wan Chai'),
     street: STREET('e.g. 12 Queen’s Road East'),
+    unit: { label: 'Flat and floor', placeholder: 'e.g. Flat A, 12/F', required: true },
     bbox: [113.8, 22.1, 114.4, 22.6],
   },
 };
@@ -307,6 +334,7 @@ const DEFAULT_FORMAT: AddressFormat = {
   postal: { label: 'Postal code', placeholder: 'Postal code', required: false },
   city: CITY(),
   street: STREET('Street and number'),
+  unit: { label: 'Unit or apartment (optional)', placeholder: 'e.g. 4B', required: false },
   bbox: [-180, -90, 180, 90],
 };
 

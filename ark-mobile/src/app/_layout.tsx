@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useFonts } from 'expo-font';
 import {
   PlusJakartaSans_700Bold,
@@ -45,16 +46,23 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F5F5' } }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(onboarding)" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="billing-return" />
-        </Stack>
-      </SafeAreaProvider>
+      {/* KeyboardProvider is required by react-native-keyboard-controller.
+          Android 15 (API 35) stopped resizing the window for adjustResize, and
+          Expo enables edge-to-edge by default from SDK 53 — together that made
+          the stock KeyboardAvoidingView a no-op on Android, so the keyboard sat
+          on top of whatever field you were typing into. */}
+      <KeyboardProvider>
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F5F5' } }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(onboarding)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="billing-return" />
+          </Stack>
+        </SafeAreaProvider>
+      </KeyboardProvider>
     </QueryClientProvider>
   );
 }

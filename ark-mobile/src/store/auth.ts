@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api, tokenStore } from '@/lib/api';
+import { useOnboarding } from '@/store/onboarding';
 import { queryClient } from '@/lib/query';
 
 type User = {
@@ -101,12 +102,21 @@ export const useAuth = create<AuthState>((set) => ({
     // Drop every cached query so the next user on this device can't see
     // documents/payments/reminders from the deleted account.
     queryClient.clear();
+    // Same reason as logout: the survey draft is in-memory and would otherwise
+    // survive the account it belonged to.
+    useOnboarding.getState().reset();
     set({ user: null, status: 'signedOut' });
   },
 
   logout: async () => {
     await tokenStore.clear();
     queryClient.clear();
+    // Clear the survey draft too. It is plain in-memory state that outlives a
+    // logout, so without this the next person to open the app sees the previous
+    // user's address, rent and lease dates already filled in — and, because the
+    // entry gate sends signed-out users into onboarding, they see it
+    // immediately. A logout must not leave one user's data on another's screen.
+    useOnboarding.getState().reset();
     set({ user: null, status: 'signedOut' });
   },
 }));

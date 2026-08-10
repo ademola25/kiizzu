@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, Text, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -28,10 +29,11 @@ export function BottomSheet({
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
+      {/* keyboard-controller's KeyboardAvoidingView, not RN's: on Android 15
+          the window no longer resizes for adjustResize, so RN's version left
+          the keyboard sitting on top of the sheet's inputs. "padding" works on
+          both platforms with this implementation. */}
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
         <Pressable
           className="flex-1 bg-black/40"
           onPress={onClose}

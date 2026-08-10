@@ -70,7 +70,7 @@ export function TentzuButton({ label, onPress, loading, disabled, variant = 'pri
       accessibilityRole="button"
       accessibilityState={{ disabled: !!blocked, busy: !!loading }}
       style={{
-        borderRadius: 18,
+        borderRadius: 28,
         overflow: 'hidden',
         opacity: blocked ? 0.45 : 1,
         transform: [{ scale: pressed && !blocked ? 0.985 : 1 }],
@@ -88,10 +88,10 @@ export function TentzuButton({ label, onPress, loading, disabled, variant = 'pri
     >
       {isPrimary ? (
         <LinearGradient
-          colors={[...tentzu.ctaGradient]}
+          colors={['#22D3E8', '#12A9D6', '#1D7FD1']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 18 }}
+          style={{ borderRadius: 28 }}
         >
           {content}
         </LinearGradient>

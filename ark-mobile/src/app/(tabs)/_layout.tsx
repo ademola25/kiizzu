@@ -19,7 +19,7 @@ export default function TabsLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <TentzuBackground />
+      <TentzuBackground variant="deep" />
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -28,14 +28,28 @@ export default function TabsLayout() {
           tabBarInactiveTintColor: colors.muted,
           // Glass tab bar: translucent over the backdrop with a real blur
           // behind it, so the chrome belongs to the same material as the cards.
+          // Detached floating pill, inset from the edges — the comps never run
+          // the bar edge to edge. SPEC §6.
           tabBarStyle: {
             position: 'absolute',
+            left: 16,
+            right: 16,
+            bottom: 18,
+            height: 66,
+            borderRadius: 28,
+            borderTopWidth: 0,
+            paddingBottom: 8,
+            paddingTop: 8,
             backgroundColor: 'transparent',
-            borderTopColor: 'rgba(255,255,255,0.7)',
             elevation: 0,
+            shadowColor: '#0b3b45',
+            shadowOpacity: 0.14,
+            shadowRadius: 20,
+            shadowOffset: { width: 0, height: 10 },
           },
+          tabBarItemStyle: { borderRadius: 20 },
           tabBarBackground: () => (
-            <View style={StyleSheet.absoluteFill}>
+            <View style={[StyleSheet.absoluteFill, { borderRadius: 28, overflow: 'hidden' }]}>
               <BlurView
                 intensity={Platform.OS === 'android' ? 28 : 48}
                 tint="light"

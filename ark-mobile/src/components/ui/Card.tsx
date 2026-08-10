@@ -28,7 +28,7 @@ export function Card({ className, solid = false, children, ...props }: CardProps
       className={cn('rounded-card overflow-hidden p-5', className)}
       style={{
         borderWidth: StyleSheet.hairlineWidth * 2,
-        borderColor: 'rgba(255,255,255,0.68)',
+        borderColor: 'rgba(255,255,255,0.55)',
         shadowColor: '#0b3b45',
         shadowOpacity: 0.09,
         shadowRadius: 16,

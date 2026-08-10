@@ -25,6 +25,7 @@ export default function PlanStep() {
 
   return (
     <TentzuScreen
+      backdrop="photo"
       step={6}
       total={7}
       illustration={<PlanArt />}

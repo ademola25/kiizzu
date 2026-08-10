@@ -9,7 +9,7 @@ export default function AuthLayout() {
     // it stays mounted across navigations, so the ambient plate does not
     // re-decode or flash between sign-in, email and register.
     <View style={{ flex: 1 }}>
-      <TentzuBackground />
+      <TentzuBackground variant="photo" />
       <Stack
         screenOptions={{
           headerShown: false,

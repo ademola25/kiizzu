@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { MascotHero } from '@/components/onboarding/MascotHero';
 import { TentzuBackground } from '@/components/onboarding/TentzuBackground';
@@ -21,7 +22,7 @@ export default function WelcomeScreen() {
   return (
     <View style={{ flex: 1, paddingTop: insets.top }}>
       <StatusBar style="dark" />
-      <TentzuBackground />
+      <TentzuBackground variant="warm" />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -77,25 +78,39 @@ export default function WelcomeScreen() {
           onPressOut={() => setPressed(false)}
           accessibilityRole="button"
           style={{
-            backgroundColor: tentzu.primary,
-            borderRadius: 18,
-            paddingVertical: 18,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 12,
+            borderRadius: 28,
+            overflow: 'hidden',
             transform: [{ scale: pressed ? 0.98 : 1 }],
-            shadowColor: tentzu.primary,
-            shadowOpacity: 0.28,
-            shadowRadius: 16,
-            shadowOffset: { width: 0, height: 8 },
-            elevation: 4,
+            // Same-hue glow, matching every other CTA in the app.
+            shadowColor: '#12A9D6',
+            shadowOpacity: 0.38,
+            shadowRadius: 18,
+            shadowOffset: { width: 0, height: 10 },
+            elevation: 6,
           }}
         >
-          <Text style={{ fontFamily: tentzuFont.headlineBold, fontSize: 18, color: '#ffffff' }}>
-            Get started
-          </Text>
-          <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+          {/* This screen hand-rolls its CTA rather than using TentzuButton, so it
+              silently kept the old flat teal when the rest of the app moved to
+              the cyan ramp. Kept hand-rolled (the layout differs) but the
+              material now matches. */}
+          <LinearGradient
+            colors={['#22D3E8', '#12A9D6', '#1D7FD1']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 12,
+              paddingVertical: 18,
+              borderRadius: 28,
+            }}
+          >
+            <Text style={{ fontFamily: tentzuFont.headlineBold, fontSize: 18, color: '#ffffff' }}>
+              Get started
+            </Text>
+            <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+          </LinearGradient>
         </Pressable>
 
         <Pressable

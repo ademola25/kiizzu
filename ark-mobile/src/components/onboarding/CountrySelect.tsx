@@ -80,7 +80,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint }
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
-          borderRadius: 16,
+          borderRadius: 20,
           overflow: 'hidden',
           borderWidth: 1.5,
           borderColor: tentzu.glassStroke,

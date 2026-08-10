@@ -78,7 +78,7 @@ export function SelectField({
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
-          borderRadius: 16,
+          borderRadius: 20,
           overflow: 'hidden',
           borderWidth: 1.5,
           borderColor: error ? tentzu.danger : tentzu.glassStroke,

@@ -24,7 +24,7 @@ export default function CelebrateStep() {
   return (
     <View style={{ flex: 1, paddingTop: insets.top }}>
       <StatusBar style="dark" />
-      <TentzuBackground />
+      <TentzuBackground variant="warm" />
       <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 26 }}>
         <MascotHero source={MASCOT} height={300} />
         <Text

@@ -31,7 +31,7 @@ module.exports = {
         },
       },
       borderRadius: {
-        card: '20px',
+        card: '26px',
         pill: '999px',
       },
       fontFamily: {

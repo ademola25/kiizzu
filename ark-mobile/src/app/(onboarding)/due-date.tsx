@@ -17,6 +17,7 @@ export default function DueDateStep() {
 
   return (
     <TentzuScreen
+      backdrop="photo"
       step={4}
       total={7}
       title="When is your next rent due?"

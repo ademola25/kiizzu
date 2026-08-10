@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -9,8 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { tentzu, tentzuFont } from '@/theme/tokens';
 import { TentzuButton } from './TentzuButton';
-import { TentzuProgress } from './TentzuProgress';
-import { TentzuBackground } from './TentzuBackground';
+import { TentzuBackground, type BackdropVariant } from './TentzuBackground';
 
 type Props = {
   title: string;
@@ -29,6 +29,8 @@ type Props = {
   secondaryLabel?: string;
   onSecondary?: () => void;
   footerNote?: ReactNode;
+  /** Backdrop family — see design-reference/designer-kizu/SPEC.md §1. */
+  backdrop?: BackdropVariant;
 };
 
 // The shared onboarding scaffold: calm-blue background, back + progress header,
@@ -50,6 +52,7 @@ export function TentzuScreen({
   secondaryLabel,
   onSecondary,
   footerNote,
+  backdrop = 'cool',
 }: Props) {
   const insets = useSafeAreaInsets();
 
@@ -62,7 +65,7 @@ export function TentzuScreen({
     // platforms and needs no per-platform behavior prop.
     <View style={{ flex: 1 }}>
       <StatusBar style="dark" />
-      <TentzuBackground />
+      <TentzuBackground variant={backdrop} />
 
       {/* Header: back + progress */}
       <View
@@ -88,7 +91,7 @@ export function TentzuScreen({
         ) : (
           <View style={{ width: 32 }} />
         )}
-        {step && total ? <TentzuProgress step={step} total={total} /> : <View style={{ flex: 1 }} />}
+        <View style={{ flex: 1 }} />
       </View>
 
       <KeyboardAwareScrollView
@@ -100,16 +103,42 @@ export function TentzuScreen({
         bottomOffset={96}
         contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: 24 }}
       >
-        {illustration ? (
-          <View style={{ alignItems: 'center', marginBottom: 22 }}>{illustration}</View>
-        ) : null}
-
+        {/* Wordmark, top-left, on every screen — SPEC §2. */}
         <Text
           style={{
-            fontFamily: tentzuFont.headline,
-            fontSize: 28,
-            lineHeight: 34,
-            letterSpacing: -0.5,
+            fontFamily: tentzuFont.headlineBold,
+            fontSize: 26,
+            letterSpacing: 1.5,
+            color: tentzu.ink,
+            marginBottom: step && total ? 14 : 18,
+          }}
+        >
+          TENTZU
+        </Text>
+
+        {/* Step counter sits ABOVE the headline in the comps, small and cyan. */}
+        {step && total ? (
+          <Text
+            style={{
+              fontFamily: tentzuFont.label,
+              fontSize: 14,
+              color: tentzu.primaryBright,
+              marginBottom: 6,
+            }}
+          >
+            {step} of {total}
+          </Text>
+        ) : null}
+
+        {/* Headline: large, bold, LEFT-aligned, two lines. The comps run
+            34-40px; ours was 28 and centred, which read as a form label next to
+            them. */}
+        <Text
+          style={{
+            fontFamily: tentzuFont.headlineBold,
+            fontSize: 34,
+            lineHeight: 39,
+            letterSpacing: -0.8,
             color: tentzu.ink,
           }}
         >
@@ -119,17 +148,23 @@ export function TentzuScreen({
           <Text
             style={{
               fontFamily: tentzuFont.body,
-              fontSize: 15,
-              lineHeight: 22,
+              fontSize: 16,
+              lineHeight: 23,
               color: tentzu.mutedInk,
-              marginTop: 8,
+              marginTop: 10,
             }}
           >
             {subtitle}
           </Text>
         ) : null}
 
-        <View style={{ marginTop: 24 }}>{children}</View>
+        {/* Illustration now sits BELOW the headline — in the comps the mascot is
+            the centrepiece of the content area, not a header banner. */}
+        {illustration ? (
+          <View style={{ alignItems: 'center', marginTop: 18 }}>{illustration}</View>
+        ) : null}
+
+        <View style={{ marginTop: 22 }}>{children}</View>
       </KeyboardAwareScrollView>
 
       {/* Sticky action bar — a glass shelf, so the CTA floats over the backdrop
@@ -157,6 +192,43 @@ export function TentzuScreen({
           ]}
           pointerEvents="none"
         />
+        {/* Progress lives at the BOTTOM in the comps — a glowing gradient bar
+            with an "n of m" label — not as segments in the header. */}
+        {step && total ? (
+          <View style={{ marginBottom: 14 }}>
+            <View
+              style={{
+                height: 8,
+                borderRadius: 999,
+                backgroundColor: 'rgba(13,43,62,0.10)',
+                overflow: 'hidden',
+              }}
+            >
+              <LinearGradient
+                colors={['#18D7E7', '#7FE9F2']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{
+                  width: `${Math.round((step / total) * 100)}%`,
+                  height: '100%',
+                  borderRadius: 999,
+                }}
+              />
+            </View>
+            <Text
+              style={{
+                fontFamily: tentzuFont.label,
+                fontSize: 13,
+                color: tentzu.mutedInk,
+                textAlign: 'center',
+                marginTop: 7,
+              }}
+            >
+              {step} of {total}
+            </Text>
+          </View>
+        ) : null}
+
         {footerNote ? <View style={{ marginBottom: 12 }}>{footerNote}</View> : null}
         <TentzuButton
           label={primaryLabel}

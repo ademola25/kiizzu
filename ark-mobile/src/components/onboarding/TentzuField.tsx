@@ -45,7 +45,7 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          borderRadius: 16,
+          borderRadius: 20,
           overflow: 'hidden',
           borderWidth: 1.5,
           borderColor: focused ? tentzu.primary : error ? tentzu.danger : tentzu.glassStroke,

@@ -112,6 +112,7 @@ export default function SaveStep() {
 
   return (
     <TentzuScreen
+      backdrop="photo"
       step={7}
       total={7}
       illustration={<SaveArt />}

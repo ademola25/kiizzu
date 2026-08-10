@@ -243,3 +243,63 @@ class TestInternationalPhones:
         user = User(email="bad@test.com", name="T", phone=phone)
         with pytest.raises(Exception):
             user.full_clean(exclude=["password"])
+
+
+@pytest.mark.django_db
+class TestAddressShapePerCountry:
+    """The lease must be able to hold every country's address shape, including
+    the ones with no postcode at all."""
+
+    def test_uk_lease_has_postcode_and_no_subdivision(self, api_client, lease_data):
+        resp = api_client.post(
+            "/api/v1/leases/create/",
+            {
+                **lease_data,
+                "country": "GB",
+                "currency": "GBP",
+                "city": "London",
+                "area": "",
+                "subdivision": "",
+                "postal_code": "W5 4TP",
+                "address": "48 Devonshire Road, London, W5 4TP, United Kingdom",
+            },
+            format="json",
+        )
+        assert resp.status_code == 201, resp.data
+        assert resp.data["postal_code"] == "W5 4TP"
+        assert resp.data["subdivision"] == ""
+
+    def test_us_lease_carries_state_and_zip(self, api_client, lease_data):
+        resp = api_client.post(
+            "/api/v1/leases/create/",
+            {
+                **lease_data,
+                "country": "US",
+                "currency": "USD",
+                "city": "Beverly Hills",
+                "subdivision": "CA",
+                "postal_code": "90210",
+            },
+            format="json",
+        )
+        assert resp.status_code == 201, resp.data
+        assert resp.data["subdivision"] == "CA"
+        assert resp.data["postal_code"] == "90210"
+
+    def test_uae_lease_valid_with_empty_postcode(self, api_client, lease_data):
+        """The UAE has no postal codes — an empty value must not be rejected."""
+        resp = api_client.post(
+            "/api/v1/leases/create/",
+            {**lease_data, "country": "AE", "subdivision": "DU", "postal_code": ""},
+            format="json",
+        )
+        assert resp.status_code == 201, resp.data
+        assert resp.data["postal_code"] == ""
+        assert resp.data["subdivision"] == "DU"
+
+    def test_address_fields_are_optional_for_older_clients(self, api_client, lease_data):
+        """An app build predating these fields must still be able to create a lease."""
+        resp = api_client.post("/api/v1/leases/create/", lease_data, format="json")
+        assert resp.status_code == 201, resp.data
+        assert resp.data["subdivision"] == ""
+        assert resp.data["postal_code"] == ""

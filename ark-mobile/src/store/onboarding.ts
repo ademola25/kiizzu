@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { countryByCode, deviceTimezone, guessCountryFromTimezone } from '@/lib/countries';
+import { subdivisionName } from '@/lib/addressFormats';
 
 // Lease fields match the backend POST /leases/create/ payload directly.
 // `whatsapp_opted_in` is a *user* preference (PATCH /auth/me/), captured here
@@ -12,8 +13,12 @@ export type OnboardingDraft = {
   building_name: string;
   area: string;
   city: string;
-  /** ISO 3166-1 alpha-2 — drives currency and the phone dial code. */
+  /** ISO 3166-1 alpha-2 — drives every other address field, plus currency and dial code. */
   country: string;
+  /** State / province / emirate code. Empty when the country has no subdivision. */
+  subdivision: string;
+  /** Postcode / ZIP / Eircode. Empty when the country has no postal system. */
+  postal_code: string;
   unit_number: string;
   cheque_pattern: ChequePattern | null;
   start_date: string; // YYYY-MM-DD (first cheque due date)
@@ -28,6 +33,8 @@ const empty: OnboardingDraft = {
   // Guessed from the device timezone so the common case needs no tapping;
   // the user can change it on the property step.
   country: guessCountryFromTimezone(deviceTimezone()),
+  subdivision: '',
+  postal_code: '',
   unit_number: '',
   cheque_pattern: null,
   start_date: '',
@@ -56,8 +63,17 @@ export const useOnboarding = create<OnboardingState>((set) => ({
 // area or city cannot leave a dangling comma.
 export function composeAddress(d: OnboardingDraft): string {
   const unit = d.unit_number.trim() ? `Unit ${d.unit_number.trim()}` : '';
+  const region = d.subdivision ? subdivisionName(d.country, d.subdivision) : '';
   const country = countryByCode(d.country).name;
-  return [unit, d.building_name.trim(), d.area.trim(), d.city.trim(), country]
+  return [
+    unit,
+    d.building_name.trim(),
+    d.area.trim(),
+    d.city.trim(),
+    region,
+    d.postal_code.trim(),
+    country,
+  ]
     .filter(Boolean)
     .join(', ');
 }

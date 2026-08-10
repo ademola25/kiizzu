@@ -33,6 +33,8 @@ export async function finishOnboarding(): Promise<void> {
     building_name: draft.building_name.trim(),
     area: draft.area.trim(),
     city: draft.city.trim(),
+    subdivision: draft.subdivision,
+    postal_code: draft.postal_code.trim(),
     country: draft.country,
     currency: currencyForCountry(draft.country),
     unit_number: draft.unit_number.trim(),

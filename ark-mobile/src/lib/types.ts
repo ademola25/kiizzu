@@ -57,6 +57,9 @@ export type Lease = {
   building_name: string;
   area: string;
   city?: string;
+  /** State / province / emirate code */
+  subdivision?: string;
+  postal_code?: string;
   /** ISO 3166-1 alpha-2 */
   country?: string;
   /** ISO 4217 */

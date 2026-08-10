@@ -20,6 +20,12 @@ class Lease(models.Model):
     # often just street + city.
     area = models.CharField(max_length=255, blank=True)
     city = models.CharField(max_length=255, blank=True)
+    # State / province / emirate CODE (e.g. "ON", "TX", "DU"). Blank for the many
+    # countries that do not use a subdivision in postal addresses.
+    subdivision = models.CharField(max_length=8, blank=True)
+    # Postcode / ZIP / Eircode / PIN. Blank for countries with no postal system
+    # at all — the UAE and Hong Kong among them.
+    postal_code = models.CharField(max_length=16, blank=True)
     # ISO 3166-1 alpha-2. Defaults to AE so existing Dubai leases stay correct
     # without a data migration.
     country = models.CharField(max_length=2, default="AE")

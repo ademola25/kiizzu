@@ -13,7 +13,7 @@ export default function SignInScreen() {
 
   return (
     <View
-      className="flex-1 bg-paper px-5"
+      className="flex-1 px-5"
       style={{ paddingTop: insets.top + 32, paddingBottom: insets.bottom + 24 }}
     >
       <View className="flex-1 justify-center">

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -59,7 +60,7 @@ export function TentzuScreen({
     // component did nothing on Android and the keyboard covered the field being
     // typed into. This one scrolls the focused input into view on both
     // platforms and needs no per-platform behavior prop.
-    <View style={{ flex: 1, backgroundColor: tentzu.bg }}>
+    <View style={{ flex: 1 }}>
       <StatusBar style="dark" />
       <TentzuBackground />
 
@@ -131,17 +132,31 @@ export function TentzuScreen({
         <View style={{ marginTop: 24 }}>{children}</View>
       </KeyboardAwareScrollView>
 
-      {/* Sticky action bar */}
+      {/* Sticky action bar — a glass shelf, so the CTA floats over the backdrop
+          instead of sitting on an opaque strip that cuts the screen in half. */}
       <View
         style={{
           paddingHorizontal: 24,
-          paddingTop: 10,
+          paddingTop: 12,
           paddingBottom: insets.bottom + 14,
-          backgroundColor: 'rgba(249,251,251,0.85)',
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(0,106,106,0.06)',
+          borderTopWidth: StyleSheet.hairlineWidth * 2,
+          borderTopColor: 'rgba(255,255,255,0.7)',
+          overflow: 'hidden',
         }}
       >
+        <BlurView
+          intensity={Platform.OS === 'android' ? 26 : 44}
+          tint="light"
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: `rgba(255,255,255,${Platform.OS === 'android' ? 0.72 : 0.5})` },
+          ]}
+          pointerEvents="none"
+        />
         {footerNote ? <View style={{ marginBottom: 12 }}>{footerNote}</View> : null}
         <TentzuButton
           label={primaryLabel}

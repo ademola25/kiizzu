@@ -54,7 +54,7 @@ export default function RegisterScreen() {
     // KeyboardAwareScrollView replaces the old KeyboardAvoidingView wrapper —
     // see the note in components/onboarding/TentzuScreen.tsx.
     <KeyboardAwareScrollView
-      className="flex-1 bg-paper"
+      className="flex-1"
       bottomOffset={72}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{

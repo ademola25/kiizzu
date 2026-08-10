@@ -19,7 +19,7 @@ export default function WelcomeScreen() {
   const [pressed, setPressed] = useState(false);
 
   return (
-    <View style={{ flex: 1, backgroundColor: tentzu.bg, paddingTop: insets.top }}>
+    <View style={{ flex: 1, paddingTop: insets.top }}>
       <StatusBar style="dark" />
       <TentzuBackground />
 

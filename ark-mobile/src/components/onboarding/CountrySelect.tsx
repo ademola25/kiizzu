@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -79,14 +80,32 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint }
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
-          backgroundColor: tentzu.field,
-          borderRadius: 14,
+          borderRadius: 16,
+          overflow: 'hidden',
           borderWidth: 1.5,
-          borderColor: tentzu.fieldBorder,
+          borderColor: tentzu.glassStroke,
           paddingHorizontal: 14,
           height: 56,
+          shadowColor: '#0b3b45',
+          shadowOpacity: 0.06,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: 4 },
+          elevation: 1,
         }}
       >
+        <BlurView
+          intensity={Platform.OS === 'android' ? 22 : 34}
+          tint="light"
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: `rgba(255,255,255,${Platform.OS === 'android' ? 0.78 : 0.62})` },
+          ]}
+          pointerEvents="none"
+        />
         <Text style={{ fontSize: 22 }}>{selected.flag}</Text>
         <Text
           numberOfLines={1}

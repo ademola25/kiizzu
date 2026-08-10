@@ -8,7 +8,7 @@ export default function OnboardingLayout() {
         headerShown: false,
         gestureEnabled: false, // funnel-style: no swipe back mid-flow
         animation: 'slide_from_right',
-        contentStyle: { backgroundColor: tentzu.bg },
+        contentStyle: { backgroundColor: '#eaf4f5' },
       }}
     />
   );

@@ -1,5 +1,7 @@
 import { forwardRef, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { Platform, StyleSheet } from 'react-native';
 import type { TextInputProps } from 'react-native';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
@@ -35,22 +37,40 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
         </Text>
       ) : null}
 
+      {/* Glass input: blurred backdrop + white fill, so the field belongs to the
+          same material as the cards rather than sitting on top of them. The
+          white fill is what guarantees contrast — legibility never depends on
+          the blur landing, which matters on Android where it is cheaper. */}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: tentzu.field,
-          borderRadius: 14,
+          borderRadius: 16,
+          overflow: 'hidden',
           borderWidth: 1.5,
-          borderColor,
+          borderColor: focused ? tentzu.primary : error ? tentzu.danger : tentzu.glassStroke,
           paddingHorizontal: 14,
           height: 56,
-          shadowColor: tentzu.primary,
-          shadowOpacity: focused ? 0.1 : 0,
-          shadowRadius: 10,
+          shadowColor: focused ? tentzu.primary : '#0b3b45',
+          shadowOpacity: focused ? 0.18 : 0.06,
+          shadowRadius: focused ? 14 : 8,
           shadowOffset: { width: 0, height: 4 },
+          elevation: focused ? 3 : 1,
         }}
       >
+        <BlurView
+          intensity={Platform.OS === 'android' ? 22 : 34}
+          tint="light"
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: `rgba(255,255,255,${Platform.OS === 'android' ? 0.78 : 0.62})` },
+          ]}
+          pointerEvents="none"
+        />
         {prefix ? (
           <Text
             style={{

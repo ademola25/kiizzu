@@ -54,7 +54,7 @@ export default function RootLayout() {
       <KeyboardProvider>
         <SafeAreaProvider>
           <StatusBar style="dark" />
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F5F5F5' } }}>
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#eaf4f5' } }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(onboarding)" />

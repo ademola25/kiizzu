@@ -41,7 +41,7 @@ export default function EmailLoginScreen() {
     <KeyboardAwareScrollView
       bottomOffset={72}
       keyboardShouldPersistTaps="handled"
-      className="flex-1 bg-paper"
+      className="flex-1"
       contentContainerStyle={{ flexGrow: 1 }}
     >
       <View

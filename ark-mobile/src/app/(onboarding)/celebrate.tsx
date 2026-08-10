@@ -22,7 +22,7 @@ export default function CelebrateStep() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: tentzu.bg, paddingTop: insets.top }}>
+    <View style={{ flex: 1, paddingTop: insets.top }}>
       <StatusBar style="dark" />
       <TentzuBackground />
       <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 26 }}>

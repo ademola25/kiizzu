@@ -1,4 +1,5 @@
-import { View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, tentzu } from '@/theme/tokens';
@@ -25,10 +26,33 @@ export default function TabsLayout() {
           sceneStyle: { backgroundColor: 'transparent' },
           tabBarActiveTintColor: tentzu.primary,
           tabBarInactiveTintColor: colors.muted,
+          // Glass tab bar: translucent over the backdrop with a real blur
+          // behind it, so the chrome belongs to the same material as the cards.
           tabBarStyle: {
-            backgroundColor: colors.paper,
-            borderTopColor: colors.line,
+            position: 'absolute',
+            backgroundColor: 'transparent',
+            borderTopColor: 'rgba(255,255,255,0.7)',
+            elevation: 0,
           },
+          tabBarBackground: () => (
+            <View style={StyleSheet.absoluteFill}>
+              <BlurView
+                intensity={Platform.OS === 'android' ? 28 : 48}
+                tint="light"
+                style={StyleSheet.absoluteFill}
+              />
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  {
+                    backgroundColor: `rgba(255,255,255,${
+                      Platform.OS === 'android' ? 0.74 : 0.55
+                    })`,
+                  },
+                ]}
+              />
+            </View>
+          ),
           tabBarLabelStyle: { fontSize: 11 },
         }}
       >

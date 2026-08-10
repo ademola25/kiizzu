@@ -37,6 +37,12 @@ export const tentzu = {
   primaryGlow: '#00d7d7', // bright cyan glow
   primaryFixed: '#50f9f9', // lightest brand cyan
   onPrimaryContainer: '#005959',
+  // Liquid-glass CTA ramp: cyan -> brand blue, matching the reference flow.
+  // A flat fill reads as a 2019 button next to frosted surfaces; the ramp plus a
+  // coloured glow is what makes the pill feel lit rather than painted.
+  ctaGradient: ['#2fd0e0', '#0e9ec4', '#0b7fb0'] as const,
+  glassStroke: 'rgba(255,255,255,0.65)',
+  glassFill: 'rgba(255,255,255,0.55)',
   tintSurface: '#e8f6f6', // soft teal wash (selected states, illustration panels)
   tintSurfaceDeep: '#d5efef',
   secondaryContainer: '#d1e1f4',

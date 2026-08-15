@@ -32,7 +32,12 @@ class Lease(models.Model):
     # ISO 4217. Held per-lease rather than per-user: rent is denominated by the
     # property's country, and one person may hold leases in more than one.
     currency = models.CharField(max_length=3, default="AED")
-    unit_number = models.CharField(max_length=50)
+    # Optional: a UK terraced house at "48 Devonshire Road" has no unit number,
+    # and the app stopped requiring one for GB/US/CA/AU/IE. This column staying
+    # NOT NULL/blank-forbidden meant lease creation 400'd right after email
+    # verification, which surfaced to the user as "the code didn't work" and
+    # blocked the dashboard entirely.
+    unit_number = models.CharField(max_length=50, blank=True)
     address = models.TextField()
     cheque_pattern = models.IntegerField(choices=CHEQUE_PATTERN_CHOICES)
     start_date = models.DateField()

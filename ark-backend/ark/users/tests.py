@@ -219,3 +219,114 @@ class TestEmailDelivery:
         monkeypatch.setattr(urllib.request, "urlopen", boom)
         with pytest.raises(EmailDeliveryError, match="403"):
             send_code_email("tenant@example.com", "111111", OneTimeCode.Purpose.VERIFY_EMAIL)
+
+
+@pytest.mark.django_db
+class TestFullSignupJourney:
+    """The exact sequence the app performs, end to end.
+
+    Every previous auth test exercised endpoints in isolation and passed while
+    the real journey was broken: email verification succeeded, then the lease
+    POST that finishOnboarding fires immediately afterwards returned 400 for
+    "unit_number: This field may not be blank." The user saw an error on the
+    verification screen and concluded the code was wrong.
+
+    Test the JOURNEY, not the endpoints.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _expose_codes(self, settings):
+        # The app relies on the server echoing the code while no mail provider
+        # is configured; the journey is only testable with it on.
+        settings.EXPOSE_OTP_CODES = True
+
+    def _register(self, api_client, email):
+        resp = api_client.post(
+            "/api/v1/auth/register/",
+            {"email": email, "name": "Journey", "phone": "+447911123456", "password": "TestPass123!"},
+            format="json",
+        )
+        assert resp.status_code == status.HTTP_201_CREATED, resp.data
+        return resp.data
+
+    def test_uk_signup_reaches_a_created_lease_without_a_unit_number(self, api_client):
+        data = self._register(api_client, "journey-uk@example.com")
+        api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {data['access']}")
+
+        verified = api_client.post(
+            "/api/v1/auth/email/verify/", {"code": data["dev_code"]}, format="json"
+        )
+        assert verified.status_code == status.HTTP_200_OK, verified.data
+
+        # Exactly what finishOnboarding posts for a UK terraced house.
+        lease = api_client.post(
+            "/api/v1/leases/create/",
+            {
+                "building_name": "48 Devonshire Road",
+                "area": "",
+                "city": "London",
+                "subdivision": "",
+                "postal_code": "W5 4TP",
+                "country": "GB",
+                "currency": "GBP",
+                "unit_number": "",
+                "address": "48 Devonshire Road, London, W5 4TP, United Kingdom",
+                "cheque_pattern": 12,
+                "start_date": "2026-09-01",
+                "rent_amount": 24000,
+            },
+            format="json",
+        )
+        assert lease.status_code == status.HTTP_201_CREATED, lease.data
+        assert len(lease.data["payment_schedules"]) == 12
+
+    def test_uae_signup_still_works_with_a_unit_number(self, api_client):
+        data = self._register(api_client, "journey-ae@example.com")
+        api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {data['access']}")
+        api_client.post("/api/v1/auth/email/verify/", {"code": data["dev_code"]}, format="json")
+
+        lease = api_client.post(
+            "/api/v1/leases/create/",
+            {
+                "building_name": "Marina Heights",
+                "area": "Dubai Marina",
+                "city": "Dubai",
+                "subdivision": "DU",
+                "postal_code": "",
+                "country": "AE",
+                "currency": "AED",
+                "unit_number": "1205",
+                "address": "Unit 1205, Marina Heights, Dubai Marina, Dubai",
+                "cheque_pattern": 4,
+                "start_date": "2026-09-01",
+                "rent_amount": 90000,
+            },
+            format="json",
+        )
+        assert lease.status_code == status.HTTP_201_CREATED, lease.data
+
+    def test_every_optional_address_field_can_be_blank_at_once(self, api_client):
+        """The minimum a country like Hong Kong or a bare street address needs."""
+        data = self._register(api_client, "journey-min@example.com")
+        api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {data['access']}")
+        api_client.post("/api/v1/auth/email/verify/", {"code": data["dev_code"]}, format="json")
+
+        lease = api_client.post(
+            "/api/v1/leases/create/",
+            {
+                "building_name": "12 Queen's Road East",
+                "area": "",
+                "city": "Wan Chai",
+                "subdivision": "",
+                "postal_code": "",
+                "country": "HK",
+                "currency": "HKD",
+                "unit_number": "",
+                "address": "12 Queen's Road East, Wan Chai, Hong Kong",
+                "cheque_pattern": 12,
+                "start_date": "2026-09-01",
+                "rent_amount": 120000,
+            },
+            format="json",
+        )
+        assert lease.status_code == status.HTTP_201_CREATED, lease.data

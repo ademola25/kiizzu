@@ -34,6 +34,11 @@ const STAGES = [
 export function OrganizingOverlay({ visible, onDone, duration = 3000 }: Props) {
   const [stage, setStage] = useState(0);
   const progress = useRef(new Animated.Value(0)).current;
+  // Callers pass an inline arrow, so `onDone` is a new function every render.
+  // Depending on it directly would restart the timers on any parent re-render
+  // and the overlay could never finish. Hold it in a ref and depend on nothing.
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
   const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -60,12 +65,12 @@ export function OrganizingOverlay({ visible, onDone, duration = 3000 }: Props) {
 
     const step = duration / STAGES.length;
     const timers = STAGES.map((_, i) => setTimeout(() => setStage(i), i * step));
-    const finish = setTimeout(onDone, duration);
+    const finish = setTimeout(() => onDoneRef.current(), duration);
     return () => {
       timers.forEach(clearTimeout);
       clearTimeout(finish);
     };
-  }, [visible, duration, onDone, progress, pulse]);
+  }, [visible, duration, progress, pulse]);
 
   const width = progress.interpolate({ inputRange: [0, 1], outputRange: ['4%', '100%'] });
   const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] });

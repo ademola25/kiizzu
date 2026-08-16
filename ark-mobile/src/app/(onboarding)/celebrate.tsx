@@ -15,6 +15,17 @@ const MASCOT = require('../../../assets/images/mascot-tentzu-full.png');
 export default function CelebrateStep() {
   const insets = useSafeAreaInsets();
   const reset = useOnboarding((s) => s.reset);
+  const draft = useOnboarding((s) => s.draft);
+
+  // Only claim the lease is filed when it actually is. The upload happens after
+  // sign-in and can fail; saying "your documents are safe with me" regardless
+  // would be a promise broken the moment the user opens Documents.
+  const docLine =
+    draft.lease_document_name && draft.lease_document_stored === true
+      ? 'Your payment plan is saved and your lease is filed away safely.'
+      : draft.lease_document_name && draft.lease_document_stored === false
+        ? "Your payment plan is saved. I couldn't file your lease just now — you can add it from Documents whenever you like."
+        : 'Your payment plan is saved.';
 
   const goToDashboard = () => {
     reset();
@@ -52,8 +63,8 @@ export default function CelebrateStep() {
             alignSelf: 'center',
           }}
         >
-          Your payment plan is saved and your documents are safe with me. I'll ping you well
-          before each one is due. From now on, just ask me anything.
+          {docLine} I'll ping you well before each payment is due. From now on, just ask me
+          anything.
         </Text>
       </View>
 

@@ -34,6 +34,8 @@ export type OnboardingDraft = {
   lease_document_name: string | null;
   lease_document_mime: string | null;
   lease_document_size: number | null;
+  /** Set by finishOnboarding: did the upload actually succeed? null = not tried. */
+  lease_document_stored: boolean | null;
   /** Step 8. */
   home_type: HomeType | '';
   /** Step 9: drives the 90/60/30-day renewal reminders we promise. */
@@ -64,6 +66,7 @@ const empty: OnboardingDraft = {
   lease_document_name: null,
   lease_document_mime: null,
   lease_document_size: null,
+  lease_document_stored: null,
   home_type: '',
   lease_end_date: '',
   extra_docs: [],

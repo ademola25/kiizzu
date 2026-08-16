@@ -67,8 +67,12 @@ export async function finishOnboarding(): Promise<void> {
         },
         documentType: 'lease',
       });
+      useOnboarding.getState().set('lease_document_stored', true);
     } catch {
-      // Swallowed on purpose — see above.
+      // Non-fatal, but NOT silent: the celebrate screen reads this and stops
+      // claiming the document is safe when it isn't. Telling someone their
+      // lease is filed when the upload failed is worse than the failure.
+      useOnboarding.getState().set('lease_document_stored', false);
     }
   }
 

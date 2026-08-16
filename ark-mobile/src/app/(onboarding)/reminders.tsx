@@ -20,9 +20,9 @@ export default function RemindersStep() {
       step={5}
       total={7}
       illustration={<MascotHero source={mascotAssistant} height={200} />}
-      title="How should Tentzu remind you?"
-      subtitle="Tentzu nudges you 30, 7 and 1 day before every cheque is due — so you're never caught short."
-      primaryLabel="Continue"
+      title="What should I watch for you?"
+      subtitle="Pick where I should reach you. I'll nudge you 30, 7 and 1 day before every payment so you never worry again."
+      primaryLabel="Set my reminders"
       primaryIcon="arrow-forward"
       onPrimary={() => router.push('/(onboarding)/plan')}
     >
@@ -30,13 +30,13 @@ export default function RemindersStep() {
         <ChannelCard
           icon="mail"
           title="Email"
-          subtitle="Always on — sent to the address you sign up with."
+          subtitle="Always on — I'll email the address you sign up with."
           right={<LockedOn />}
         />
         <ChannelCard
           icon="logo-whatsapp"
           title="WhatsApp"
-          subtitle="Get a friendly message on WhatsApp too. Recommended."
+          subtitle="I'll message you on WhatsApp too. Recommended."
           right={
             <Switch
               value={draft.whatsapp_opted_in}

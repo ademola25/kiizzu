@@ -26,9 +26,9 @@ export default function RentStep() {
       step={3}
       total={7}
       illustration={<RentArt />}
-      title="What's your yearly rent?"
-      subtitle="Enter the total for the whole year — Tentzu splits it across your cheques."
-      primaryLabel="Continue"
+      title="How much is the rent?"
+      subtitle="Give me the yearly total and I'll work out each payment for you — you won't have to do the maths."
+      primaryLabel="Work it out for me"
       primaryIcon="arrow-forward"
       primaryDisabled={!valid}
       onPrimary={() => router.push('/(onboarding)/due-date')}

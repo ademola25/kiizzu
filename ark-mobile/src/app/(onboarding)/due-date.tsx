@@ -20,9 +20,9 @@ export default function DueDateStep() {
       backdrop="photo"
       step={4}
       total={7}
-      title="When is your next rent due?"
-      subtitle="Pick the date of your next (or first) cheque. Tentzu counts every cheque from here."
-      primaryLabel="Continue"
+      title="First, when is rent due?"
+      subtitle="Tell me the date of your next payment. I'll remember it and remind you before it's late."
+      primaryLabel="Got it"
       primaryIcon="arrow-forward"
       primaryDisabled={!valid}
       onPrimary={() => router.push('/(onboarding)/reminders')}

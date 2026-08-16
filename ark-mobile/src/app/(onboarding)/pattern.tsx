@@ -21,9 +21,9 @@ export default function PatternStep() {
       step={2}
       total={7}
       illustration={<PayArt />}
-      title="How do you pay rent?"
-      subtitle="Rent is usually paid in a set number of instalments across the year. Pick yours."
-      primaryLabel="Continue"
+      title="How do you usually pay?"
+      subtitle="Cheque, transfer, or portal — however you pay, I'll track it and ping you when the next one is ready."
+      primaryLabel="That's the one"
       primaryIcon="arrow-forward"
       primaryDisabled={selected === null}
       onPrimary={() => router.push('/(onboarding)/rent')}

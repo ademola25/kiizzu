@@ -44,7 +44,7 @@ export default function WelcomeScreen() {
           >
             Meet Tentzu, your{'\n'}
             <Text style={{ fontFamily: tentzuFont.headlineItalic, color: tentzu.primary }}>
-              rental companion
+              rental copilot
             </Text>
             .
           </Text>
@@ -60,13 +60,13 @@ export default function WelcomeScreen() {
               maxWidth: 330,
             }}
           >
-            Tentzu remembers every rent cheque — the date and the amount — and keeps your
-            documents safe. Let's set yours up in under a minute.
+            I'll handle your rent, your documents and your reminders so you don't have to.
+            Answer a few quick questions and I'll take it from there.
           </Text>
 
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 22, width: '100%' }}>
-            <Feature icon="calendar-outline" label="Never miss a date" />
-            <Feature icon="shield-checkmark-outline" label="Documents, safe" />
+            <Feature icon="calendar-outline" label="I'll track every date" />
+            <Feature icon="shield-checkmark-outline" label="I'll keep your docs safe" />
           </View>
         </View>
       </ScrollView>

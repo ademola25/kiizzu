@@ -116,11 +116,11 @@ export default function SaveStep() {
       step={7}
       total={7}
       illustration={<SaveArt />}
-      title={alreadySignedIn ? 'Finish setup' : 'Save your rent plan'}
+      title={alreadySignedIn ? 'Nearly there.' : 'Save your Tentzu.'}
       subtitle={
         alreadySignedIn
-          ? 'Confirm and Tentzu will start tracking your cheques right away.'
-          : 'Create a free account (or log in) to unlock your dashboard and start your reminders.'
+          ? "Confirm and I'll start tracking your payments right away."
+          : "Create a login so your rental brain is safe and synced. Takes 10 seconds." 
       }
       primaryLabel={primaryLabel}
       primaryIcon="arrow-forward"

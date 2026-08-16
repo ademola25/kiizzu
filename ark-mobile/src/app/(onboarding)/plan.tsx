@@ -29,9 +29,9 @@ export default function PlanStep() {
       step={6}
       total={7}
       illustration={<PlanArt />}
-      title="Here's your rent plan"
-      subtitle="This is what Tentzu will keep an eye on. You can fine-tune it anytime after setup."
-      primaryLabel="Looks good"
+      title="Here's your rent plan."
+      subtitle="I've set out every payment below. I'll ping you before each one — you can change any of it later."
+      primaryLabel="Looks right"
       primaryIcon="arrow-forward"
       primaryDisabled={!ready}
       onPrimary={() => router.push('/(onboarding)/save')}

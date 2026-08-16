@@ -38,7 +38,7 @@ export default function CelebrateStep() {
             marginTop: 26,
           }}
         >
-          Your home, finally organized.
+          You're all set. Here's what I'm watching.
         </Text>
         <Text
           style={{
@@ -52,13 +52,13 @@ export default function CelebrateStep() {
             alignSelf: 'center',
           }}
         >
-          Your cheque schedule is set and your documents are safe. Tentzu will remind you well
-          before each cheque is due — so rent day never sneaks up on you again.
+          Your payment plan is saved and your documents are safe with me. I'll ping you well
+          before each one is due. From now on, just ask me anything.
         </Text>
       </View>
 
       <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 16 }}>
-        <TentzuButton label="Go to my dashboard" onPress={goToDashboard} icon="arrow-forward" />
+        <TentzuButton label="Show me my dashboard" onPress={goToDashboard} icon="arrow-forward" />
       </View>
     </View>
   );

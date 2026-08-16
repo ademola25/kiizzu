@@ -100,9 +100,9 @@ export default function HomeStep() {
       step={1}
       total={TOTAL}
       illustration={<HomeArt />}
-      title="Where do you rent?"
-      subtitle="Pick your country first — we'll ask for the rest the way your country writes it."
-      primaryLabel="Continue"
+      title="Where is home?"
+      subtitle="Start with your country and I'll ask for the rest the way your country writes it."
+      primaryLabel="That's my place"
       primaryIcon="arrow-forward"
       primaryDisabled={!ready}
       onPrimary={() => router.push('/(onboarding)/pattern')}

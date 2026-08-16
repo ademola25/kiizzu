@@ -96,8 +96,8 @@ export default function VerifyEmailScreen() {
     <TentzuScreen
       backdrop="warm"
       illustration={<MascotHero source={mascotPortrait} height={200} />}
-      title="Verify your email"
-      subtitle={`We sent a 6-digit code to ${email}. Enter it to secure your account and unlock your dashboard.`}
+      title="Let's make it official."
+      subtitle={`I've sent a 6-digit code to ${email}. Pop it in and your rental brain is saved.`}
       primaryLabel="Verify & continue"
       primaryIcon="arrow-forward"
       primaryDisabled={code.length !== 6}

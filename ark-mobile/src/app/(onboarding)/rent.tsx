@@ -23,15 +23,15 @@ export default function RentStep() {
 
   return (
     <TentzuScreen
-      step={3}
-      total={7}
+      step={4}
+      total={14}
       illustration={<RentArt />}
       title="How much is the rent?"
       subtitle="Give me the yearly total and I'll work out each payment for you — you won't have to do the maths."
       primaryLabel="Work it out for me"
       primaryIcon="arrow-forward"
       primaryDisabled={!valid}
-      onPrimary={() => router.push('/(onboarding)/due-date')}
+      onPrimary={() => router.push('/(onboarding)/reminders')}
     >
       <TentzuField
         label="Total annual rent"

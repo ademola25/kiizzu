@@ -18,13 +18,13 @@ export default function RemindersStep() {
   return (
     <TentzuScreen
       step={5}
-      total={7}
+      total={14}
       illustration={<MascotHero source={mascotAssistant} height={200} />}
       title="What should I watch for you?"
       subtitle="Pick where I should reach you. I'll nudge you 30, 7 and 1 day before every payment so you never worry again."
       primaryLabel="Set my reminders"
       primaryIcon="arrow-forward"
-      onPrimary={() => router.push('/(onboarding)/plan')}
+      onPrimary={() => router.push('/(onboarding)/contacts')}
     >
       <View style={{ gap: 12 }}>
         <ChannelCard

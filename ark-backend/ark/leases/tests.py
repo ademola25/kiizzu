@@ -303,3 +303,52 @@ class TestAddressShapePerCountry:
         assert resp.status_code == 201, resp.data
         assert resp.data["subdivision"] == ""
         assert resp.data["postal_code"] == ""
+
+
+@pytest.mark.django_db
+class TestFourteenStepFields:
+    """Fields collected by the new conversational steps must round-trip, and
+    every one of them must be omittable — steps 6, 7, 10 and 13 are skippable,
+    so a lease created without them has to succeed."""
+
+    def test_new_fields_round_trip(self, api_client, lease_data):
+        resp = api_client.post(
+            "/api/v1/leases/create/",
+            {
+                **lease_data,
+                "home_type": "villa",
+                "lease_end_date": "2027-01-31",
+                "contacts": [
+                    {"label": "Landlord", "name": "Aisha", "phone": "+971501234567"},
+                    {"label": "Maintenance", "name": "Cool Air AC", "phone": "+971504445555"},
+                ],
+            },
+            format="json",
+        )
+        assert resp.status_code == 201, resp.data
+        assert resp.data["home_type"] == "villa"
+        assert resp.data["lease_end_date"] == "2027-01-31"
+        assert len(resp.data["contacts"]) == 2
+        assert resp.data["contacts"][0]["name"] == "Aisha"
+
+    def test_all_skippable_fields_may_be_omitted(self, api_client, lease_data):
+        resp = api_client.post("/api/v1/leases/create/", lease_data, format="json")
+        assert resp.status_code == 201, resp.data
+        assert resp.data["home_type"] == ""
+        assert resp.data["lease_end_date"] is None
+        assert resp.data["contacts"] == []
+
+    def test_blank_lease_end_date_is_accepted_as_null(self, api_client, lease_data):
+        """"I don't know yet" sends null, not an empty string."""
+        resp = api_client.post(
+            "/api/v1/leases/create/",
+            {**lease_data, "lease_end_date": None, "home_type": "", "contacts": []},
+            format="json",
+        )
+        assert resp.status_code == 201, resp.data
+
+    def test_invalid_home_type_is_rejected(self, api_client, lease_data):
+        resp = api_client.post(
+            "/api/v1/leases/create/", {**lease_data, "home_type": "castle"}, format="json"
+        )
+        assert resp.status_code == 400

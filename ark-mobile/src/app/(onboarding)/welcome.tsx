@@ -73,7 +73,7 @@ export default function WelcomeScreen() {
 
       <View style={{ paddingHorizontal: 24, paddingTop: 14, paddingBottom: insets.bottom + 12 }}>
         <Pressable
-          onPress={() => router.push('/(onboarding)/home')}
+          onPress={() => router.push('/(onboarding)/due-date')}
           onPressIn={() => setPressed(true)}
           onPressOut={() => setPressed(false)}
           accessibilityRole="button"

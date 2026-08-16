@@ -113,8 +113,8 @@ export default function SaveStep() {
   return (
     <TentzuScreen
       backdrop="photo"
-      step={7}
-      total={7}
+      step={14}
+      total={14}
       illustration={<SaveArt />}
       title={alreadySignedIn ? 'Nearly there.' : 'Save your Tentzu.'}
       subtitle={

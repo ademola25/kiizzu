@@ -40,6 +40,20 @@ class Lease(models.Model):
     unit_number = models.CharField(max_length=50, blank=True)
     address = models.TextField()
     cheque_pattern = models.IntegerField(choices=CHEQUE_PATTERN_CHOICES)
+    # Onboarding step 8 — "Looks like you're in an apartment."
+    HOME_TYPE_CHOICES = [
+        ("apartment", "Apartment"),
+        ("villa", "Villa"),
+        ("townhouse", "Townhouse"),
+        ("commercial", "Commercial"),
+    ]
+    home_type = models.CharField(max_length=16, choices=HOME_TYPE_CHOICES, blank=True)
+    # Onboarding step 9 — drives the "I'll remind you 90/60/30 days before" promise.
+    lease_end_date = models.DateField(null=True, blank=True)
+    # Onboarding step 5 — [{"label": "Landlord", "name": ..., "phone": ...}].
+    # JSON rather than a table: it is a short, read-mostly list owned entirely by
+    # one lease, and a Contact model would buy nothing at this size.
+    contacts = models.JSONField(default=list, blank=True)
     start_date = models.DateField()
     rent_amount = models.DecimalField(max_digits=12, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)

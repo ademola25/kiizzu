@@ -24,7 +24,24 @@ export type OnboardingDraft = {
   start_date: string; // YYYY-MM-DD (first cheque due date)
   rent_amount: string; // string to preserve typed input; coerced on submit
   whatsapp_opted_in: boolean;
+
+  // — added for the 14-step conversational journey (proposal Appendix C) —
+  /** Step 5, skippable: who to call when something breaks. */
+  contacts: Contact[];
+  /** Step 6: local URI of the lease the user picked. Uploaded after sign-in,
+   *  because every onboarding step before 14 is unauthenticated. */
+  lease_document_uri: string | null;
+  lease_document_name: string | null;
+  /** Step 8. */
+  home_type: HomeType | '';
+  /** Step 9: drives the 90/60/30-day renewal reminders we promise. */
+  lease_end_date: string;
+  /** Step 12, skippable: doc types the user wants to add after setup. */
+  extra_docs: string[];
 };
+
+export type Contact = { label: string; name: string; phone: string };
+export type HomeType = 'apartment' | 'villa' | 'townhouse' | 'commercial';
 
 const empty: OnboardingDraft = {
   building_name: '',
@@ -40,6 +57,12 @@ const empty: OnboardingDraft = {
   start_date: '',
   rent_amount: '',
   whatsapp_opted_in: true, // reminders are the whole point; default on, toggle to opt out
+  contacts: [],
+  lease_document_uri: null,
+  lease_document_name: null,
+  home_type: '',
+  lease_end_date: '',
+  extra_docs: [],
 };
 
 type OnboardingState = {

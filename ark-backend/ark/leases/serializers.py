@@ -24,6 +24,7 @@ class LeaseCreateSerializer(serializers.ModelSerializer):
         model = Lease
         fields = (
             "building_name", "area", "city", "subdivision", "postal_code", "country", "currency", "unit_number",
+            "home_type", "lease_end_date", "contacts",
             "address", "cheque_pattern", "start_date", "rent_amount",
         )
 
@@ -43,6 +44,7 @@ class LeaseDetailSerializer(serializers.ModelSerializer):
         model = Lease
         fields = (
             "id", "building_name", "area", "city", "subdivision", "postal_code", "country", "currency",
+            "home_type", "lease_end_date", "contacts",
             "unit_number", "address",
             "cheque_pattern", "start_date", "rent_amount",
             "payment_schedules", "created_at", "updated_at",
@@ -55,6 +57,7 @@ class LeaseUpdateSerializer(serializers.ModelSerializer):
         model = Lease
         fields = (
             "building_name", "area", "city", "subdivision", "postal_code", "country", "currency", "unit_number",
+            "home_type", "lease_end_date", "contacts",
             "address", "cheque_pattern", "start_date", "rent_amount",
         )
 

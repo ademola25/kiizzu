@@ -18,8 +18,8 @@ export default function PatternStep() {
 
   return (
     <TentzuScreen
-      step={2}
-      total={7}
+      step={3}
+      total={14}
       illustration={<PayArt />}
       title="How do you usually pay?"
       subtitle="Cheque, transfer, or portal — however you pay, I'll track it and ping you when the next one is ready."

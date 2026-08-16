@@ -26,15 +26,15 @@ export default function PlanStep() {
   return (
     <TentzuScreen
       backdrop="photo"
-      step={6}
-      total={7}
+      step={11}
+      total={14}
       illustration={<PlanArt />}
       title="Here's your rent plan."
       subtitle="I've set out every payment below. I'll ping you before each one — you can change any of it later."
       primaryLabel="Looks right"
       primaryIcon="arrow-forward"
       primaryDisabled={!ready}
-      onPrimary={() => router.push('/(onboarding)/save')}
+      onPrimary={() => router.push('/(onboarding)/watching')}
     >
       {/* Home summary */}
       <View

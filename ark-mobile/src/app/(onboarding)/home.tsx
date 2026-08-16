@@ -97,7 +97,7 @@ export default function HomeStep() {
 
   return (
     <TentzuScreen
-      step={1}
+      step={8}
       total={TOTAL}
       illustration={<HomeArt />}
       title="Where is home?"
@@ -105,7 +105,7 @@ export default function HomeStep() {
       primaryLabel="That's my place"
       primaryIcon="arrow-forward"
       primaryDisabled={!ready}
-      onPrimary={() => router.push('/(onboarding)/pattern')}
+      onPrimary={() => router.push('/(onboarding)/home-type')}
     >
       <CountrySelect
         label="Country"

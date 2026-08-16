@@ -18,14 +18,14 @@ export default function DueDateStep() {
   return (
     <TentzuScreen
       backdrop="photo"
-      step={4}
-      total={7}
+      step={2}
+      total={14}
       title="First, when is rent due?"
       subtitle="Tell me the date of your next payment. I'll remember it and remind you before it's late."
       primaryLabel="Got it"
       primaryIcon="arrow-forward"
       primaryDisabled={!valid}
-      onPrimary={() => router.push('/(onboarding)/reminders')}
+      onPrimary={() => router.push('/(onboarding)/pattern')}
     >
       <TentzuCalendar
         value={valid ? draft.start_date : null}

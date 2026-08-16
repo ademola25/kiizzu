@@ -9,7 +9,7 @@ import { TentzuBackground } from '@/components/onboarding/TentzuBackground';
 import { useOnboarding } from '@/store/onboarding';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
-const MASCOT = require('../../../assets/images/mascot-tentzu-portrait.png');
+const MASCOT = require('../../../assets/images/mascot-tentzu-full.png');
 
 // Final screen — the payoff. Clears the draft and opens the dashboard.
 export default function CelebrateStep() {

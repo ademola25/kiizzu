@@ -1,6 +1,7 @@
 // Mascot artwork: derived from onboarding-flow/grok-tentzu.jpg.
-// Cropped above the lanyard, which reads "KIZU CHEQUE KEEPER" — old
-// branding that is legible at hero size.
+// The lanyard badge read "KIZU CHEQUE KEEPER" — old branding, legible at
+// hero size — so it is blurred out in the asset. The figure is otherwise whole
+// and is rendered in full (contain, not cover) everywhere it appears.
 // Shared mascot image sources so screens don't each re-declare the require path.
-export const mascotAssistant = require('../../../assets/images/mascot-tentzu.png');
-export const mascotPortrait = require('../../../assets/images/mascot-tentzu-portrait.png');
+export const mascotAssistant = require('../../../assets/images/mascot-tentzu-full.png');
+export const mascotPortrait = require('../../../assets/images/mascot-tentzu-full.png');

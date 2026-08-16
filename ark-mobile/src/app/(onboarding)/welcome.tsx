@@ -10,7 +10,7 @@ import { MascotHero } from '@/components/onboarding/MascotHero';
 import { TentzuBackground } from '@/components/onboarding/TentzuBackground';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
-const MASCOT = require('../../../assets/images/mascot-tentzu.png');
+const MASCOT = require('../../../assets/images/mascot-tentzu-full.png');
 
 // Step 1 — "Meet Tentzu". Friendly mascot hero up top; all copy sits below it on
 // a clean background so it stays perfectly legible.

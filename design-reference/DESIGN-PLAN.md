@@ -11,7 +11,7 @@ from those comps).
 **The gap is not mainly visual. It is conversational.**
 
 I have spent several rounds matching the comps' *look*. The proposal is about
-something else entirely: Kizu is meant to behave like a **virtual tenant
+something else entirely: Tentzu is meant to behave like a **virtual tenant
 assistant**, not a form that happens to have a mascot on it.
 
 The proposal's own words on the current design:
@@ -27,7 +27,7 @@ with a mascot decorating it.
 The proposal explicitly recommends **Appendix C: "Wizard of Oz"** — build now,
 without AI:
 
-> "Same 14 screens technically, but conversational copy makes Kizu feel like
+> "Same 14 screens technically, but conversational copy makes Tentzu feel like
 > assistant from first screen."
 
 So this is achievable with copy, ordering and two new screens. No AI required.
@@ -36,23 +36,26 @@ So this is achievable with copy, ordering and two new screens. No AI required.
 
 ## The 14-step flow, with the exact copy from the proposal
 
+> The proposal predates the rename — it says "Kizu" throughout. Every instance
+> below is written as **Tentzu**, including `vault@tentzu.app`.
+
 | # | Screen | Copy (verbatim) |
 |---|---|---|
-| 1 | Meet Kizu, your rental copilot. | I'll handle your rent, docs, and maintenance so you don't have to. |
+| 1 | Meet Tentzu, your rental copilot. | I'll handle your rent, docs, and maintenance so you don't have to. |
 | 2 | First, when is rent due? | Tell me the date or just upload your lease. I'll remember it and remind you before it's late. |
 | 3 | How do you usually pay? | Cheque, transfer, or portal. I'll track it and ping you when the next one is ready. |
 | 4 | What should I watch for you? | Pick your top headaches. I'll set up auto-reminders so you never worry again. |
 | 5 | Who do I call if something breaks? *(skippable)* | Add your landlord, building security, or AC guy. Or skip and I'll help you find them later. |
 | 6 | Let me read your lease for you. | Upload your lease PDF or photo. I'll pull out rent, dates, and landlord details so you don't have to type them. |
-| — | *3-second loader* | "Kizu is organizing your lease…" |
+| — | *3-second loader* | "Tentzu is organizing your lease…" |
 | 7 | Confirm your home. | I found this in your lease: Marina Heights, Dubai. **Right?** |
 | 8 | Looks like you're in an apartment. | Based on your lease, it's a 2BR apartment. Update if needed. |
 | 9 | Your lease ends 31 Dec 2025. | I'll remind you 90, 60, and 30 days before so you can renew or move. |
 | 10 | Here's your rent plan. | I set up 4 cheques: 14 Jan, 14 Apr, 14 Jul, 14 Oct. I'll ping you 5 days before each. |
 | 11 | You're all set. Here's what I'm watching. | Next rent: 14 Jul in 21 days. Docs: Lease and Emirates ID stored. Renewal: 5 months away. |
-| 12 | Want me to save anything else? *(skippable)* | Ejari, DEWA bills, insurance. Add now or anytime by forwarding to vault@kizu.app. |
-| 13 | Kizu is now your rental copilot. | From now on, just ask me anything: "When is rent due?" or "Who fixes the AC?" |
-| 14 | Save your Kizu. | Create a login so your rental brain is safe and synced. Takes 10 seconds. |
+| 12 | Want me to save anything else? *(skippable)* | Ejari, DEWA bills, insurance. Add now or anytime by forwarding to vault@tentzu.app. |
+| 13 | Tentzu is now your rental copilot. | From now on, just ask me anything: "When is rent due?" or "Who fixes the AC?" |
+| 14 | Save your Tentzu. | Create a login so your rental brain is safe and synced. Takes 10 seconds. |
 
 ---
 
@@ -128,7 +131,7 @@ Already extracted in `SPEC.md`. Recap of what is still not done:
 ## Phased plan
 
 ### Phase 1 — Conversational copy (no new screens, highest value/effort ratio)
-Rewrite every existing onboarding screen into first-person Kizu voice using the
+Rewrite every existing onboarding screen into first-person Tentzu voice using the
 proposal's wording. Change CTA labels. This alone converts "form" into
 "assistant" and is a copy-only change.
 
@@ -137,7 +140,7 @@ Move "when is rent due" to step 2. Split the compound screens. Add skippable
 steps 5 and 12. Add the "what I'm watching" summary (11) and copilot close (13).
 
 ### Phase 3 — Lease upload + the Wizard of Oz illusion
-Add step 6 upload, the 3-second "Kizu is organizing your lease…" loader, and
+Add step 6 upload, the 3-second "Tentzu is organizing your lease…" loader, and
 turn 7/8/9 into confirmations pre-filled from whatever we can extract. Without
 a parser, pre-fill from what the user already told us and still phrase it as a
 confirmation — that is exactly what "Wizard of Oz" means here.
@@ -157,4 +160,4 @@ Reframe the dashboard around the step-11 language rather than as a data table.
 2. **Mascot poses**: can the designer supply the per-screen poses, or do we
    reuse one image and accept a flatter result?
 3. **Radius conflict**: 16px (proposal) vs 20–28px (comps) — designer to settle.
-4. **`vault@kizu.app` forwarding** (step 12) — real feature or copy only?
+4. **`vault@tentzu.app` forwarding** (step 12) — real feature or copy only?

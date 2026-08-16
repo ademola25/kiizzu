@@ -18,9 +18,9 @@ export default function DueDateStep() {
   return (
     <TentzuScreen
       backdrop="photo"
-      step={2}
+      step={4}
       total={14}
-      title="First, when is rent due?"
+      title="When is rent due?"
       subtitle="Tell me the date of your next payment. I'll remember it and remind you before it's late."
       primaryLabel="Got it"
       primaryIcon="arrow-forward"

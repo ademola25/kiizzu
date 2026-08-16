@@ -26,8 +26,13 @@ export async function finishOnboarding(): Promise<void> {
   // Send the device timezone alongside the WhatsApp preference: reminder
   // windows are computed in the tenant's own local day server-side, and the
   // default (Asia/Dubai) is wrong for everyone outside the Gulf.
+  // Only the free channel is sent. A new account is always on the free plan,
+  // and the server refuses to enable a paid channel there — sending the paid
+  // preferences would 400 and take the entire signup down with it, which is
+  // exactly how the `unit_number` regression bit us. The paid channels the
+  // tenant asked for are offered again at the upgrade prompt.
   await auth.updateProfile({
-    whatsapp_opted_in: draft.whatsapp_opted_in,
+    notify_in_app: draft.notify_in_app,
     timezone: deviceTimezone(),
   });
   await api.post('/leases/create/', {

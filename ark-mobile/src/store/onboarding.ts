@@ -4,7 +4,7 @@ import { countryByCode, deviceTimezone, guessCountryFromTimezone } from '@/lib/c
 import { subdivisionName } from '@/lib/addressFormats';
 
 // Lease fields match the backend POST /leases/create/ payload directly.
-// `whatsapp_opted_in` is a *user* preference (PATCH /auth/me/), captured here
+// The `notify_*` flags are *user* preferences (PATCH /auth/me/), captured here
 // during the survey and applied right after the account is created.
 // Must divide 12 — the schedule engine spaces cheques 12/pattern months apart.
 export type ChequePattern = 1 | 2 | 3 | 4 | 6 | 12;
@@ -23,7 +23,14 @@ export type OnboardingDraft = {
   cheque_pattern: ChequePattern | null;
   start_date: string; // YYYY-MM-DD (first cheque due date)
   rent_amount: string; // string to preserve typed input; coerced on submit
-  whatsapp_opted_in: boolean;
+
+  // Reminder channels. Only `notify_in_app` is free, so it is the only one a
+  // brand-new (free) account can actually have switched on — the others are
+  // recorded as intent and offered again at the upgrade prompt.
+  notify_in_app: boolean;
+  notify_email: boolean;
+  notify_sms: boolean;
+  notify_whatsapp: boolean;
 
   // — added for the 14-step conversational journey (proposal Appendix C) —
   /** Step 5, skippable: who to call when something breaks. */
@@ -60,7 +67,14 @@ const empty: OnboardingDraft = {
   cheque_pattern: null,
   start_date: '',
   rent_amount: '',
-  whatsapp_opted_in: true, // reminders are the whole point; default on, toggle to opt out
+  // In-app is free, so it is the one channel we can honestly promise on
+  // signup. The paid three default OFF: defaulting them on would make the
+  // account-creation PATCH request channels the server must refuse, which
+  // failed the whole signup rather than the toggle.
+  notify_in_app: true,
+  notify_email: false,
+  notify_sms: false,
+  notify_whatsapp: false,
   contacts: [],
   lease_document_uri: null,
   lease_document_name: null,

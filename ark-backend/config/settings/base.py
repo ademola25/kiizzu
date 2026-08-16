@@ -188,6 +188,9 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID", default="")
 TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN", default="")
 TWILIO_WHATSAPP_FROM = env("TWILIO_WHATSAPP_FROM", default="whatsapp:+14155238886")
+# No default: a wrong "from" number makes every SMS fail at Twilio rather
+# than locally, which costs a round-trip per reminder to discover.
+TWILIO_SMS_FROM = env("TWILIO_SMS_FROM", default="")
 
 # SendGrid
 SENDGRID_API_KEY = env("SENDGRID_API_KEY", default="")

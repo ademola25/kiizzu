@@ -36,7 +36,10 @@ export type Document = {
   uploaded_at: string; // ISO datetime
 };
 
-export type ReminderChannel = 'whatsapp' | 'email';
+export type ReminderChannel = 'whatsapp' | 'email' | 'sms' | 'in_app';
+
+/** Channels a tenant can be reached on. `in_app` is free; the rest are paid. */
+export const NOTIFICATION_CHANNELS = ['in_app', 'email', 'sms', 'whatsapp'] as const;
 export type ReminderStatus = 'sent' | 'delivered' | 'failed';
 export type ReminderType = '30d' | '7d' | '1d';
 
@@ -48,6 +51,23 @@ export type ReminderLog = {
   error_message: string;
   sent_at: string; // ISO datetime
   delivered_at: string | null;
+  /** Rendered copy — populated for in-app notifications. */
+  title: string;
+  body: string;
+  read_at: string | null;
+  is_read: boolean;
+};
+
+/**
+ * What the server says this account may switch on. The app must not re-derive
+ * the paid/free split from the tier itself — the server is the only authority,
+ * and two copies of that rule would eventually disagree.
+ */
+export type NotificationPlan = {
+  paid: boolean;
+  free_channels: ReminderChannel[];
+  paid_channels: ReminderChannel[];
+  allowed: ReminderChannel[];
 };
 
 export type ChequePattern = 1 | 2 | 3 | 4 | 6 | 12;

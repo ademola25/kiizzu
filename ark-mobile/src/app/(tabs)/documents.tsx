@@ -15,6 +15,7 @@ import {
 import { DocumentRow } from '@/components/documents/DocumentRow';
 import { UploadSheet } from '@/components/documents/UploadSheet';
 import { PillButton } from '@/components/ui/PillButton';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StateCard } from '@/components/ui/StateCard';
 import { errorMessage } from '@/lib/errors';
@@ -117,6 +118,7 @@ export default function DocumentsScreen() {
         <ScreenHeader
           title="Documents"
           subtitle={`Lease, EJARI, anything you want kept safe. Max ${MAX_UPLOAD_MB} MB per file.`}
+          right={<NotificationBell />}
         />
 
         {documents.isLoading ? (

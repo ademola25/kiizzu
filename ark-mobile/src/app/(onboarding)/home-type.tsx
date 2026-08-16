@@ -27,7 +27,7 @@ export default function HomeTypeStep() {
 
   return (
     <TentzuScreen
-      step={9}
+      step={3}
       total={14}
       title="Looks like you're in an apartment."
       subtitle="That's my best guess. Tap a different one if I've got it wrong."
@@ -35,7 +35,7 @@ export default function HomeTypeStep() {
       primaryIcon="arrow-forward"
       onPrimary={() => {
         if (!selected) set('home_type', 'apartment');
-        router.push('/(onboarding)/lease-end');
+        router.push('/(onboarding)/due-date');
       }}
     >
       <View style={{ gap: 12 }}>

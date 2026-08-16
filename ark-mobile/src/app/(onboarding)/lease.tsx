@@ -43,7 +43,7 @@ export default function LeaseStep() {
     }
   };
 
-  const next = () => router.push('/(onboarding)/home');
+  const next = () => router.push('/(onboarding)/lease-end');
 
   // Only pause when there is genuinely a file to process. Showing "organizing
   // your lease" after a skip would be theatre with nothing behind it.
@@ -52,7 +52,7 @@ export default function LeaseStep() {
 
   return (
     <TentzuScreen
-      step={7}
+      step={9}
       total={14}
       title="Let me read your lease for you."
       subtitle="Upload the PDF or a photo and I'll keep it safe with your other documents. Skip if you haven't got it to hand."

@@ -137,7 +137,7 @@ export default function PlanStep() {
         <Ionicons name="notifications-outline" size={16} color={tentzu.primary} />
         <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk, flex: 1 }}>
           Tentzu reminds you 30, 7 and 1 day before each cheque
-          {draft.whatsapp_opted_in ? ' over WhatsApp and email' : ' by email'}.
+          {draft.notify_in_app ? ', right here in the app' : ''}.
         </Text>
       </View>
     </TentzuScreen>

@@ -7,10 +7,13 @@ import { RentArt } from '@/components/onboarding/illustrations';
 import { currencyForCountry } from '@/lib/countries';
 import { useOnboarding } from '@/store/onboarding';
 import { formatMoney, patternLabel } from '@/lib/schedule';
+import { currencySymbol } from '@/lib/format';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
-// Step 3/7 — total yearly rent. Stored as Lease.rent_amount (annual); the
-// backend divides it by the cheque pattern.
+// Total yearly rent. Stored as Lease.rent_amount (annual); the backend
+// divides it by the cheque pattern. The prefix is the symbol for the country
+// chosen at step 2 — asking for rent in the wrong currency is the fastest way
+// to make someone think the app was not built for them.
 export default function RentStep() {
   const draft = useOnboarding((s) => s.draft);
   const set = useOnboarding((s) => s.set);
@@ -23,7 +26,7 @@ export default function RentStep() {
 
   return (
     <TentzuScreen
-      step={4}
+      step={6}
       total={14}
       illustration={<RentArt />}
       title="How much is the rent?"
@@ -35,7 +38,7 @@ export default function RentStep() {
     >
       <TentzuField
         label="Total annual rent"
-        prefix={currency}
+        prefix={currencySymbol(currency)}
         placeholder="90,000"
         keyboardType="number-pad"
         value={draft.rent_amount}

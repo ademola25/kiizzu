@@ -1,19 +1,31 @@
 import { useMemo } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useReminders } from '@/api/reminders';
-import { ReminderRow } from '@/components/notifications/ReminderRow';
+import { useMarkAllRead, useMarkRead, useNotifications } from '@/api/notifications';
+import { NotificationRow } from '@/components/notifications/NotificationRow';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StateCard } from '@/components/ui/StateCard';
 import { formatDayKey, localDayKey } from '@/lib/format';
 import type { ReminderLog } from '@/lib/types';
+import { tentzu, tentzuFont } from '@/theme/tokens';
 
+/**
+ * The in-app notification feed — what the bell opens.
+ *
+ * Shows only in-app notifications, not the whole delivery log. A failed SMS row
+ * here would read as a message the tenant never got, on a channel they may not
+ * even have switched on.
+ */
 export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
-  const reminders = useReminders();
+  const notifications = useNotifications();
+  const markRead = useMarkRead();
+  const markAllRead = useMarkAllRead();
 
-  const groups = useMemo(() => groupByDay(reminders.data ?? []), [reminders.data]);
+  const items = notifications.data ?? [];
+  const groups = useMemo(() => groupByDay(items), [items]);
+  const unreadCount = items.filter((n) => !n.is_read).length;
 
   return (
     <ScrollView
@@ -26,31 +38,45 @@ export default function NotificationsScreen() {
       }}
       refreshControl={
         <RefreshControl
-          refreshing={reminders.isRefetching}
-          onRefresh={() => reminders.refetch()}
+          refreshing={notifications.isRefetching}
+          onRefresh={() => notifications.refetch()}
         />
       }
     >
       <ScreenHeader
         title="Notifications"
-        subtitle="A record of every reminder we've sent."
+        subtitle="Everything I've flagged for you."
       />
 
-      {reminders.isLoading ? (
+      {unreadCount > 0 ? (
+        <Pressable
+          onPress={() => markAllRead.mutate()}
+          disabled={markAllRead.isPending}
+          accessibilityRole="button"
+          accessibilityLabel={`Mark all ${unreadCount} as read`}
+          style={{ alignSelf: 'flex-start', paddingVertical: 4 }}
+        >
+          <Text style={{ fontFamily: tentzuFont.label, fontSize: 13, color: tentzu.primary }}>
+            Mark all as read ({unreadCount})
+          </Text>
+        </Pressable>
+      ) : null}
+
+      {notifications.isLoading ? (
         <StateCard variant="loading" />
-      ) : reminders.isError ? (
+      ) : notifications.isError ? (
         <StateCard
           variant="error"
-          title="Couldn't load history"
+          title="Couldn't load notifications"
           message="Check your connection and try again."
           actionLabel="Retry"
-          onAction={() => reminders.refetch()}
+          onAction={() => notifications.refetch()}
         />
       ) : groups.length === 0 ? (
         <StateCard
           variant="empty"
-          title="No notifications yet"
-          message="When we send you a reminder, it'll show up here."
+          title="Nothing to read yet"
+          message="When a payment is coming up, I'll put the reminder here."
         />
       ) : (
         groups.map((group) => (
@@ -59,7 +85,16 @@ export default function NotificationsScreen() {
               {formatDayKey(group.dayKey)}
             </Text>
             {group.items.map((log) => (
-              <ReminderRow key={log.id} log={log} />
+              <NotificationRow
+                key={log.id}
+                log={log}
+                // Reading is the act of opening it. Marking read only on an
+                // explicit button would leave the badge lit over notifications
+                // the tenant has plainly already seen.
+                onPress={() => {
+                  if (!log.is_read) markRead.mutate(log.id);
+                }}
+              />
             ))}
           </View>
         ))

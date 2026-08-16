@@ -63,6 +63,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
     onboarding_complete = models.BooleanField(default=False)
+    # --- Reminder channels -------------------------------------------------
+    # Four channels, one flag each. In-app is free and on by default; email,
+    # SMS and WhatsApp are paid, so they default OFF — a free account that
+    # silently had paid channels enabled would either leak paid delivery or
+    # show toggles that lie about what will happen.
+    #
+    # WhatsApp keeps its historic column name because the opt-in timestamp
+    # beside it is a consent record; the API exposes it as `notify_whatsapp`
+    # so all four channels look the same from the app's side.
+    notify_in_app = models.BooleanField(default=True)
+    notify_email = models.BooleanField(default=False)
+    notify_sms = models.BooleanField(default=False)
     whatsapp_opted_in = models.BooleanField(default=False)
     whatsapp_opted_in_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

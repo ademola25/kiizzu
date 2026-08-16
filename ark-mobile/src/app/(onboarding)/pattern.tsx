@@ -18,7 +18,7 @@ export default function PatternStep() {
 
   return (
     <TentzuScreen
-      step={3}
+      step={5}
       total={14}
       illustration={<PayArt />}
       title="How do you usually pay?"

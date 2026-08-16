@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CountdownHero } from '@/components/dashboard/CountdownHero';
 import { PaymentCard } from '@/components/dashboard/PaymentCard';
 import { Card } from '@/components/ui/Card';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StateCard } from '@/components/ui/StateCard';
 import { useMarkPaid, useMarkReady, usePayments } from '@/api/payments';
@@ -67,6 +68,7 @@ export default function HomeScreen() {
       <ScreenHeader
         title={firstName ? `Hi, ${firstName}` : 'Tentzu'}
         subtitle="Here's what I'm watching for you"
+        right={<NotificationBell />}
       />
 
       <CountdownHero

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { NotificationPlan } from '@/lib/types';
 import { api, tokenStore } from '@/lib/api';
 import { useOnboarding } from '@/store/onboarding';
 import { queryClient } from '@/lib/query';
@@ -10,6 +11,14 @@ type User = {
   phone: string;
   email_verified: boolean;
   onboarding_complete: boolean;
+  /** Reminder channels. In-app is free; email/SMS/WhatsApp need a paid plan. */
+  notify_in_app: boolean;
+  notify_email: boolean;
+  notify_sms: boolean;
+  notify_whatsapp: boolean;
+  /** Server's ruling on what this plan may enable. */
+  notification_plan: NotificationPlan;
+  /** Legacy alias the backend still stores WhatsApp consent under. */
   whatsapp_opted_in: boolean;
 };
 
@@ -21,7 +30,10 @@ export type RegisterInput = {
 };
 
 export type ProfileUpdate = Partial<Pick<User, 'name' | 'phone'>> & {
-  whatsapp_opted_in?: boolean;
+  notify_in_app?: boolean;
+  notify_email?: boolean;
+  notify_sms?: boolean;
+  notify_whatsapp?: boolean;
   /** IANA zone from the device — reminder windows are computed in it. */
   timezone?: string;
 };

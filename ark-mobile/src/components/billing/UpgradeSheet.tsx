@@ -23,7 +23,7 @@ type UpgradeSheetProps = {
 // in-app cancel today, so we don't promise one.
 const BENEFITS = [
   'WhatsApp reminders 30, 7, and 1 day before each cheque',
-  'Email reminders alongside WhatsApp for redundancy',
+  'Email and SMS alongside WhatsApp, so a reminder never gets missed',
   'Cancel by replying to your Stripe receipt email',
 ];
 

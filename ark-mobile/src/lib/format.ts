@@ -44,6 +44,40 @@ export function formatMoney(value: number | string, currency = 'AED'): string {
 }
 
 /**
+ * The symbol a country actually writes: USD → "$", GBP → "£", AED → "AED".
+ *
+ * Derived from Intl rather than a hand-kept table, so it stays right for every
+ * country we support and any we add. Note that for several currencies the
+ * "symbol" genuinely is the code — AED and CHF are written that way — so this
+ * is not a code-to-glyph mapping, it's "however this currency is normally
+ * written", which is exactly what belongs in front of an input field.
+ *
+ * Falls back to the code on the same trimmed-ICU Android builds that
+ * formatMoney guards against.
+ */
+export function currencySymbol(currency = 'AED'): string {
+  try {
+    // Format zero and strip the number back out, rather than reading
+    // Intl.NumberFormat#formatToParts: Hermes ships a partial Intl and
+    // formatToParts is missing on device, so the tidier version silently fell
+    // back to the ISO code and every US tenant saw "USD 24,000" next to
+    // "$2,000". toLocaleString is the part Hermes does implement.
+    const formatted = (0).toLocaleString(undefined, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+    // Drop digits, grouping/decimal marks and any spacing — what remains is
+    // the symbol, whichever side of the number the locale puts it on.
+    const symbol = formatted.replace(/[\d.,\s  ]/g, '');
+    return symbol || currency;
+  } catch {
+    return currency;
+  }
+}
+
+/**
  * "1 Jan 2026" from a full ISO datetime (e.g. `2026-05-15T14:32:00Z`).
  * Use this for timestamp fields like `uploaded_at` / `created_at` — the
  * date-only `formatDate` rejects datetimes outright.

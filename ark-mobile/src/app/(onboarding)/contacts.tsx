@@ -42,7 +42,7 @@ export default function ContactsStep() {
 
   return (
     <TentzuScreen
-      step={6}
+      step={8}
       total={14}
       title="Who do I call if something breaks?"
       subtitle="Add whoever you'd ring first. Or skip — I'll help you find them later."

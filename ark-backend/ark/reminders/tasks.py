@@ -23,6 +23,8 @@ from ark.payments.models import PaymentSchedule
 from ark.reminders.models import ReminderLog
 from ark.reminders.services.whatsapp import TwilioWhatsAppService
 from ark.reminders.services.email import SendGridEmailService
+from ark.reminders.services.sms import TwilioSMSService
+from ark.reminders.services.channels import active_channels
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,7 @@ REMINDER_WINDOWS = [
 
 whatsapp_service = TwilioWhatsAppService()
 email_service = SendGridEmailService()
+sms_service = TwilioSMSService()
 
 
 def _local_today(tz_name: str):
@@ -82,30 +85,43 @@ def send_daily_reminders():
 
         for payment in payments:
             user = payment.lease.user
-            message = _build_message(payment, days_before)
+            title, body = _build_notification(payment, days_before)
+            message = f"{title}\n{body}"
 
-            sent_via = None
+            # In-app first, and unconditionally. It is free on every tier and
+            # costs nothing to deliver, so it is the one channel that must
+            # never be skipped — it is what guarantees a free tenant still
+            # gets told. Written straight to the DB; there is nothing to send.
+            _log_reminder(
+                user, payment, ReminderLog.Channel.IN_APP, reminder_type,
+                success=True, title=title, body=body,
+            )
 
-            # Try WhatsApp first (if user opted in and has Starter+ tier — tier check deferred to Epic 7)
-            if user.whatsapp_opted_in:
-                success = whatsapp_service.send_reminder(user.phone, message)
-                if success:
-                    _log_reminder(user, payment, ReminderLog.Channel.WHATSAPP, reminder_type, True)
-                    sent_via = "whatsapp"
-                else:
-                    _log_reminder(user, payment, ReminderLog.Channel.WHATSAPP, reminder_type, False, "Delivery failed after retries")
-                    # Fallback to email
-                    email_success = email_service.send_reminder(user.email, message)
-                    _log_reminder(user, payment, ReminderLog.Channel.EMAIL, reminder_type, email_success,
-                                  "" if email_success else "Email fallback also failed")
-                    if email_success:
-                        sent_via = "email (fallback)"
+            # Everything else is opt-in AND plan-gated. active_channels() is
+            # the intersection of the two, so a lapsed subscriber's leftover
+            # preferences cannot trigger a paid send.
+            channels = active_channels(user)
 
-            # Always send email (primary for Free tier, or in addition to WhatsApp)
-            if sent_via != "whatsapp":
-                if sent_via != "email (fallback)":
-                    email_success = email_service.send_reminder(user.email, message)
-                    _log_reminder(user, payment, ReminderLog.Channel.EMAIL, reminder_type, email_success)
+            if ReminderLog.Channel.WHATSAPP in channels:
+                ok = whatsapp_service.send_reminder(user.phone, message)
+                _log_reminder(
+                    user, payment, ReminderLog.Channel.WHATSAPP, reminder_type, ok,
+                    "" if ok else "Delivery failed after retries", title, body,
+                )
+
+            if ReminderLog.Channel.SMS in channels:
+                ok = sms_service.send_reminder(user.phone, message)
+                _log_reminder(
+                    user, payment, ReminderLog.Channel.SMS, reminder_type, ok,
+                    "" if ok else "Delivery failed after retries", title, body,
+                )
+
+            if ReminderLog.Channel.EMAIL in channels:
+                ok = email_service.send_reminder(user.email, message)
+                _log_reminder(
+                    user, payment, ReminderLog.Channel.EMAIL, reminder_type, ok,
+                    "" if ok else "Delivery failed after retries", title, body,
+                )
 
             # Mark reminder as sent (idempotency flag)
             setattr(payment, flag_field, True)
@@ -116,20 +132,24 @@ def send_daily_reminders():
     return total_sent
 
 
-def _build_message(payment, days_before):
+def _build_notification(payment, days_before):
+    """(title, body) for one reminder.
+
+    Split rather than one blob because the in-app feed renders them as separate
+    lines — a list of identical "Tentzu Reminder" headings would be unreadable,
+    so the title carries the actual news and the body carries the detail.
+    """
     # Currency follows the lease — Tentzu is no longer UAE-only, and quoting a
     # Toronto tenant's rent in AED is worse than useless.
-    amount = f"{payment.lease.currency} {payment.amount:,.2f}"
+    amount = f"{payment.lease.currency} {payment.amount:,.0f}"
     date_str = payment.due_date.strftime("%d %B %Y")
-    return (
-        f"🏠 Tentzu Reminder\n"
-        f"Your rent cheque of {amount} is due on {date_str} "
-        f"— {days_before} day{'s' if days_before != 1 else ''} away. "
-        f"Make sure funds are ready."
-    )
+    days = f"{days_before} day{'s' if days_before != 1 else ''}"
+    title = f"{amount} due in {days}"
+    body = f"Cheque {payment.cheque_number} is due on {date_str}. Make sure the funds are ready."
+    return title, body
 
 
-def _log_reminder(user, payment, channel, reminder_type, success, error_msg=""):
+def _log_reminder(user, payment, channel, reminder_type, success, error_msg="", title="", body=""):
     try:
         ReminderLog.objects.create(
             user=user,
@@ -138,6 +158,8 @@ def _log_reminder(user, payment, channel, reminder_type, success, error_msg=""):
             reminder_type=reminder_type,
             status=ReminderLog.Status.SENT if success else ReminderLog.Status.FAILED,
             error_message=error_msg,
+            title=title,
+            body=body,
         )
     except IntegrityError:
         # Duplicate — already sent (idempotency via unique constraint)

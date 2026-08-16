@@ -20,8 +20,10 @@ const TIER_LABEL: Record<Tier, string> = {
 };
 
 const TIER_DESCRIPTION: Record<Tier, string> = {
-  free: 'Email reminders for one property.',
-  starter: 'Email + WhatsApp reminders.',
+  // Email moved behind the paywall when the four-channel model landed; saying
+  // "email reminders" on the free plan would promise something we no longer send.
+  free: 'In-app reminders for one property.',
+  starter: 'Email, SMS and WhatsApp reminders too.',
   // See note above — not yet purchasable.
   pro: 'Everything in Starter, with extras.',
 };

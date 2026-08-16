@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Tentzu",
-    "slug": "ark-mobile",
+    "slug": "tentzu",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -46,9 +46,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "194109ba-2bb7-4b78-a25a-7f9c6429a362"
+        "projectId": "059e3e41-d4f9-4618-83cb-a454eaaeead2"
       }
     },
-    "owner": "ademola25"
+    "owner": "kelpsi-software-and-design-llc"
   }
 }

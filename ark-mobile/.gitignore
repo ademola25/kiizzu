@@ -41,3 +41,9 @@ example
 # generated native folders
 /ios
 /android
+
+# Signing secrets. `eas credentials` writes credentials.json with the keystore
+# password in PLAINTEXT alongside the .jks itself — committing either hands
+# anyone the ability to sign builds as us.
+credentials.json
+*.keystore

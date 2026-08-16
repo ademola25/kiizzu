@@ -76,7 +76,7 @@ export default function WatchingStep() {
     rows.push({
       icon: 'call-outline',
       label: 'If something breaks',
-      value: draft.contacts.map((c) => c.name).filter(Boolean).join(', '),
+      value: draft.contacts.map((c) => c.label).join(', ') + " — I've got the numbers",
     });
   }
 

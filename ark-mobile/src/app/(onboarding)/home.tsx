@@ -18,7 +18,7 @@ import {
 import { currencyForCountry } from '@/lib/countries';
 import { useOnboarding } from '@/store/onboarding';
 
-const TOTAL = 7;
+const TOTAL = 14;
 
 /**
  * Step 1/7 — where you rent.

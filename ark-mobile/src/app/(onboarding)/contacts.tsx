@@ -4,10 +4,13 @@ import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { TentzuField } from '@/components/onboarding/TentzuField';
 import { useOnboarding, type Contact } from '@/store/onboarding';
 
+// One number per slot. The slot label IS the name — "who do I call" needs a
+// number, and asking for a name AND a number across three slots is six fields
+// on a step people are meant to be able to skip.
 const SLOTS: { label: string; hint: string }[] = [
-  { label: 'Landlord or agent', hint: 'The person you chase about the lease' },
+  { label: "Landlord or agent", hint: 'The person you chase about the lease' },
   { label: 'Building or security', hint: 'Front desk, watchman, building office' },
-  { label: 'Maintenance', hint: 'AC, plumbing, whoever you call when it breaks' },
+  { label: 'Maintenance', hint: 'AC, plumbing, whoever fixes things' },
 ];
 
 /**
@@ -23,11 +26,11 @@ export default function ContactsStep() {
 
   const valueFor = (label: string) => contacts.find((c) => c.label === label);
 
-  const update = (label: string, field: 'name' | 'phone', v: string) => {
+  const update = (label: string, phone: string) => {
     const next: Contact[] = SLOTS.map((slot) => {
-      const existing = valueFor(slot.label) ?? { label: slot.label, name: '', phone: '' };
-      return slot.label === label ? { ...existing, [field]: v } : existing;
-    }).filter((c) => c.name.trim() || c.phone.trim());
+      const existing = valueFor(slot.label) ?? { label: slot.label, name: slot.label, phone: '' };
+      return slot.label === label ? { ...existing, phone } : existing;
+    }).filter((c) => c.phone.trim());
     set('contacts', next);
   };
 
@@ -52,9 +55,10 @@ export default function ContactsStep() {
             key={slot.label}
             label={slot.label}
             placeholder={slot.hint}
-            value={c?.name ?? ''}
-            onChangeText={(v) => update(slot.label, 'name', v)}
-            autoCapitalize="words"
+            value={c?.phone ?? ''}
+            onChangeText={(v) => update(slot.label, v)}
+            keyboardType="phone-pad"
+            autoComplete="tel"
             returnKeyType="next"
           />
         );

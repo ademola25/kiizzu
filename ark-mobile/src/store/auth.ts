@@ -26,9 +26,19 @@ export type ProfileUpdate = Partial<Pick<User, 'name' | 'phone'>> & {
   timezone?: string;
 };
 
+export type SignedOutReason = 'logout' | 'deleted' | null;
+
 type AuthState = {
   user: User | null;
   status: 'loading' | 'signedIn' | 'signedOut';
+  /**
+   * Why the session ended. The entry gate needs this: a fresh install belongs
+   * in onboarding, someone who just logged out belongs on the login screen, and
+   * someone who deleted their account belongs back at the very start. Without
+   * it, every signed-out user was funnelled into the survey — which is why
+   * logging out looked like it had failed.
+   */
+  signedOutReason: SignedOutReason;
   bootstrap: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (input: RegisterInput) => Promise<string | undefined>;
@@ -43,6 +53,7 @@ type AuthState = {
 export const useAuth = create<AuthState>((set) => ({
   user: null,
   status: 'loading',
+  signedOutReason: null,
 
   // Called on app start: if a token exists, load the profile.
   bootstrap: async () => {
@@ -61,14 +72,14 @@ export const useAuth = create<AuthState>((set) => ({
     const { data } = await api.post('/auth/login/', { email, password });
     await tokenStore.set(data.access, data.refresh);
     const me = await api.get<User>('/auth/me/');
-    set({ user: me.data, status: 'signedIn' });
+    set({ user: me.data, status: 'signedIn', signedOutReason: null });
   },
 
   register: async (input) => {
     const { data } = await api.post('/auth/register/', input);
     await tokenStore.set(data.access, data.refresh);
     const me = await api.get<User>('/auth/me/');
-    set({ user: me.data, status: 'signedIn' });
+    set({ user: me.data, status: 'signedIn', signedOutReason: null });
     // `dev_code` is only present when the backend runs with DEBUG on — lets the
     // verify screen show the code without checking a mail inbox during testing.
     return data.dev_code as string | undefined;
@@ -105,7 +116,7 @@ export const useAuth = create<AuthState>((set) => ({
     // Same reason as logout: the survey draft is in-memory and would otherwise
     // survive the account it belonged to.
     useOnboarding.getState().reset();
-    set({ user: null, status: 'signedOut' });
+    set({ user: null, status: 'signedOut', signedOutReason: 'deleted' });
   },
 
   logout: async () => {
@@ -117,6 +128,6 @@ export const useAuth = create<AuthState>((set) => ({
     // entry gate sends signed-out users into onboarding, they see it
     // immediately. A logout must not leave one user's data on another's screen.
     useOnboarding.getState().reset();
-    set({ user: null, status: 'signedOut' });
+    set({ user: null, status: 'signedOut', signedOutReason: 'logout' });
   },
 }));

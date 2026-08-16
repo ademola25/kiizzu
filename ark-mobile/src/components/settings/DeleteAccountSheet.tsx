@@ -43,6 +43,9 @@ export function DeleteAccountSheet({ visible, onClose }: DeleteAccountSheetProps
       // the redirect; the explicit replace below is a belt-and-braces guard
       // in case the redirect hasn't fired yet.
       await deleteAccount();
+      // "/" is the gate; deleteAccount set signedOutReason='deleted', so it
+      // sends us back to the very start rather than to a login screen for an
+      // account that no longer exists.
       router.replace('/');
     } catch (err) {
       setBusy(false);

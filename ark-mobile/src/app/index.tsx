@@ -11,6 +11,7 @@ import { tentzu } from '@/theme/tokens';
 export default function Entry() {
   const status = useAuth((s) => s.status);
   const user = useAuth((s) => s.user);
+  const reason = useAuth((s) => s.signedOutReason);
 
   if (status === 'loading') {
     return (
@@ -19,7 +20,14 @@ export default function Entry() {
       </View>
     );
   }
-  if (status === 'signedOut') return <Redirect href="/(onboarding)" />;
+  if (status === 'signedOut') {
+    // Someone who just logged out has an account — send them where they can use
+    // it. A fresh install, or an account just deleted, starts at the beginning.
+    // Routing every signed-out user into the survey is what made logging out
+    // look like it had silently failed.
+    if (reason === 'logout') return <Redirect href="/(auth)/email" />;
+    return <Redirect href="/(onboarding)" />;
+  }
   if (!user?.onboarding_complete) return <Redirect href="/(onboarding)" />;
   return <Redirect href="/(tabs)" />;
 }

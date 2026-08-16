@@ -10,8 +10,10 @@ export default function TabsLayout() {
   const status = useAuth((s) => s.status);
   const user = useAuth((s) => s.user);
   // Dashboard is the final destination — hard-gated. Anyone not signed in goes
-  // back to the single front door (the gate routes them into onboarding); a
-  // signed-in user who hasn't finished onboarding resumes it.
+  // back to the single front door, which decides where they belong based on
+  // WHY they are signed out. This guard deliberately does NOT pick a
+  // destination itself: when it did, it raced the caller's own navigation after
+  // logout and usually won, dumping the user into the survey.
   if (status === 'signedOut') return <Redirect href="/" />;
   if (status === 'signedIn' && user && !user.onboarding_complete) {
     return <Redirect href="/(onboarding)" />;

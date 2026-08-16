@@ -88,12 +88,10 @@ export default function SettingsScreen() {
     try {
       await logout();
     } finally {
-      // Go to the login screen, not "/". The entry gate sends signed-out users
-      // into the onboarding survey (the app is survey-first for new users), so
-      // routing to "/" after an explicit logout dropped you back into "Where do
-      // you rent?" — which reads as "logout didn't work". Someone who just
-      // logged out has an account; take them somewhere they can log back in.
-      router.replace('/(auth)/email');
+      // Defer to the gate. It reads signedOutReason ('logout') and sends us to
+      // the login screen. Navigating directly here raced the tabs guard, which
+      // redirected to "/" on the same state change — and the guard won.
+      router.replace('/');
     }
   };
 

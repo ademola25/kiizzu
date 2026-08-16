@@ -30,9 +30,16 @@ from ark.reminders.models import ReminderLog
 
 logger = logging.getLogger(__name__)
 
-#: Days before the due date at which a tenant should be told. Mirrors
-#: REMINDER_WINDOWS in tasks.py; both are the product rule "30, 7 and 1".
-WINDOWS = [(30, "30d"), (7, "7d"), (1, "1d")]
+#: Each window is a *band*, not a threshold: (upper, lower, label), meaning
+#: "lower < days_until <= upper". The 1-day band has no lower bound so it also
+#: catches due-today and overdue.
+#:
+#: Bands rather than "days_until <= window" because a tenant whose first look at
+#: the app is the day before a cheque has technically crossed all three marks.
+#: With thresholds that produced three notifications at once, all reading
+#: "due in 1 day" — verified against production, and it looked broken. A band
+#: yields exactly one notification per stage: the one that is true now.
+WINDOWS = [(30, 7, "30d"), (7, 1, "7d"), (1, None, "1d")]
 
 
 def _local_today(tz_name: str):
@@ -107,9 +114,11 @@ def sync_in_app_notifications(user) -> int:
     rows = []
     for payment in payments:
         days_until = (payment.due_date - today).days
-        for window_days, reminder_type in WINDOWS:
-            if days_until > window_days:
-                continue  # not yet time to say anything about this window
+        for upper, lower, reminder_type in WINDOWS:
+            if days_until > upper:
+                continue  # too early to say anything about this stage
+            if lower is not None and days_until <= lower:
+                continue  # a later, more urgent stage owns this moment
             if (payment.id, reminder_type) in already:
                 continue
             title, body = build_copy(payment, days_until)

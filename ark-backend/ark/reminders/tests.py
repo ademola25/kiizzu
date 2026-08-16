@@ -376,14 +376,56 @@ class TestInAppGeneration:
             api_client.get("/api/v1/reminders/notifications/unread-count/")
         assert ReminderLog.objects.filter(user=user, channel=Channel.IN_APP).count() == 1
 
-    def test_each_window_produces_its_own_notification(self, api_client, user, lease):
-        self._payment(lease, 1)  # 30d, 7d and 1d have all been reached
+    def test_first_look_close_to_the_due_date_yields_one_notification(self, api_client, user, lease):
+        # Every window has technically been crossed, but the tenant has seen
+        # none of them. Thresholds produced three identical "due in 1 day"
+        # rows here — caught on production, and it read as a bug.
+        self._payment(lease, 1)
         api_client.get("/api/v1/reminders/notifications/")
-        types = set(
+        notes = list(ReminderLog.objects.filter(user=user, channel=Channel.IN_APP))
+        assert len(notes) == 1
+        assert notes[0].reminder_type == "1d"
+
+    @pytest.mark.parametrize(
+        "days_out,expected",
+        [(30, "30d"), (20, "30d"), (8, "30d"), (7, "7d"), (2, "7d"), (1, "1d"), (0, "1d"), (-2, "1d")],
+    )
+    def test_each_stage_owns_its_band(self, api_client, user, lease, days_out, expected):
+        self._payment(lease, days_out)
+        api_client.get("/api/v1/reminders/notifications/")
+        notes = list(ReminderLog.objects.filter(user=user, channel=Channel.IN_APP))
+        assert len(notes) == 1
+        assert notes[0].reminder_type == expected
+
+    def test_a_tenant_who_keeps_looking_gets_each_stage_once(self, api_client, user, lease):
+        # Walk one cheque through time: three notifications total, never a
+        # repeat, and each one true when it was written.
+        p = self._payment(lease, 20)
+        api_client.get("/api/v1/reminders/notifications/")
+        p.due_date = date.today() + timedelta(days=5)
+        p.save()
+        api_client.get("/api/v1/reminders/notifications/")
+        p.due_date = date.today() + timedelta(days=1)
+        p.save()
+        api_client.get("/api/v1/reminders/notifications/")
+
+        notes = ReminderLog.objects.filter(user=user, channel=Channel.IN_APP).order_by("id")
+        assert [n.reminder_type for n in notes] == ["30d", "7d", "1d"]
+        assert [n.title.split("due in ")[-1] for n in notes] == ["20 days", "5 days", "1 day"]
+
+    def test_a_stage_skipped_entirely_is_not_backfilled(self, api_client, user, lease):
+        # Saw it at 20 days, then went quiet until the day before. They should
+        # not be told about a 7-day mark that passed unseen.
+        p = self._payment(lease, 20)
+        api_client.get("/api/v1/reminders/notifications/")
+        p.due_date = date.today() + timedelta(days=1)
+        p.save()
+        api_client.get("/api/v1/reminders/notifications/")
+        types = list(
             ReminderLog.objects.filter(user=user, channel=Channel.IN_APP)
-            .values_list("reminder_type", flat=True)
+            .order_by("id").values_list("reminder_type", flat=True)
         )
-        assert types == {"30d", "7d", "1d"}
+        assert types == ["30d", "1d"]
 
     def test_overdue_cheque_reads_as_overdue(self, api_client, user, lease):
         self._payment(lease, -3)

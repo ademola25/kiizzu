@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from .models import ReminderLog
 from .serializers import ReminderLogSerializer
+from .services.inapp import sync_in_app_notifications
 
 
 class ReminderLogListView(generics.ListAPIView):
@@ -26,6 +27,9 @@ class NotificationFeedView(generics.ListAPIView):
     serializer_class = ReminderLogSerializer
 
     def get_queryset(self):
+        # Materialise before reading: nothing else writes in-app rows in
+        # production (no worker is deployed), so this IS the generator.
+        sync_in_app_notifications(self.request.user)
         return ReminderLog.objects.filter(
             user=self.request.user,
             channel=ReminderLog.Channel.IN_APP,
@@ -36,6 +40,9 @@ class UnreadCountView(APIView):
     """GET /api/v1/reminders/notifications/unread-count/ — badge number."""
 
     def get(self, request):
+        # The badge is usually the first thing to ask, so it has to generate
+        # too — otherwise the bell reads 0 until the feed is opened.
+        sync_in_app_notifications(request.user)
         count = ReminderLog.objects.filter(
             user=request.user,
             channel=ReminderLog.Channel.IN_APP,

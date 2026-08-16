@@ -25,6 +25,7 @@ from ark.reminders.services.whatsapp import TwilioWhatsAppService
 from ark.reminders.services.email import SendGridEmailService
 from ark.reminders.services.sms import TwilioSMSService
 from ark.reminders.services.channels import active_channels
+from ark.reminders.services.inapp import build_copy
 
 logger = logging.getLogger(__name__)
 
@@ -133,20 +134,15 @@ def send_daily_reminders():
 
 
 def _build_notification(payment, days_before):
-    """(title, body) for one reminder.
+    """(title, body) for one reminder — shared with the on-read generator.
 
     Split rather than one blob because the in-app feed renders them as separate
-    lines — a list of identical "Tentzu Reminder" headings would be unreadable,
-    so the title carries the actual news and the body carries the detail.
+    lines. Delegates to services.inapp.build_copy so a reminder reads the same
+    whether it was written by this task or materialised when the bell was
+    opened; currency follows the lease, since quoting a Toronto tenant's rent
+    in AED is worse than useless.
     """
-    # Currency follows the lease — Tentzu is no longer UAE-only, and quoting a
-    # Toronto tenant's rent in AED is worse than useless.
-    amount = f"{payment.lease.currency} {payment.amount:,.0f}"
-    date_str = payment.due_date.strftime("%d %B %Y")
-    days = f"{days_before} day{'s' if days_before != 1 else ''}"
-    title = f"{amount} due in {days}"
-    body = f"Cheque {payment.cheque_number} is due on {date_str}. Make sure the funds are ready."
-    return title, body
+    return build_copy(payment, days_before)
 
 
 def _log_reminder(user, payment, channel, reminder_type, success, error_msg="", title="", body=""):

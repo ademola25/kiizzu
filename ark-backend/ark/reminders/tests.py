@@ -327,3 +327,125 @@ class TestDispatcherChannels:
         sms.assert_not_called()
         em.assert_not_called()
         assert ReminderLog.objects.filter(user=user, channel=Channel.IN_APP).count() == 1
+
+
+# --------------------------------------------------------------------------
+# On-read generation
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+class TestInAppGeneration:
+    """No worker runs in production, so reading the bell must generate.
+
+    These are the tests that matter for the free plan: without on-read
+    generation the whole in-app channel is a promise with nothing behind it.
+    """
+
+    def _payment(self, lease, days_out, cheque=1):
+        return PaymentSchedule.objects.create(
+            lease=lease,
+            cheque_number=cheque,
+            due_date=date.today() + timedelta(days=days_out),
+            amount=Decimal("30000"),
+        )
+
+    def test_bell_generates_when_a_window_is_reached(self, api_client, user, lease):
+        self._payment(lease, 20)  # inside the 30-day window
+        assert ReminderLog.objects.filter(user=user).count() == 0
+        res = api_client.get("/api/v1/reminders/notifications/unread-count/")
+        assert res.data["unread"] == 1
+
+    def test_nothing_generated_before_the_first_window(self, api_client, user, lease):
+        self._payment(lease, 45)  # further out than 30 days
+        assert api_client.get("/api/v1/reminders/notifications/unread-count/").data["unread"] == 0
+
+    def test_copy_reflects_real_days_remaining_not_the_window(self, api_client, user, lease):
+        # Opening the app 16 days out crosses the 30-day mark, but saying
+        # "due in 30 days" then would simply be false.
+        self._payment(lease, 16)
+        api_client.get("/api/v1/reminders/notifications/")
+        note = ReminderLog.objects.get(user=user, channel=Channel.IN_APP)
+        assert "16 days" in note.title
+        assert "30 days" not in note.title
+
+    def test_generation_is_idempotent_across_repeated_reads(self, api_client, user, lease):
+        self._payment(lease, 20)
+        for _ in range(4):
+            api_client.get("/api/v1/reminders/notifications/")
+            api_client.get("/api/v1/reminders/notifications/unread-count/")
+        assert ReminderLog.objects.filter(user=user, channel=Channel.IN_APP).count() == 1
+
+    def test_each_window_produces_its_own_notification(self, api_client, user, lease):
+        self._payment(lease, 1)  # 30d, 7d and 1d have all been reached
+        api_client.get("/api/v1/reminders/notifications/")
+        types = set(
+            ReminderLog.objects.filter(user=user, channel=Channel.IN_APP)
+            .values_list("reminder_type", flat=True)
+        )
+        assert types == {"30d", "7d", "1d"}
+
+    def test_overdue_cheque_reads_as_overdue(self, api_client, user, lease):
+        self._payment(lease, -3)
+        api_client.get("/api/v1/reminders/notifications/")
+        titles = [n.title for n in ReminderLog.objects.filter(user=user, channel=Channel.IN_APP)]
+        assert any("was due 3 days ago" in t for t in titles)
+
+    def test_due_today_reads_as_today(self, api_client, user, lease):
+        self._payment(lease, 0)
+        api_client.get("/api/v1/reminders/notifications/")
+        assert any(
+            "due today" in n.title
+            for n in ReminderLog.objects.filter(user=user, channel=Channel.IN_APP)
+        )
+
+    def test_completed_cheques_generate_nothing(self, api_client, user, lease):
+        p = self._payment(lease, 5)
+        p.status = PaymentSchedule.Status.COMPLETED
+        p.save()
+        assert api_client.get("/api/v1/reminders/notifications/unread-count/").data["unread"] == 0
+
+    def test_only_pending_cheques_generate(self, api_client, user, lease):
+        # Parity with the paid dispatcher, which also filters on PENDING: a
+        # tenant who has set the funds aside has said they are sorted, and this
+        # change must not quietly alter who gets nagged.
+        p = self._payment(lease, 5)
+        p.status = PaymentSchedule.Status.READY
+        p.save()
+        assert api_client.get("/api/v1/reminders/notifications/unread-count/").data["unread"] == 0
+
+    def test_switching_in_app_off_stops_generation(self, api_client, user, lease):
+        self._payment(lease, 20)
+        user.notify_in_app = False
+        user.save()
+        assert api_client.get("/api/v1/reminders/notifications/unread-count/").data["unread"] == 0
+
+    def test_generation_does_not_consume_the_paid_channel_flags(self, api_client, user, lease):
+        # The reminder_*_sent flags are shared with the paid dispatcher. If the
+        # bell set them, a paying tenant would silently lose their email/SMS.
+        p = self._payment(lease, 20)
+        api_client.get("/api/v1/reminders/notifications/")
+        p.refresh_from_db()
+        assert (p.reminder_30d_sent, p.reminder_7d_sent, p.reminder_1d_sent) == (False, False, False)
+
+    def test_reading_then_regenerating_keeps_it_read(self, api_client, user, lease):
+        self._payment(lease, 20)
+        api_client.get("/api/v1/reminders/notifications/")
+        api_client.post("/api/v1/reminders/notifications/read-all/")
+        # A later read must not resurrect the badge with a duplicate.
+        assert api_client.get("/api/v1/reminders/notifications/unread-count/").data["unread"] == 0
+
+    def test_only_the_requesting_users_notifications_are_generated(self, api_client, user, lease):
+        other = User.objects.create_user(
+            email="other3@test.com", password="pass123", name="Other", phone="+971507777777"
+        )
+        other_lease = Lease.objects.create(
+            user=other, building_name="B", area="A", unit_number="1", address="B, A",
+            cheque_pattern=4, start_date=date.today(), rent_amount=Decimal("120000"), currency="AED",
+        )
+        PaymentSchedule.objects.create(
+            lease=other_lease, cheque_number=1,
+            due_date=date.today() + timedelta(days=10), amount=Decimal("30000"),
+        )
+        api_client.get("/api/v1/reminders/notifications/")
+        assert ReminderLog.objects.filter(user=other).count() == 0

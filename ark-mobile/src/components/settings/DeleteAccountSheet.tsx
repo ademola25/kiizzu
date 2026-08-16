@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
-import { router } from 'expo-router';
 
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Input } from '@/components/ui/Input';
@@ -36,17 +35,12 @@ export function DeleteAccountSheet({ visible, onClose }: DeleteAccountSheetProps
     if (!canDelete) return;
     setBusy(true);
     try {
-      // On success the auth store flips to `signedOut`, the tabs subtree
-      // unmounts via the gate in (tabs)/_layout, and this sheet goes with it
+      // On success the auth store flips to `signedOut`, the guard in
+      // app/_layout.tsx turns false and the router unmounts this whole subtree
       // — so we DON'T clear busy / call onClose / navigate here. Doing so
-      // would setState on an unmounted component. The route gate handles
-      // the redirect; the explicit replace below is a belt-and-braces guard
-      // in case the redirect hasn't fired yet.
+      // would setState on an unmounted component, and navigating from this
+      // sheet as well is what previously locked the UI up entirely.
       await deleteAccount();
-      // "/" is the gate; deleteAccount set signedOutReason='deleted', so it
-      // sends us back to the very start rather than to a login screen for an
-      // account that no longer exists.
-      router.replace('/');
     } catch (err) {
       setBusy(false);
       Alert.alert("Couldn't delete account", errorMessage(err, 'Please try again.'));

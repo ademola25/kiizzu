@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 
 import { useLease } from '@/api/leases';
 import { useSubscription } from '@/api/billing';
@@ -85,14 +84,11 @@ export default function SettingsScreen() {
   };
 
   const handleLogout = async () => {
-    try {
-      await logout();
-    } finally {
-      // Defer to the gate. It reads signedOutReason ('logout') and sends us to
-      // the login screen. Navigating directly here raced the tabs guard, which
-      // redirected to "/" on the same state change — and the guard won.
-      router.replace('/');
-    }
+    // Flip the session and stop — do NOT navigate. The router ejects us on its
+    // own once the guard in app/_layout.tsx turns false. Navigating from here
+    // as well put a second mover in play, and the resulting redirect loop
+    // froze the UI, which is how this button came to look like a dead one.
+    await logout();
   };
 
   return (

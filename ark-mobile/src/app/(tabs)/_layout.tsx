@@ -9,12 +9,19 @@ import { useAuth } from '@/store/auth';
 export default function TabsLayout() {
   const status = useAuth((s) => s.status);
   const user = useAuth((s) => s.user);
-  // Dashboard is the final destination — hard-gated. Anyone not signed in goes
-  // back to the single front door, which decides where they belong based on
-  // WHY they are signed out. This guard deliberately does NOT pick a
-  // destination itself: when it did, it raced the caller's own navigation after
-  // logout and usually won, dumping the user into the survey.
-  if (status === 'signedOut') return <Redirect href="/" />;
+  // Render nothing — deliberately NOT <Redirect href="/" />.
+  //
+  // This is a *layout*, so it stays mounted while the stack transitions. A
+  // Redirect here therefore fires on every render: it sent us to "/", index
+  // sent us on to the login screen, this layout re-rendered and sent us back
+  // to "/" again — an infinite redirect loop that pegged the JS thread with
+  // "Maximum update depth exceeded". The whole UI froze, which is why logout
+  // and delete looked like dead buttons: the press DID register, and then
+  // nothing could ever repaint.
+  //
+  // Ejecting is the root layout's job (one authority, see app/_layout.tsx);
+  // this guard only refuses to render a signed-out dashboard.
+  if (status === 'signedOut') return null;
   if (status === 'signedIn' && user && !user.onboarding_complete) {
     return <Redirect href="/(onboarding)" />;
   }

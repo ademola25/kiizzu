@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Frost } from '@/components/ui/Frost';
 import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, tentzu } from '@/theme/tokens';
@@ -50,21 +50,7 @@ export default function TabsLayout() {
           tabBarItemStyle: { borderRadius: 20 },
           tabBarBackground: () => (
             <View style={[StyleSheet.absoluteFill, { borderRadius: 28, overflow: 'hidden' }]}>
-              <BlurView
-                intensity={Platform.OS === 'android' ? 28 : 48}
-                tint="light"
-                style={StyleSheet.absoluteFill}
-              />
-              <View
-                style={[
-                  StyleSheet.absoluteFill,
-                  {
-                    backgroundColor: `rgba(255,255,255,${
-                      Platform.OS === 'android' ? 0.74 : 0.55
-                    })`,
-                  },
-                ]}
-              />
+              <Frost intensity={48} />
             </View>
           ),
           tabBarLabelStyle: { fontSize: 11 },

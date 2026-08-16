@@ -54,7 +54,7 @@ export default function HomeScreen() {
       contentContainerStyle={{
         padding: 20,
         paddingTop: insets.top + 12,
-        paddingBottom: 32,
+        paddingBottom: insets.bottom + 108,
         gap: 16,
       }}
       refreshControl={
@@ -66,7 +66,7 @@ export default function HomeScreen() {
     >
       <ScreenHeader
         title={firstName ? `Hi, ${firstName}` : 'Tentzu'}
-        subtitle="Your cheque schedule"
+        subtitle="Here's what I'm watching for you"
       />
 
       <CountdownHero
@@ -79,8 +79,8 @@ export default function HomeScreen() {
 
       {view.total > 0 ? (
         <View className="flex-row gap-3">
-          <Stat label="Cleared" value={`${view.cleared}/${view.total}`} />
-          <Stat label="Remaining" value={formatMoney(view.remainingAmount, view.currency)} />
+          <Stat label="Paid so far" value={`${view.cleared}/${view.total}`} />
+          <Stat label="Still to pay" value={formatMoney(view.remainingAmount, view.currency)} />
         </View>
       ) : null}
 

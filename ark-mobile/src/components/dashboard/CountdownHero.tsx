@@ -1,11 +1,14 @@
-import { Pressable, Text, View } from 'react-native';
-import { Card } from '@/components/ui/Card';
-import { PillButton } from '@/components/ui/PillButton';
-import { cn } from '@/lib/cn';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+
+import { Frost } from '@/components/ui/Frost';
+import { CountdownRing } from './CountdownRing';
 import { daysUntil, formatMoney, formatDate } from '@/lib/format';
+import { tentzu, tentzuFont } from '@/theme/tokens';
 import type { PaymentSchedule } from '@/lib/types';
 
-type CountdownHeroProps = {
+type Props = {
   payment: PaymentSchedule | null;
   onMarkReady?: (id: number) => void;
   marking?: boolean;
@@ -13,123 +16,143 @@ type CountdownHeroProps = {
   paying?: boolean;
 };
 
-type Tone = 'calm' | 'urgent' | 'overdue';
-
-type HeroCopy = {
-  eyebrow: string;
-  bigNumber: string;
-  bigSuffix: string;
-  tone: Tone;
-  reassurance?: string;
-};
-
 /**
- * Top dashboard card. Big number = days until next pending/ready cheque.
- * Within 7 days we surface a "Mark funds ready" CTA + flame-border accent;
- * past-due reads as "overdue" with the same urgency tone; otherwise calm.
+ * The dashboard's single most important object: what is due, when, and what to
+ * do about it.
+ *
+ * Rebuilt from a stacked column of centred text — eyebrow, big number, rule,
+ * amount, date — which gave every line the same weight and read as a receipt.
+ * Now the amount leads, the ring carries urgency, and the action sits on the
+ * card rather than below it.
+ *
+ * Tone is driven by the ring's colour rather than a coloured border, so
+ * urgency is legible at a glance without the whole card shouting.
  */
-export function CountdownHero({ payment, onMarkReady, marking, onMarkPaid, paying }: CountdownHeroProps) {
+export function CountdownHero({ payment, onMarkReady, marking, onMarkPaid, paying }: Props) {
   if (!payment) {
     return (
-      <Card className="items-center py-10">
-        <Text className="text-base text-muted">No upcoming cheques.</Text>
-      </Card>
+      <View style={[styles.card, { alignItems: 'center', paddingVertical: 38 }]}>
+        <Frost />
+        <Ionicons name="checkmark-circle-outline" size={30} color={tentzu.primary} />
+        <Text style={[styles.reassure, { marginTop: 10 }]}>
+          Nothing due right now. I'll tell you when that changes.
+        </Text>
+      </View>
     );
   }
 
   const days = daysUntil(payment.due_date);
   const isReady = payment.status === 'ready';
-  const copy = describeCountdown(days, isReady);
-  const showCta = copy.tone !== 'calm' && !isReady && payment.status === 'pending' && onMarkReady;
+  const overdue = days < 0;
+  const urgent = days >= 0 && days <= 7;
 
-  // Overdue reads as an error (red), due-soon as caution (amber), calm stays neutral.
-  const toneBorder =
-    copy.tone === 'overdue' ? 'border-danger' : copy.tone === 'urgent' ? 'border-amber' : '';
-  const toneAccent =
-    copy.tone === 'overdue' ? 'text-danger' : copy.tone === 'urgent' ? 'text-amber' : 'text-muted';
+  const headline = overdue
+    ? "This one's late"
+    : days === 0
+      ? "That's today"
+      : isReady
+        ? "You're all set"
+        : 'Next payment';
+
+  const showReady = !isReady && payment.status === 'pending' && onMarkReady && (urgent || overdue);
 
   return (
-    <Card className={cn(toneBorder)}>
-      <View className="items-center py-4">
-        <Text className={cn('text-xs uppercase tracking-widest', toneAccent)}>{copy.eyebrow}</Text>
-        <Text className="text-6xl font-bold text-ink mt-2">{copy.bigNumber}</Text>
-        <Text className="text-sm text-muted mt-1">{copy.bigSuffix}</Text>
+    <View style={styles.card}>
+      <Frost />
 
-        <View className="h-px bg-line w-full my-5" />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+        <CountdownRing days={days} />
 
-        <Text className="text-2xl font-bold text-ink">{formatMoney(payment.amount, payment.currency)}</Text>
-        <Text className="text-sm text-muted mt-1">Due {formatDate(payment.due_date)}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.eyebrow}>{headline}</Text>
+          <Text style={styles.amount}>{formatMoney(payment.amount, payment.currency)}</Text>
+          <Text style={styles.due}>Due {formatDate(payment.due_date)}</Text>
 
-        {isReady ? (
-          <Text
-            className="text-sm font-semibold text-ink mt-4"
-            accessibilityLabel="Funds ready"
-          >
-            Funds ready ✓
-          </Text>
-        ) : copy.reassurance ? (
-          <Text className="text-sm font-semibold text-ink mt-4">{copy.reassurance}</Text>
-        ) : null}
-
-        {showCta ? (
-          <View className="w-full mt-5">
-            <PillButton
-              label="Mark funds ready"
-              loading={marking}
-              disabled={marking}
-              onPress={() => onMarkReady!(payment.id)}
-            />
-          </View>
-        ) : null}
-
-        {onMarkPaid && payment.status !== 'completed' ? (
-          <Pressable
-            onPress={() => onMarkPaid(payment.id)}
-            disabled={paying}
-            hitSlop={6}
-            className="mt-4"
-            accessibilityRole="button"
-            accessibilityLabel="Mark this cheque as paid"
-          >
-            <Text className="text-sm font-semibold text-brand">Mark as paid</Text>
-          </Pressable>
-        ) : null}
+          {isReady ? (
+            <View style={styles.readyPill}>
+              <Ionicons name="checkmark-circle" size={15} color={tentzu.primary} />
+              <Text style={styles.readyText}>Funds ready</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
-    </Card>
+
+      {showReady ? (
+        <Pressable
+          onPress={() => onMarkReady!(payment.id)}
+          disabled={marking}
+          accessibilityRole="button"
+          style={{ marginTop: 18, borderRadius: 22, overflow: 'hidden', opacity: marking ? 0.5 : 1 }}
+        >
+          <LinearGradient
+            colors={['#22D3E8', '#12A9D6', '#1D7FD1']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ paddingVertical: 15, alignItems: 'center' }}
+          >
+            <Text style={styles.cta}>{marking ? 'Saving…' : 'I have the funds ready'}</Text>
+          </LinearGradient>
+        </Pressable>
+      ) : null}
+
+      {onMarkPaid && payment.status !== 'completed' ? (
+        <Pressable
+          onPress={() => onMarkPaid(payment.id)}
+          disabled={paying}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Mark this payment as paid"
+          style={{ marginTop: showReady ? 12 : 18, alignSelf: 'flex-start' }}
+        >
+          <Text style={styles.link}>{paying ? 'Marking…' : "I've paid this"}</Text>
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
-function describeCountdown(days: number, isReady: boolean): HeroCopy {
-  if (days < 0) {
-    const n = Math.abs(days);
-    return {
-      eyebrow: 'Cheque overdue',
-      bigNumber: String(n),
-      bigSuffix: n === 1 ? 'day overdue' : 'days overdue',
-      tone: 'overdue',
-    };
-  }
-  if (days === 0) {
-    return {
-      eyebrow: 'Cheque due',
-      bigNumber: '0',
-      bigSuffix: 'today',
-      tone: 'urgent',
-    };
-  }
-  if (days <= 7) {
-    return {
-      eyebrow: 'Next cheque in',
-      bigNumber: String(days),
-      bigSuffix: days === 1 ? 'day' : 'days',
-      tone: 'urgent',
-    };
-  }
-  return {
-    eyebrow: 'Next cheque in',
-    bigNumber: String(days),
-    bigSuffix: 'days',
-    tone: 'calm',
-    reassurance: isReady ? undefined : "You're all set",
-  };
-}
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 28,
+    overflow: 'hidden',
+    padding: 20,
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderColor: 'rgba(255,255,255,0.6)',
+    shadowColor: '#0b3b45',
+    shadowOpacity: 0.1,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 3,
+  },
+  eyebrow: { fontFamily: tentzuFont.label, fontSize: 13, color: tentzu.mutedInk },
+  amount: {
+    fontFamily: tentzuFont.headlineBold,
+    fontSize: 32,
+    lineHeight: 37,
+    letterSpacing: -1,
+    color: tentzu.ink,
+    marginTop: 2,
+  },
+  due: { fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.mutedInk, marginTop: 3 },
+  readyPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    marginTop: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: tentzu.tintSurface,
+  },
+  readyText: { fontFamily: tentzuFont.label, fontSize: 12.5, color: tentzu.primary },
+  reassure: {
+    fontFamily: tentzuFont.body,
+    fontSize: 15,
+    color: tentzu.inkVariant,
+    textAlign: 'center',
+    maxWidth: 250,
+  },
+  cta: { fontFamily: tentzuFont.headlineBold, fontSize: 16, color: '#ffffff' },
+  link: { fontFamily: tentzuFont.label, fontSize: 14, color: tentzu.primary },
+});

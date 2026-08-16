@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Frost } from '@/components/ui/Frost';
 import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -179,19 +179,7 @@ export function TentzuScreen({
           overflow: 'hidden',
         }}
       >
-        <BlurView
-          intensity={Platform.OS === 'android' ? 26 : 44}
-          tint="light"
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: `rgba(255,255,255,${Platform.OS === 'android' ? 0.72 : 0.5})` },
-          ]}
-          pointerEvents="none"
-        />
+        <Frost />
         {/* Progress lives at the BOTTOM in the comps — a glowing gradient bar
             with an "n of m" label — not as segments in the header. */}
         {step && total ? (

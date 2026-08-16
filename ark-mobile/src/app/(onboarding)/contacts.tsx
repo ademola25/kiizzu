@@ -1,24 +1,26 @@
+import { View } from 'react-native';
 import { router } from 'expo-router';
 
 import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { TentzuField } from '@/components/onboarding/TentzuField';
 import { useOnboarding, type Contact } from '@/store/onboarding';
 
-// One number per slot. The slot label IS the name — "who do I call" needs a
-// number, and asking for a name AND a number across three slots is six fields
-// on a step people are meant to be able to skip.
-const SLOTS: { label: string; hint: string }[] = [
-  { label: "Landlord or agent", hint: 'The person you chase about the lease' },
-  { label: 'Building or security', hint: 'Front desk, watchman, building office' },
-  { label: 'Maintenance', hint: 'AC, plumbing, whoever fixes things' },
+const SLOTS: { label: string; namePlaceholder: string }[] = [
+  { label: 'Landlord or agent', namePlaceholder: 'e.g. Aisha' },
+  { label: 'Building or security', namePlaceholder: 'e.g. Front desk' },
+  { label: 'Maintenance', namePlaceholder: 'e.g. Cool Air AC' },
 ];
 
 /**
  * Step 6/14 — "Who do I call if something breaks?"
  *
- * Skippable by design (proposal: steps 5 and 12 are skippable). Nobody has these
- * numbers to hand during signup, and blocking on them would cost more users than
- * the data is worth. The skip copy promises to help later, and means it.
+ * Name AND number per contact. An earlier version collected only a number and
+ * used the descriptive hint as the placeholder, so the field read "The person
+ * you chase about the lease" while opening a numeric keypad — it asked for a
+ * name and made it impossible to type one.
+ *
+ * Skippable: nobody has these to hand at signup, and blocking on them costs
+ * more users than the data is worth.
  */
 export default function ContactsStep() {
   const contacts = useOnboarding((s) => s.draft.contacts);
@@ -26,15 +28,17 @@ export default function ContactsStep() {
 
   const valueFor = (label: string) => contacts.find((c) => c.label === label);
 
-  const update = (label: string, phone: string) => {
+  const update = (label: string, field: 'name' | 'phone', v: string) => {
     const next: Contact[] = SLOTS.map((slot) => {
-      const existing = valueFor(slot.label) ?? { label: slot.label, name: slot.label, phone: '' };
-      return slot.label === label ? { ...existing, phone } : existing;
-    }).filter((c) => c.phone.trim());
+      const existing = valueFor(slot.label) ?? { label: slot.label, name: '', phone: '' };
+      return slot.label === label ? { ...existing, [field]: v } : existing;
+      // Keep a contact only once it carries something useful.
+    }).filter((c) => c.name.trim() || c.phone.trim());
     set('contacts', next);
   };
 
   const next = () => router.push('/(onboarding)/lease');
+  const filled = contacts.filter((c) => c.name.trim() || c.phone.trim()).length;
 
   return (
     <TentzuScreen
@@ -42,7 +46,7 @@ export default function ContactsStep() {
       total={14}
       title="Who do I call if something breaks?"
       subtitle="Add whoever you'd ring first. Or skip — I'll help you find them later."
-      primaryLabel={contacts.length ? 'Save these' : 'Continue'}
+      primaryLabel={filled ? `Save ${filled === 1 ? 'this' : 'these'}` : 'Continue'}
       primaryIcon="arrow-forward"
       onPrimary={next}
       secondaryLabel="Skip for now"
@@ -51,16 +55,25 @@ export default function ContactsStep() {
       {SLOTS.map((slot) => {
         const c = valueFor(slot.label);
         return (
-          <TentzuField
-            key={slot.label}
-            label={slot.label}
-            placeholder={slot.hint}
-            value={c?.phone ?? ''}
-            onChangeText={(v) => update(slot.label, v)}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            returnKeyType="next"
-          />
+          <View key={slot.label} style={{ marginBottom: 6 }}>
+            <TentzuField
+              label={slot.label}
+              placeholder={slot.namePlaceholder}
+              value={c?.name ?? ''}
+              onChangeText={(v) => update(slot.label, 'name', v)}
+              autoCapitalize="words"
+              autoCorrect={false}
+              returnKeyType="next"
+            />
+            <TentzuField
+              placeholder="Phone number"
+              value={c?.phone ?? ''}
+              onChangeText={(v) => update(slot.label, 'phone', v)}
+              keyboardType="phone-pad"
+              autoComplete="tel"
+              returnKeyType="next"
+            />
+          </View>
         );
       })}
     </TentzuScreen>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Frost } from '@/components/ui/Frost';
 import { Ionicons } from '@expo/vector-icons';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
@@ -44,23 +44,7 @@ export function TentzuOption({ title, subtitle, selected, onPress, icon }: Props
     >
       {/* Frosted pane behind the row. Selected state deepens the tint rather
           than swapping to a solid fill, so the material stays consistent. */}
-      <BlurView
-        intensity={Platform.OS === 'android' ? 24 : 38}
-        tint="light"
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
-      <View
-        style={[
-          StyleSheet.absoluteFill,
-          {
-            backgroundColor: selected
-              ? 'rgba(214,246,248,0.80)'
-              : `rgba(255,255,255,${Platform.OS === 'android' ? 0.76 : 0.58})`,
-          },
-        ]}
-        pointerEvents="none"
-      />
+        <Frost />
       {icon ? (
         <View
           style={{

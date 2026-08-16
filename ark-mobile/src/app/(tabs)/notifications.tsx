@@ -21,7 +21,7 @@ export default function NotificationsScreen() {
       contentContainerStyle={{
         padding: 20,
         paddingTop: insets.top + 12,
-        paddingBottom: 32,
+        paddingBottom: insets.bottom + 108,
         gap: 16,
       }}
       refreshControl={

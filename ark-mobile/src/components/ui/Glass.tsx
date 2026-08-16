@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Platform, StyleSheet, View, type ViewStyle } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Frost } from './Frost';
 import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = {
@@ -25,10 +25,8 @@ type Props = {
  *   3. specular edge  — a hairline top highlight + border, so the pane has an
  *                       edge and reads as a physical object rather than a hole
  *
- * On Android, BlurView is more expensive and historically less faithful, so the
- * white fill is raised there and the blur intensity lowered: better a slightly
- * flatter pane than a janky scroll. Content legibility never depends on the
- * blur landing — that is a deliberate constraint, not a fallback.
+ * Android gets no blur at all — see components/ui/Frost.tsx for why. Content
+ * legibility never depends on the blur landing; the white fill carries it.
  */
 export function Glass({
   children,
@@ -60,16 +58,7 @@ export function Glass({
         style,
       ]}
     >
-      <BlurView
-        intensity={blurIntensity}
-        tint="light"
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
-      <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(255,255,255,${fill})` }]}
-        pointerEvents="none"
-      />
+      <Frost intensity={blurIntensity} fill={fill} />
       {sheen ? (
         <LinearGradient
           colors={['rgba(255,255,255,0.75)', 'rgba(255,255,255,0)']}

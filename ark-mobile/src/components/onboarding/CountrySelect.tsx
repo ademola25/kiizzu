@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Frost } from '@/components/ui/Frost';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -93,19 +93,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint }
           elevation: 1,
         }}
       >
-        <BlurView
-          intensity={Platform.OS === 'android' ? 22 : 34}
-          tint="light"
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: `rgba(255,255,255,${Platform.OS === 'android' ? 0.78 : 0.62})` },
-          ]}
-          pointerEvents="none"
-        />
+        <Frost />
         <Text style={{ fontSize: 22 }}>{selected.flag}</Text>
         <Text
           numberOfLines={1}

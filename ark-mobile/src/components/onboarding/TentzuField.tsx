@@ -1,6 +1,6 @@
 import { forwardRef, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Frost } from '@/components/ui/Frost';
 import { Platform, StyleSheet } from 'react-native';
 import type { TextInputProps } from 'react-native';
 import { tentzu, tentzuFont } from '@/theme/tokens';
@@ -58,19 +58,7 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
           elevation: focused ? 3 : 1,
         }}
       >
-        <BlurView
-          intensity={Platform.OS === 'android' ? 22 : 34}
-          tint="light"
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: `rgba(255,255,255,${Platform.OS === 'android' ? 0.78 : 0.62})` },
-          ]}
-          pointerEvents="none"
-        />
+        <Frost />
         {prefix ? (
           <Text
             style={{

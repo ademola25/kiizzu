@@ -103,7 +103,7 @@ export default function SettingsScreen() {
         contentContainerStyle={{
           padding: 20,
           paddingTop: insets.top + 12,
-          paddingBottom: insets.bottom + 32,
+          paddingBottom: insets.bottom + 108,
           gap: 16,
         }}
       >

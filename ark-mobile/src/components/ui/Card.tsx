@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Frost } from '@/components/ui/Frost';
 import { cn } from '@/lib/cn';
 
 type CardProps = ViewProps & {
@@ -15,10 +15,8 @@ type CardProps = ViewProps & {
  * settings share the same material as onboarding. Three layers: blur behind,
  * white fill for contrast, hairline light border for the edge.
  *
- * The white fill is deliberately doing the contrast work — text legibility must
- * not depend on the blur landing. Android gets a higher fill and lower blur
- * intensity because BlurView is more expensive there, and a flat-but-smooth
- * pane beats a faithful-but-janky one in a scrolling list.
+ * The white fill does the contrast work — legibility must not depend on the
+ * blur landing. Android gets no blur at all; see components/ui/Frost.tsx.
  */
 export function Card({ className, solid = false, children, ...props }: CardProps) {
   const fill = Platform.OS === 'android' ? 0.8 : 0.62;
@@ -44,16 +42,7 @@ export function Card({ className, solid = false, children, ...props }: CardProps
         />
       ) : (
         <>
-          <BlurView
-            intensity={Platform.OS === 'android' ? 26 : 42}
-            tint="light"
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
-          <View
-            style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(255,255,255,${fill})` }]}
-            pointerEvents="none"
-          />
+        <Frost />
         </>
       )}
       {children}

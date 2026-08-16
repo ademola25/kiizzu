@@ -100,9 +100,13 @@ export default function HomeStep() {
       step={8}
       total={TOTAL}
       illustration={<HomeArt />}
-      title="Where is home?"
-      subtitle="Start with your country and I'll ask for the rest the way your country writes it."
-      primaryLabel="That's my place"
+      title={draft.lease_document_uri ? 'Confirm your home.' : 'Where is home?'}
+      subtitle={
+        draft.lease_document_uri
+          ? "I've filed your lease. Check these details are right — correct anything I've got wrong."
+          : "Start with your country and I'll ask for the rest the way your country writes it."
+      }
+      primaryLabel={draft.lease_document_uri ? "That's right" : "That's my place"}
       primaryIcon="arrow-forward"
       primaryDisabled={!ready}
       onPrimary={() => router.push('/(onboarding)/home-type')}

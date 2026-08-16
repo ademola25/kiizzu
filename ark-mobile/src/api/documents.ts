@@ -39,44 +39,57 @@ export function useDocuments() {
  * If the S3 PUT fails after the row is created, we best-effort soft-delete
  * the orphan so the user never sees a "phantom" document in the list.
  */
+/**
+ * The upload itself, as a plain async function.
+ *
+ * Extracted from the mutation so non-React callers can use it — onboarding
+ * finishes in `lib/finishOnboarding.ts`, which is not a component and cannot
+ * call a hook, but still has to upload the lease the user picked at step 7.
+ */
+export async function uploadDocument(input: {
+  file: PickedFile;
+  documentType: DocumentType;
+}): Promise<Document> {
+  const file = normalizeMime(input.file);
+  validateFile(file);
+
+  const { data } = await api.post<{
+    id: number;
+    upload_url: string;
+    document: Document;
+  }>('/documents/upload/', {
+    filename: file.name,
+    content_type: file.mimeType,
+    file_size: file.size,
+    document_type: input.documentType,
+  });
+
+  try {
+    const localFile = new File(file.uri);
+    const task = new UploadTask(localFile, data.upload_url, {
+      httpMethod: 'PUT',
+      uploadType: UploadType.BINARY_CONTENT,
+      headers: { 'Content-Type': file.mimeType },
+    });
+    const result = await task.uploadAsync();
+    if (result.status < 200 || result.status >= 300) {
+      throw new Error(`Upload rejected by storage (${result.status}).`);
+    }
+  } catch (e) {
+    // Roll back the DB row so the list doesn't show a phantom document.
+    // We swallow the cleanup error — the user-facing error is the PUT's.
+    await api.delete(`/documents/${data.id}/`).catch(() => undefined);
+    throw e;
+  }
+
+  return data.document;
+}
+
 export function useUploadDocument() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { file: PickedFile; documentType: DocumentType }) => {
-      const file = normalizeMime(input.file);
-      validateFile(file);
-
-      const { data } = await api.post<{
-        id: number;
-        upload_url: string;
-        document: Document;
-      }>('/documents/upload/', {
-        filename: file.name,
-        content_type: file.mimeType,
-        file_size: file.size,
-        document_type: input.documentType,
-      });
-
-      try {
-        const localFile = new File(file.uri);
-        const task = new UploadTask(localFile, data.upload_url, {
-          httpMethod: 'PUT',
-          uploadType: UploadType.BINARY_CONTENT,
-          headers: { 'Content-Type': file.mimeType },
-        });
-        const result = await task.uploadAsync();
-        if (result.status < 200 || result.status >= 300) {
-          throw new Error(`Upload rejected by storage (${result.status}).`);
-        }
-      } catch (e) {
-        // Roll back the DB row so the list doesn't show a phantom document.
-        // We swallow the cleanup error — the user-facing error is the PUT's.
-        await api.delete(`/documents/${data.id}/`).catch(() => undefined);
-        throw e;
-      }
-
-      return data.document;
-    },
+    mutationFn: (input: { file: PickedFile; documentType: DocumentType }) =>
+      uploadDocument(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY });
     },

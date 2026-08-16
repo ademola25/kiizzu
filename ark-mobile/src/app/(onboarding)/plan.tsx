@@ -6,7 +6,13 @@ import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { PlanArt } from '@/components/onboarding/illustrations';
 import { currencyForCountry } from '@/lib/countries';
 import { composeAddress, useOnboarding } from '@/store/onboarding';
-import { formatMoney, formatLongDate, isValidISODate, previewSchedule } from '@/lib/schedule';
+import {
+  formatMoney,
+  formatLongDate,
+  formatShortDate,
+  isValidISODate,
+  previewSchedule,
+} from '@/lib/schedule';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
 // Step 6/7 — a preview of the cheque plan Tentzu will track. Computed locally to
@@ -30,7 +36,14 @@ export default function PlanStep() {
       total={14}
       illustration={<PlanArt />}
       title="Here's your rent plan."
-      subtitle="I've set out every payment below. I'll ping you before each one — you can change any of it later."
+      subtitle={
+        cheques.length
+          ? `I've set up ${cheques.length} payment${cheques.length === 1 ? '' : 's'}: ${cheques
+              .slice(0, 3)
+              .map((c) => formatShortDate(c.due_date))
+              .join(', ')}${cheques.length > 3 ? '…' : ''}. I'll ping you before each one.`
+          : "I'll lay out every payment here once I have your dates."
+      }
       primaryLabel="Looks right"
       primaryIcon="arrow-forward"
       primaryDisabled={!ready}

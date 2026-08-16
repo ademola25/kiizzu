@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,19 +27,36 @@ export default function LeaseEndStep() {
     ? addMonths(draft.start_date, 12)
     : null;
 
+  // Pre-fill rather than merely suggest. "Confirm, don't ask": arriving on a
+  // filled date the user can correct is a different task from arriving on an
+  // empty calendar they must solve.
+  //
+  // `dismissed` guards the skip: "I don't know yet" clears the date, and
+  // without this the effect would re-seed it on the very next render, making
+  // the skip impossible.
+  const dismissed = useRef(false);
+  useEffect(() => {
+    if (!valid && suggested && !dismissed.current) set('lease_end_date', suggested);
+  }, [valid, suggested, set]);
+
   const next = () => router.push('/(onboarding)/plan');
 
   return (
     <TentzuScreen
       step={10}
       total={14}
-      title="When does your lease end?"
-      subtitle="I'll remind you 90, 60 and 30 days before, so you can renew or move without a scramble."
-      primaryLabel={valid ? 'Set my renewal reminders' : 'Continue'}
+      title={suggested ? 'Your lease ends here, I think.' : 'When does your lease end?'}
+      subtitle={
+        suggested
+          ? "Most leases run a year, so that's my guess. Change it if yours is different — I'll remind you 90, 60 and 30 days before."
+          : "I'll remind you 90, 60 and 30 days before, so you can renew or move without a scramble."
+      }
+      primaryLabel={valid ? "That's right" : 'Continue'}
       primaryIcon="arrow-forward"
       onPrimary={next}
       secondaryLabel="I don't know yet"
       onSecondary={() => {
+        dismissed.current = true;
         set('lease_end_date', '');
         next();
       }}

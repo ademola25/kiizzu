@@ -32,6 +32,8 @@ export type OnboardingDraft = {
    *  because every onboarding step before 14 is unauthenticated. */
   lease_document_uri: string | null;
   lease_document_name: string | null;
+  lease_document_mime: string | null;
+  lease_document_size: number | null;
   /** Step 8. */
   home_type: HomeType | '';
   /** Step 9: drives the 90/60/30-day renewal reminders we promise. */
@@ -60,6 +62,8 @@ const empty: OnboardingDraft = {
   contacts: [],
   lease_document_uri: null,
   lease_document_name: null,
+  lease_document_mime: null,
+  lease_document_size: null,
   home_type: '',
   lease_end_date: '',
   extra_docs: [],

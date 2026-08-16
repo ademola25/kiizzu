@@ -5,6 +5,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { Ionicons } from '@expo/vector-icons';
 
 import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
+import { OrganizingOverlay } from '@/components/onboarding/OrganizingOverlay';
 import { useOnboarding } from '@/store/onboarding';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
@@ -22,6 +23,7 @@ export default function LeaseStep() {
   const draft = useOnboarding((s) => s.draft);
   const set = useOnboarding((s) => s.set);
   const [error, setError] = useState<string | null>(null);
+  const [organizing, setOrganizing] = useState(false);
 
   const pick = async () => {
     setError(null);
@@ -34,12 +36,18 @@ export default function LeaseStep() {
       const file = res.assets[0];
       set('lease_document_uri', file.uri);
       set('lease_document_name', file.name ?? 'Lease document');
+      set('lease_document_mime', file.mimeType ?? 'application/pdf');
+      set('lease_document_size', file.size ?? 0);
     } catch {
       setError("I couldn't open your files. You can add the lease later from Documents.");
     }
   };
 
   const next = () => router.push('/(onboarding)/home');
+
+  // Only pause when there is genuinely a file to process. Showing "organizing
+  // your lease" after a skip would be theatre with nothing behind it.
+  const continueWithFile = () => setOrganizing(true);
   const picked = !!draft.lease_document_uri;
 
   return (
@@ -50,7 +58,7 @@ export default function LeaseStep() {
       subtitle="Upload the PDF or a photo and I'll keep it safe with your other documents. Skip if you haven't got it to hand."
       primaryLabel={picked ? 'Continue' : 'Choose a file'}
       primaryIcon={picked ? 'arrow-forward' : 'document-attach-outline'}
-      onPrimary={picked ? next : pick}
+      onPrimary={picked ? continueWithFile : pick}
       secondaryLabel={picked ? 'Choose a different file' : 'Skip for now'}
       onSecondary={picked ? pick : next}
       footerNote={
@@ -63,6 +71,14 @@ export default function LeaseStep() {
         ) : null
       }
     >
+      <OrganizingOverlay
+        visible={organizing}
+        onDone={() => {
+          setOrganizing(false);
+          next();
+        }}
+      />
+
       {picked ? (
         <View
           style={{

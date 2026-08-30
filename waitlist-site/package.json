@@ -1,0 +1,15 @@
+{
+  "name": "tentzu-waitlist",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tentzu waitlist landing page + signup API",
+  "main": "server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5"
+  }
+}

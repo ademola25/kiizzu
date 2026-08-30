@@ -12,13 +12,13 @@ no worker service), so this task does not currently run in production.
 """
 import logging
 from datetime import timedelta
-from zoneinfo import ZoneInfo
 
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.utils import timezone
 
+from ark.common.dates import local_today as _local_today
 from ark.payments.models import PaymentSchedule
 from ark.reminders.models import ReminderLog
 from ark.reminders.services.whatsapp import TwilioWhatsAppService
@@ -40,18 +40,6 @@ email_service = SendGridEmailService()
 sms_service = TwilioSMSService()
 
 
-def _local_today(tz_name: str):
-    """Today's calendar date in `tz_name`, falling back to server time.
-
-    A bad or retired zone name must not stop everyone else's reminders, so an
-    unknown zone degrades to the server's date rather than raising.
-    """
-    now = timezone.now()
-    try:
-        return now.astimezone(ZoneInfo(tz_name)).date()
-    except Exception:
-        logger.warning("Unknown timezone %r on a user record; using server date", tz_name)
-        return now.date()
 
 
 @shared_task(name="reminders.send_daily_reminders")

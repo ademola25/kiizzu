@@ -159,16 +159,20 @@ type DashboardView = {
 };
 
 // Picks the cheque the user actually cares about right now:
-//   - earliest non-completed with due_date >= today, otherwise
-//   - earliest non-completed (handles a stale row the auto-complete missed).
-// Everything else (including completed history) renders in the list below.
+//   - the earliest one already past due and still unpaid, otherwise
+//   - the earliest one still to come.
+// Overdue goes first because it is the only case that needs acting on today.
+// This used to be unreachable: past-due cheques were auto-completed on every
+// list fetch, so the hero could only ever show something in the future.
+// Everything else (including paid history) renders in the list below.
 function computeDashboardView(list: PaymentSchedule[]): DashboardView {
   const sorted = [...list].sort((a, b) => a.due_date.localeCompare(b.due_date));
   const today = new Date().toISOString().slice(0, 10);
 
   const candidates = sorted.filter((p) => p.status !== 'completed');
+  const overdue = candidates.filter((p) => p.due_date < today);
   const future = candidates.filter((p) => p.due_date >= today);
-  const next = future[0] ?? candidates[0] ?? null;
+  const next = overdue[0] ?? future[0] ?? candidates[0] ?? null;
 
   const rest = sorted.filter((p) => p !== next);
   const cleared = list.filter((p) => p.status === 'completed').length;

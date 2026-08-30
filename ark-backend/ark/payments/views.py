@@ -19,9 +19,10 @@ class PaymentScheduleListView(generics.ListAPIView):
         # tenant knows, so it stays PENDING and surfaces as `display_status`
         # "overdue" until they say otherwise. (Back-filling cheques that predate
         # setup still happens once, at lease creation, in leases/services.py.)
-        # select_related because the serializer now reads lease.currency —
-        # without it this is one extra query per cheque in the list.
-        return qs.select_related("lease")
+        # select_related because the serializer reads lease.currency and
+        # display_status reads lease.user.timezone — without it that is two
+        # extra queries per cheque in the list.
+        return qs.select_related("lease__user")
 
 
 class PaymentMarkReadyView(APIView):

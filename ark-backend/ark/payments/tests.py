@@ -5,10 +5,12 @@ shown as paid when it has not cleared is worse than no app at all: the tenant
 stops worrying about the exact thing they installed this to worry about.
 """
 from datetime import date, timedelta
+from zoneinfo import ZoneInfo
 from decimal import Decimal
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from ark.leases.models import Lease
@@ -75,6 +77,32 @@ class TestDisplayStatus:
     def test_funds_ready_is_still_owed(self, lease):
         """'Funds ready' means money set aside, not money taken — it is not paid."""
         p = make_payment(lease, days=2, status=PaymentSchedule.Status.READY)
+        assert p.display_status == "upcoming"
+
+
+@pytest.mark.django_db
+class TestDisplayStatusUsesTenantTimezone:
+    """Settings pin TIME_ZONE to Asia/Dubai. A tenant elsewhere must be judged by
+    their own calendar, the way the reminder job already does — otherwise the app
+    calls a cheque due (or late) on the wrong day for most of the world."""
+
+    def test_late_evening_in_toronto_is_not_yet_tomorrow(self, user, lease):
+        user.timezone = "America/Toronto"
+        user.save(update_fields=["timezone"])
+
+        # 04:00 in Dubai on the 2nd is 20:00 on the 1st in Toronto.
+        dubai_now = timezone.now().astimezone(ZoneInfo("Asia/Dubai"))
+        toronto_today = dubai_now.astimezone(ZoneInfo("America/Toronto")).date()
+
+        p = PaymentSchedule.objects.create(
+            lease=lease, cheque_number=99, due_date=toronto_today, amount=Decimal("30000"),
+        )
+        assert p.display_status == "due_today"
+
+    def test_unknown_zone_degrades_instead_of_raising(self, user, lease):
+        user.timezone = "Not/AZone"
+        user.save(update_fields=["timezone"])
+        p = make_payment(lease, days=5)
         assert p.display_status == "upcoming"
 
 

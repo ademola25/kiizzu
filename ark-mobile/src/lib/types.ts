@@ -3,12 +3,19 @@
 
 export type PaymentStatus = 'pending' | 'ready' | 'completed';
 
+/** What the tenant is shown, derived server-side from (status, due_date).
+ *  Distinct from PaymentStatus, which records what the tenant has *done*:
+ *  "funds ready" is a Tentzu concept with no place on a paid/overdue axis. */
+export type DisplayStatus = 'paid' | 'due_today' | 'overdue' | 'upcoming';
+
 export type PaymentSchedule = {
   id: number;
   cheque_number: number;
   due_date: string; // YYYY-MM-DD
   amount: string; // decimal as string
   status: PaymentStatus;
+  /** Optional: older backends do not send it. Fall back to deriveDisplayStatus. */
+  display_status?: DisplayStatus;
   /** ISO 4217, denormalised from the lease so a payment formats standalone. */
   currency?: string;
   reminder_30d_sent: boolean;

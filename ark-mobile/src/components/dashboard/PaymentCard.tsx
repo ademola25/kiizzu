@@ -1,7 +1,9 @@
 import { Pressable, Text, View } from 'react-native';
 import { Card } from '@/components/ui/Card';
+import { cn } from '@/lib/cn';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { formatMoney, formatDate } from '@/lib/format';
+import { deriveDisplayStatus } from '@/lib/paymentStatus';
 import type { PaymentSchedule } from '@/lib/types';
 
 type PaymentCardProps = {
@@ -13,6 +15,7 @@ type PaymentCardProps = {
 /** Compact row card showing one cheque in the schedule list. */
 export function PaymentCard({ payment, onMarkPaid, marking }: PaymentCardProps) {
   const canPay = !!onMarkPaid && payment.status !== 'completed';
+  const display = deriveDisplayStatus(payment);
   return (
     <Card className="py-4">
       <View className="flex-row items-center justify-between">
@@ -21,9 +24,16 @@ export function PaymentCard({ payment, onMarkPaid, marking }: PaymentCardProps) 
           <Text className="text-base font-semibold text-ink mt-0.5">
             {formatMoney(payment.amount, payment.currency)}
           </Text>
-          <Text className="text-xs text-muted mt-0.5">{formatDate(payment.due_date)}</Text>
+          <Text
+            className={cn(
+              'text-xs mt-0.5',
+              display === 'overdue' ? 'text-danger font-semibold' : 'text-muted',
+            )}
+          >
+            {display === 'overdue' ? `Was due ${formatDate(payment.due_date)}` : formatDate(payment.due_date)}
+          </Text>
         </View>
-        <StatusBadge status={payment.status} />
+        <StatusBadge payment={payment} />
       </View>
       {canPay ? (
         <Pressable

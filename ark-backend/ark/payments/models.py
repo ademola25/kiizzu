@@ -1,5 +1,7 @@
 from django.db import models
 
+from ark.common.dates import local_today as _local_today
+
 
 class PaymentSchedule(models.Model):
     class Status(models.TextChoices):
@@ -34,11 +36,14 @@ class PaymentSchedule(models.Model):
 
     @property
     def display_status(self) -> str:
-        from django.utils import timezone
-
         if self.status == self.Status.COMPLETED:
             return self.Display.PAID
-        today = timezone.now().date()
+
+        # The tenant's own calendar, not the server's. Settings pin TIME_ZONE to
+        # Asia/Dubai, so server time would tell someone in Toronto a cheque is
+        # "due today" while it is still yesterday evening where they are. The
+        # reminder job already resolves dates per user for the same reason.
+        today = _local_today(self.lease.user.timezone)
         if self.due_date < today:
             return self.Display.OVERDUE
         if self.due_date == today:

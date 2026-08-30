@@ -1,0 +1,8 @@
+# Hostinger's default robots.txt for this vhost blocked Googlebot outright
+# (User-agent: Googlebot / Disallow: /), which would have kept the waitlist
+# out of Google entirely. This replaces it.
+User-agent: *
+Allow: /
+
+# The operator dashboard is not for crawlers.
+Disallow: /admin

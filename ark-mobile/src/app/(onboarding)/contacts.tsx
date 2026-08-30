@@ -46,11 +46,14 @@ export default function ContactsStep() {
       total={14}
       title="Who do I call if something breaks?"
       subtitle="Add whoever you'd ring first. Or skip — I'll help you find them later."
-      primaryLabel={filled ? `Save ${filled === 1 ? 'this' : 'these'}` : 'Continue'}
+      // With nothing entered, "Continue" and "Skip for now" both called next() —
+      // two buttons for one outcome, which is what made the step feel like a
+      // decision. Skipping is the only real action until a contact exists.
+      primaryLabel={filled ? `Save ${filled === 1 ? 'this' : 'these'}` : 'Skip for now'}
       primaryIcon="arrow-forward"
       onPrimary={next}
-      secondaryLabel="Skip for now"
-      onSecondary={next}
+      secondaryLabel={filled ? 'Skip for now' : undefined}
+      onSecondary={filled ? next : undefined}
     >
       {SLOTS.map((slot) => {
         const c = valueFor(slot.label);

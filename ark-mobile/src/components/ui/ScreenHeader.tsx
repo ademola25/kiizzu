@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type ScreenHeaderProps = {
   title: string;
@@ -14,7 +14,7 @@ export function ScreenHeader({ title, subtitle, right }: ScreenHeaderProps) {
   return (
     <View className="mb-5 flex-row items-start">
       <View style={{ flex: 1 }}>
-        <Text style={{ fontFamily: tentzuFont.headline, fontSize: 28, letterSpacing: -0.5, color: tentzu.ink }}>
+        <Text style={{ fontFamily: tentzuFont.headline, fontSize: fontSize.title, letterSpacing: -0.5, color: tentzu.ink }}>
           {title}
         </Text>
         {subtitle ? (

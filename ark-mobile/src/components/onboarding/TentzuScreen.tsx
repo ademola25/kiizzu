@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 import { TentzuButton } from './TentzuButton';
 import { TentzuBackground, type BackdropVariant } from './TentzuBackground';
 
@@ -107,7 +107,9 @@ export function TentzuScreen({
         <Text
           style={{
             fontFamily: tentzuFont.headlineBold,
-            fontSize: 26,
+            // Chrome, not content: this repeats on all 14 onboarding screens and
+            // at 26 it competed with the headline underneath it.
+            fontSize: 20,
             letterSpacing: 1.5,
             color: tentzu.ink,
             marginBottom: step && total ? 14 : 18,
@@ -130,14 +132,15 @@ export function TentzuScreen({
           </Text>
         ) : null}
 
-        {/* Headline: large, bold, LEFT-aligned, two lines. The comps run
-            34-40px; ours was 28 and centred, which read as a form label next to
-            them. */}
+        {/* Headline: large, bold, LEFT-aligned, two lines. The comps run 34-40px
+            and 28 read as a form label beside them, so this was raised to 34.
+            QA then found the result too large on a real handset; 30 is the
+            compromise. If the comps win, this is the line to change back. */}
         <Text
           style={{
             fontFamily: tentzuFont.headlineBold,
-            fontSize: 34,
-            lineHeight: 39,
+            fontSize: fontSize.display,
+            lineHeight: 35,
             letterSpacing: -0.8,
             color: tentzu.ink,
           }}

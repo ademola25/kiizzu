@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,7 +8,8 @@ import { Card } from '@/components/ui/Card';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StateCard } from '@/components/ui/StateCard';
-import { useMarkPaid, useMarkReady, usePayments } from '@/api/payments';
+import { Snackbar } from '@/components/ui/Snackbar';
+import { useMarkPaid, useMarkReady, useMarkUnpaid, usePayments } from '@/api/payments';
 import { useAuth } from '@/store/auth';
 import { errorMessage } from '@/lib/errors';
 import { formatMoney } from '@/lib/format';
@@ -20,6 +21,9 @@ export default function HomeScreen() {
   const payments = usePayments();
   const markReady = useMarkReady();
   const markPaid = useMarkPaid();
+  const markUnpaid = useMarkUnpaid();
+  // Which cheque the confirmation currently refers to, so Undo knows its target.
+  const [justPaid, setJustPaid] = useState<number | null>(null);
 
   const view = useMemo(() => computeDashboardView(payments.data ?? []), [payments.data]);
 
@@ -38,6 +42,7 @@ export default function HomeScreen() {
   const handleMarkPaid = (id: number) => {
     if (markPaid.isPending) return;
     markPaid.mutate(id, {
+      onSuccess: () => setJustPaid(id),
       onError: (error: unknown) => {
         Alert.alert(
           'Something went wrong',
@@ -47,9 +52,24 @@ export default function HomeScreen() {
     });
   };
 
+  const handleUndoPaid = () => {
+    if (justPaid == null || markUnpaid.isPending) return;
+    const id = justPaid;
+    setJustPaid(null);
+    markUnpaid.mutate(id, {
+      onError: (error: unknown) => {
+        Alert.alert(
+          'Something went wrong',
+          errorMessage(error, "Couldn't undo that. Try again."),
+        );
+      },
+    });
+  };
+
   const firstName = user?.name?.split(' ')[0];
 
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView
       className="flex-1"
       contentContainerStyle={{
@@ -118,6 +138,14 @@ export default function HomeScreen() {
         </>
       )}
     </ScrollView>
+
+      <Snackbar
+        message={justPaid != null ? 'Payment marked as paid.' : null}
+        actionLabel="Undo"
+        onAction={handleUndoPaid}
+        onDismiss={() => setJustPaid(null)}
+      />
+    </View>
   );
 }
 

@@ -52,3 +52,23 @@ export function useMarkPaid() {
     },
   });
 }
+
+/**
+ * Undo a mark-as-paid, returning the cheque to pending.
+ * Marking paid is a single tap on the dashboard, so it has to be reversible;
+ * the backend refuses this for anything not currently marked paid.
+ */
+export function useMarkUnpaid() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await api.post<PaymentSchedule>(
+        `/payment-schedules/${id}/mark-unpaid/`,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEY });
+    },
+  });
+}

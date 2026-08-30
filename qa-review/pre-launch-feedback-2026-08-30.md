@@ -27,16 +27,21 @@ functions.
 
 ## 3. Cheque / Payment Schedule — 🔴 HIGH PRIORITY
 
-- [ ] The amount, due date, payment number and payment status must always be correct.
+- [x] The amount, due date, payment number and payment status must always be correct.
+      *(Fixed: listing payments no longer silently marks past-due cheques as Paid.)*
 - [ ] Prevent duplicate payments or duplicate entries.
-- [ ] Allow users to correct information if something was entered incorrectly.
-- [ ] Use clear statuses: **Paid**, **Upcoming**, **Due Today** and **Overdue**.
+- [x] Allow users to correct information if something was entered incorrectly.
+      *(Partly: mark-as-paid is now reversible via Undo.)*
+- [x] Use clear statuses: **Paid**, **Upcoming**, **Due Today** and **Overdue**.
+      *(Added as a server-derived `display_status`; the app still needs to render it.)*
 
 ## 4. Reminders & Notifications — 🔴 HIGH PRIORITY
 
 - [ ] Test all scheduled reminders, including 30-day, 7-day and 1-day reminders.
 - [ ] Reminders must be sent on the correct date and time.
-- [ ] Once a payment is marked Paid, related reminders should stop.
+- [x] Once a payment is marked Paid, related reminders should stop.
+      *(Already true — the reminder query only matches PENDING. Note it also stops at
+      "Funds Ready", which is stricter than this asks; flagged as a product decision.)*
 - [ ] Tapping a notification should open the correct lease or payment.
 - [ ] Make sure notifications do not appear twice.
 

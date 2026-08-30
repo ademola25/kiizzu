@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import type { ViewStyle } from 'react-native';
 import { Frost } from '@/components/ui/Frost';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +9,11 @@ import { COUNTRIES, SUGGESTED, countryByCode, type Country } from '@/lib/countri
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
+  /** Drop the country name from the trigger, leaving flag + dial code. Lets the
+   *  picker sit beside a phone input instead of stacked above it. */
+  compact?: boolean;
+  /** Merged into the outer container, so a parent can size it in a row. */
+  containerStyle?: ViewStyle;
   label?: string;
   value: string;
   onChange: (code: string) => void;
@@ -28,7 +34,7 @@ type Props = {
  * inline styles after function-form style props were found to be dropped in
  * Release builds. See the note in TentzuButton.
  */
-export function CountrySelect({ label, value, onChange, mode = 'country', hint }: Props) {
+export function CountrySelect({ label, value, onChange, mode = 'country', hint, compact = false, containerStyle }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const insets = useSafeAreaInsets();
@@ -54,7 +60,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint }
   const trailing = mode === 'dial' ? selected.dial : selected.currency;
 
   return (
-    <View style={{ marginBottom: 16 }}>
+    <View style={[{ marginBottom: 16 }, containerStyle]}>
       {label ? (
         <Text
           style={{
@@ -94,17 +100,30 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint }
         }}
       >
         <Frost />
-        <Text style={{ fontSize: 22 }}>{selected.flag}</Text>
-        <Text
-          numberOfLines={1}
-          style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 16, color: tentzu.ink }}
-        >
-          {selected.name}
-        </Text>
-        <Text style={{ fontFamily: tentzuFont.label, fontSize: 14, color: tentzu.mutedInk }}>
-          {trailing}
-        </Text>
-        <Ionicons name="chevron-down" size={18} color={tentzu.mutedInk} />
+        <Text style={{ fontSize: compact ? 18 : 22 }}>{selected.flag}</Text>
+        {compact ? (
+          // No room for the country name beside a phone input; the dial code is
+          // the part the user is actually choosing, so it takes the space.
+          <Text
+            numberOfLines={1}
+            style={{ flex: 1, fontFamily: tentzuFont.label, fontSize: 15, color: tentzu.ink }}
+          >
+            {trailing}
+          </Text>
+        ) : (
+          <>
+            <Text
+              numberOfLines={1}
+              style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 16, color: tentzu.ink }}
+            >
+              {selected.name}
+            </Text>
+            <Text style={{ fontFamily: tentzuFont.label, fontSize: 14, color: tentzu.mutedInk }}>
+              {trailing}
+            </Text>
+          </>
+        )}
+        <Ionicons name="chevron-down" size={compact ? 16 : 18} color={tentzu.mutedInk} />
       </Pressable>
 
       {hint ? (

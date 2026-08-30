@@ -7,11 +7,14 @@ class PaymentScheduleSerializer(serializers.ModelSerializer):
     # reads /payment-schedules/ without the lease, and previously had no way to
     # know an amount was CAD rather than AED.
     currency = serializers.CharField(source="lease.currency", read_only=True)
+    # Paid / Due Today / Overdue / Upcoming. Computed server-side so every
+    # client agrees on what "overdue" means rather than each re-deriving it.
+    display_status = serializers.CharField(read_only=True)
 
     class Meta:
         model = PaymentSchedule
         fields = (
-            "id", "cheque_number", "due_date", "amount", "status", "currency",
+            "id", "cheque_number", "due_date", "amount", "status", "display_status", "currency",
             "reminder_30d_sent", "reminder_7d_sent", "reminder_1d_sent",
             "created_at",
         )

@@ -66,6 +66,26 @@ export const tentzuFont = {
   label: 'BeVietnamPro_600SemiBold',
 } as const;
 
+// Type scale. Sizes were previously hardcoded at 99 call sites across 30 files
+// with 21 distinct values — 13 and 13.5 and 14 all in use, which is what QA saw
+// as inconsistent hierarchy rather than any single element being wrong. New
+// work should reference these; existing screens are being migrated as they are
+// touched.
+export const fontSize = {
+  /** Dashboard countdown — the one number the whole app exists to show. */
+  hero: 42,
+  /** Onboarding headline. */
+  display: 30,
+  /** Tab screen titles. */
+  title: 24,
+  section: 20,
+  subtitle: 16,
+  body: 15,
+  label: 14,
+  caption: 13,
+  micro: 11,
+} as const;
+
 export const radius = {
   card: 20,
   pill: 999,

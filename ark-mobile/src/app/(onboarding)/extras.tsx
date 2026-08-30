@@ -35,14 +35,27 @@ export default function ExtrasStep() {
       total={14}
       title="Want me to save anything else?"
       subtitle="Pick what you'd like kept safe and I'll ask for it after setup. You can add anything, anytime."
-      primaryLabel={extras.length ? "I'll add these" : 'Continue'}
+      // Same redundancy contacts.tsx had: with nothing selected, "Continue" and
+      // "Not right now" both cleared an already-empty list and moved on.
+      primaryLabel={extras.length ? "I'll add these" : 'Not right now'}
       primaryIcon="arrow-forward"
-      onPrimary={next}
-      secondaryLabel="Not right now"
-      onSecondary={() => {
-        set('extra_docs', []);
-        next();
-      }}
+      onPrimary={
+        extras.length
+          ? next
+          : () => {
+              set('extra_docs', []);
+              next();
+            }
+      }
+      secondaryLabel={extras.length ? 'Not right now' : undefined}
+      onSecondary={
+        extras.length
+          ? () => {
+              set('extra_docs', []);
+              next();
+            }
+          : undefined
+      }
     >
       <View style={{ gap: 12 }}>
         {DOCS.map((d) => (

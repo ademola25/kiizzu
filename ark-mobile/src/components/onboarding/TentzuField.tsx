@@ -1,8 +1,9 @@
 import { forwardRef, useState } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Frost } from '@/components/ui/Frost';
 import { Platform, StyleSheet } from 'react-native';
-import type { TextInputProps } from 'react-native';
+import type { TextInputProps, ViewStyle } from 'react-native';
 import { tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = TextInputProps & {
@@ -10,19 +11,26 @@ type Props = TextInputProps & {
   error?: string;
   prefix?: string; // e.g. "AED"
   hint?: string;
+  /** Merged into the outer container, so a parent can size it in a row. */
+  containerStyle?: ViewStyle;
 };
 
 // Labeled input with a turquoise focus ring. Label sits above the field
 // (bold, small) per the TENTZU spec; error/hint below.
 export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
-  { label, error, prefix, hint, style, onFocus, onBlur, ...props },
+  { label, error, prefix, hint, style, onFocus, onBlur, secureTextEntry, containerStyle, ...props },
   ref,
 ) {
   const [focused, setFocused] = useState(false);
+  // Show/hide lives here rather than on each screen so every password field in
+  // the app gets it: a masked field the user cannot check is the main source of
+  // password-entry errors, and it is worse on a phone keyboard.
+  const [revealed, setRevealed] = useState(false);
+  const isPassword = Boolean(secureTextEntry);
   const borderColor = error ? tentzu.danger : focused ? tentzu.primary : tentzu.fieldBorder;
 
   return (
-    <View style={{ marginBottom: 16 }}>
+    <View style={[{ marginBottom: 16 }, containerStyle]}>
       {label ? (
         <Text
           style={{
@@ -83,6 +91,7 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
             setFocused(false);
             onBlur?.(e);
           }}
+          secureTextEntry={isPassword && !revealed}
           style={[
             {
               flex: 1,
@@ -96,6 +105,23 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
           ]}
           {...props}
         />
+        {isPassword ? (
+          <Pressable
+            onPress={() => setRevealed((v) => !v)}
+            // The icon is 20pt inside a 56pt-tall row; hitSlop takes the
+            // touch target past the 44pt minimum without changing the layout.
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={revealed ? 'Hide password' : 'Show password'}
+            style={{ paddingLeft: 10, justifyContent: 'center' }}
+          >
+            <Ionicons
+              name={revealed ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color={tentzu.mutedInk}
+            />
+          </Pressable>
+        ) : null}
       </View>
 
       {error ? (

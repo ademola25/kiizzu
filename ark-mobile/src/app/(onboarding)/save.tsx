@@ -168,25 +168,42 @@ export default function SaveStep() {
                 autoCapitalize="none"
                 autoComplete="email"
               />
-              <CountrySelect
-                label="Phone country"
-                value={phoneCountry}
-                onChange={setPhoneCountry}
-                mode="dial"
-              />
-              <TentzuField
-                label="WhatsApp / phone"
-                placeholder={phonePlaceholder(phoneCountry)}
-                value={phoneLocal}
-                onChangeText={setPhoneLocal}
-                keyboardType="phone-pad"
-                autoComplete="tel"
-                hint={
-                  phoneLocal.length > 0 && !isValidPhone(cleanPhone)
-                    ? 'That does not look like a complete number yet.'
-                    : `We will send reminders to ${cleanPhone || dialForCountry(phoneCountry)}.`
-                }
-              />
+              {/* Dial code beside the number rather than stacked above it, so
+                  the two read as one phone entry with the country clearly
+                  separated. */}
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <CountrySelect
+                  label="Country"
+                  value={phoneCountry}
+                  onChange={setPhoneCountry}
+                  mode="dial"
+                  compact
+                  containerStyle={{ width: 124 }}
+                />
+                <TentzuField
+                  label="WhatsApp / phone"
+                  placeholder={phonePlaceholder(phoneCountry)}
+                  value={phoneLocal}
+                  onChangeText={setPhoneLocal}
+                  keyboardType="phone-pad"
+                  autoComplete="tel"
+                  containerStyle={{ flex: 1 }}
+                />
+              </View>
+              <Text
+                style={{
+                  fontFamily: tentzuFont.body,
+                  fontSize: 13,
+                  color: phoneLocal.length > 0 && !isValidPhone(cleanPhone) ? tentzu.danger : tentzu.mutedInk,
+                  marginTop: -8,
+                  marginBottom: 16,
+                  marginLeft: 2,
+                }}
+              >
+                {phoneLocal.length > 0 && !isValidPhone(cleanPhone)
+                  ? 'That does not look like a complete number yet.'
+                  : `We will send reminders to ${cleanPhone || dialForCountry(phoneCountry)}.`}
+              </Text>
               <TentzuField
                 label="Password"
                 placeholder="At least 6 characters"

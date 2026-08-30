@@ -31,8 +31,8 @@ export default function RemindersStep() {
       // compare, the list is the content here and a 200pt mascot pushed three
       // of them below the fold.
       illustration={<MascotHero source={mascotAssistant} height={120} />}
-      title="What should I watch for you?"
-      subtitle="I'll nudge you 30, 7 and 1 day before every payment. In-app is free and always there — the rest come with a paid plan."
+      title="Never miss a payment."
+      subtitle="Get reminders 30, 7, and 1 day before each payment is due. Payment reminders are free; additional features are available with a paid plan."
       primaryLabel="Set my reminders"
       primaryIcon="arrow-forward"
       onPrimary={() => router.push('/(onboarding)/contacts')}

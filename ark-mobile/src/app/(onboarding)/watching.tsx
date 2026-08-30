@@ -86,8 +86,8 @@ export default function WatchingStep() {
     <TentzuScreen
       step={12}
       total={14}
-      title="You're all set. Here's what I'm watching."
-      subtitle="This is everything I'll keep an eye on for you. Change any of it whenever you like."
+      title="Here's what I'll watch."
+      subtitle="Change any of it whenever you like."
       primaryLabel="Looks good"
       primaryIcon="arrow-forward"
       onPrimary={() => router.push('/(onboarding)/extras')}

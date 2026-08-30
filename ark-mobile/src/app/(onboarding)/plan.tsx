@@ -9,7 +9,6 @@ import { composeAddress, useOnboarding } from '@/store/onboarding';
 import {
   formatMoney,
   formatLongDate,
-  formatShortDate,
   isValidISODate,
   previewSchedule,
 } from '@/lib/schedule';
@@ -36,12 +35,11 @@ export default function PlanStep() {
       total={14}
       illustration={<PlanArt />}
       title="Here's your rent plan."
+      // The dates used to be repeated here as well as in the list below, which
+      // made a long subtitle out of information the user is already looking at.
       subtitle={
         cheques.length
-          ? `I've set up ${cheques.length} payment${cheques.length === 1 ? '' : 's'}: ${cheques
-              .slice(0, 3)
-              .map((c) => formatShortDate(c.due_date))
-              .join(', ')}${cheques.length > 3 ? '…' : ''}. I'll ping you before each one.`
+          ? `${cheques.length} payment${cheques.length === 1 ? '' : 's'} set up. I'll remind you before each one.`
           : "I'll lay out every payment here once I have your dates."
       }
       primaryLabel="Looks right"

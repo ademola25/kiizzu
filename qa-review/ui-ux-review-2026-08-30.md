@@ -29,11 +29,17 @@ improvements that should be addressed.
 
 This version is shorter, clearer, and easier to understand at a glance.
 
+- [x] Applied verbatim as the `subtitle` on onboarding step 7
+      (`(onboarding)/reminders.tsx`, `a3b9917`).
+
 **Recommended headline**
 
 > Never Miss a Payment
 
 This is more direct and user-focused than the current headline.
+
+- [x] Applied as "Never miss a payment." — sentence case to match the other
+      onboarding headlines (`(onboarding)/reminders.tsx`, `a3b9917`).
 
 **CTA / Flow**
 

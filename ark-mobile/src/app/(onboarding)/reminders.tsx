@@ -8,7 +8,7 @@ import { MascotHero } from '@/components/onboarding/MascotHero';
 import { mascotAssistant } from '@/components/onboarding/mascots';
 import { CHANNELS } from '@/lib/channels';
 import { useOnboarding } from '@/store/onboarding';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 /**
  * Step 7/14 — where should Tentzu reach you.
@@ -75,7 +75,7 @@ export default function RemindersStep() {
         }}
       >
         <Ionicons name="information-circle-outline" size={18} color={tentzu.primary} />
-        <Text style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.inkVariant }}>
+        <Text style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.inkVariant }}>
           Switch on email, SMS and WhatsApp any time from Settings once you upgrade.
         </Text>
       </View>
@@ -131,8 +131,8 @@ function ChannelCard({
         <Ionicons name={icon} size={21} color={tentzu.primary} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontFamily: tentzuFont.label, fontSize: 16, color: tentzu.ink }}>{title}</Text>
-        <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk, marginTop: 2 }}>
+        <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.subtitle, color: tentzu.ink }}>{title}</Text>
+        <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk, marginTop: 2 }}>
           {subtitle}
         </Text>
       </View>
@@ -155,7 +155,7 @@ function PaidPill() {
       }}
     >
       <Ionicons name="lock-closed" size={13} color={tentzu.primary} />
-      <Text style={{ fontFamily: tentzuFont.label, fontSize: 12, color: tentzu.primary }}>Paid</Text>
+      <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.micro, color: tentzu.primary }}>Paid</Text>
     </View>
   );
 }

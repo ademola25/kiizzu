@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   value: string;
@@ -36,7 +36,7 @@ export function TentzuCodeInput({ value, onChange, length = 6, autoFocus, onComp
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontFamily: tentzuFont.headline, fontSize: 24, color: tentzu.ink }}>{char}</Text>
+              <Text style={{ fontFamily: tentzuFont.headline, fontSize: fontSize.title, color: tentzu.ink }}>{char}</Text>
             </View>
           );
         })}

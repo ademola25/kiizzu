@@ -5,6 +5,11 @@ money per send, so "free account cannot enable SMS" is a billing control, not a
 UI nicety. They assert the *server* refuses it, because the toggle is one PATCH
 away from any client.
 """
+import io
+import json
+import time
+import urllib.error
+import urllib.request
 from datetime import date, timedelta
 from decimal import Decimal
 from unittest.mock import patch
@@ -18,6 +23,7 @@ from ark.leases.models import Lease
 from ark.payments.models import PaymentSchedule
 from ark.reminders.models import ReminderLog
 from ark.reminders.services.channels import active_channels, allowed_channels, has_paid_plan
+from ark.reminders.services.email import EmailReminderService
 
 User = get_user_model()
 Channel = ReminderLog.Channel
@@ -491,3 +497,92 @@ class TestInAppGeneration:
         )
         api_client.get("/api/v1/reminders/notifications/")
         assert ReminderLog.objects.filter(user=other).count() == 0
+
+
+class TestReminderEmailTransport:
+    """Reminder email must use the same provider as auth email.
+
+    This was split: auth mail preferred Resend while reminder mail was
+    SendGrid-only, so setting RESEND_API_KEY fixed password recovery and left
+    the reminder channel silently returning False.
+    """
+
+    def test_resend_is_used_when_configured(self, settings, monkeypatch):
+        settings.RESEND_API_KEY = "re_test_key"
+        settings.SENDGRID_API_KEY = ""
+        settings.DEFAULT_FROM_EMAIL = "reminders@tentzu.com"
+        captured = {}
+
+        class FakeResp:
+            status = 200
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+
+        def fake_urlopen(req, timeout=None):
+            captured["url"] = req.full_url
+            captured["auth"] = req.get_header("Authorization")
+            captured["body"] = json.loads(req.data.decode())
+            captured["timeout"] = timeout
+            return FakeResp()
+
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        assert EmailReminderService().send_reminder("tenant@example.com", "cheque due") is True
+        assert captured["url"] == "https://api.resend.com/emails"
+        assert captured["auth"] == "Bearer re_test_key"
+        assert captured["body"]["to"] == ["tenant@example.com"]
+        assert "cheque due" in captured["body"]["text"]
+        # Bounded, for the same reason the auth path is.
+        assert captured["timeout"] is not None and captured["timeout"] <= 15
+
+    def test_returns_false_when_no_provider_configured(self, settings):
+        settings.RESEND_API_KEY = ""
+        settings.SENDGRID_API_KEY = ""
+        assert EmailReminderService().send_reminder("tenant@example.com", "x") is False
+
+    def test_failure_is_reported_not_swallowed(self, settings, monkeypatch):
+        """A failed send must return False so _log_reminder records the failure."""
+        settings.RESEND_API_KEY = "re_test_key"
+        settings.SENDGRID_API_KEY = ""
+
+        def boom(req, timeout=None):
+            raise urllib.error.HTTPError(
+                req.full_url, 403, "Forbidden", {}, io.BytesIO(b"domain not verified")
+            )
+
+        monkeypatch.setattr(urllib.request, "urlopen", boom)
+        monkeypatch.setattr(time, "sleep", lambda *_: None)  # don't serve the backoff
+        assert EmailReminderService().send_reminder("tenant@example.com", "x") is False
+
+
+@pytest.mark.django_db
+class TestSendRemindersCommand:
+    """The scheduler's entry point. If this breaks, reminders stop silently."""
+
+    def test_command_runs_and_reports(self):
+        from django.core.management import call_command
+
+        out = io.StringIO()
+        call_command("send_reminders", stdout=out)
+        assert "reminder(s) processed" in out.getvalue()
+
+    def test_command_sends_a_due_reminder(self, user, lease):
+        from django.core.management import call_command
+
+        PaymentSchedule.objects.filter(lease=lease).delete()
+        payment = PaymentSchedule.objects.create(
+            lease=lease,
+            cheque_number=1,
+            due_date=date.today() + timedelta(days=7),
+            amount=Decimal("30000.00"),
+            status=PaymentSchedule.Status.PENDING,
+        )
+
+        out = io.StringIO()
+        call_command("send_reminders", stdout=out)
+
+        payment.refresh_from_db()
+        assert payment.reminder_7d_sent is True
+        assert ReminderLog.objects.filter(
+            payment_schedule=payment, channel=ReminderLog.Channel.IN_APP
+        ).exists()

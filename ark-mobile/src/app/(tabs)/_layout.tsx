@@ -2,7 +2,7 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Frost } from '@/components/ui/Frost';
 import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, tentzu } from '@/theme/tokens';
+import { colors, fontSize, tentzu } from '@/theme/tokens';
 import { TentzuBackground } from '@/components/onboarding/TentzuBackground';
 import { useAuth } from '@/store/auth';
 
@@ -62,7 +62,7 @@ export default function TabsLayout() {
               <Frost intensity={48} />
             </View>
           ),
-          tabBarLabelStyle: { fontSize: 11 },
+          tabBarLabelStyle: { fontSize: fontSize.micro },
         }}
       >
       <Tabs.Screen

@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { OrganizingOverlay } from '@/components/onboarding/OrganizingOverlay';
 import { useOnboarding } from '@/store/onboarding';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 /**
  * Step 7/14 — "Let me read your lease for you."
@@ -64,7 +64,7 @@ export default function LeaseStep() {
       footerNote={
         error ? (
           <View style={{ backgroundColor: tentzu.dangerBg, borderRadius: 12, padding: 12 }}>
-            <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.danger }}>
+            <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.danger }}>
               {error}
             </Text>
           </View>
@@ -97,11 +97,11 @@ export default function LeaseStep() {
           <View style={{ flex: 1 }}>
             <Text
               numberOfLines={1}
-              style={{ fontFamily: tentzuFont.label, fontSize: 15, color: tentzu.ink }}
+              style={{ fontFamily: tentzuFont.label, fontSize: fontSize.body, color: tentzu.ink }}
             >
               {draft.lease_document_name}
             </Text>
-            <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk }}>
+            <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk }}>
               I'll store this once your account is saved.
             </Text>
           </View>

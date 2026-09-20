@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { CHANNELS, type ChannelSpec } from '@/lib/channels';
 import { errorMessage } from '@/lib/errors';
 import { useAuth, type ProfileUpdate } from '@/store/auth';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   /** Opens the upgrade sheet when a locked channel is switched on. */
@@ -118,7 +118,7 @@ function ChannelToggle({
 
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Text style={{ fontFamily: tentzuFont.label, fontSize: 15, color: tentzu.ink }}>
+          <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.body, color: tentzu.ink }}>
             {channel.title}
           </Text>
           {locked ? (
@@ -134,14 +134,14 @@ function ChannelToggle({
               }}
             >
               <Ionicons name="lock-closed" size={10} color={tentzu.primary} />
-              <Text style={{ fontFamily: tentzuFont.label, fontSize: 10, color: tentzu.primary }}>
+              <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.micro, color: tentzu.primary }}>
                 Paid
               </Text>
             </View>
           ) : null}
         </View>
         <Text
-          style={{ fontFamily: tentzuFont.body, fontSize: 12, color: tentzu.mutedInk, marginTop: 1 }}
+          style={{ fontFamily: tentzuFont.body, fontSize: fontSize.micro, color: tentzu.mutedInk, marginTop: 1 }}
         >
           {channel.subtitle}
         </Text>

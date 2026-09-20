@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useUnreadCount } from '@/api/notifications';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 /**
  * The bell, top-right, with an unread count.
@@ -73,7 +73,7 @@ export function NotificationBell() {
           <Text
             style={{
               fontFamily: tentzuFont.label,
-              fontSize: 10,
+              fontSize: fontSize.micro,
               lineHeight: 13,
               color: '#ffffff',
             }}

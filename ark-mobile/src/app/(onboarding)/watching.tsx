@@ -12,7 +12,7 @@ import {
   isValidISODate,
   previewSchedule,
 } from '@/lib/schedule';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 /**
  * Step 12/14 — "You're all set. Here's what I'm watching."
@@ -121,14 +121,14 @@ export default function WatchingStep() {
             </View>
             <View style={{ flex: 1 }}>
               <Text
-                style={{ fontFamily: tentzuFont.label, fontSize: 13, color: tentzu.mutedInk }}
+                style={{ fontFamily: tentzuFont.label, fontSize: fontSize.caption, color: tentzu.mutedInk }}
               >
                 {r.label}
               </Text>
               <Text
                 style={{
                   fontFamily: tentzuFont.body,
-                  fontSize: 15,
+                  fontSize: fontSize.body,
                   lineHeight: 21,
                   color: tentzu.ink,
                   marginTop: 2,

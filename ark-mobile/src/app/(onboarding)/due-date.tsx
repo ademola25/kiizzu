@@ -6,7 +6,7 @@ import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { TentzuCalendar } from '@/components/onboarding/TentzuCalendar';
 import { useOnboarding } from '@/store/onboarding';
 import { formatLongDate, isValidISODate, todayISO } from '@/lib/schedule';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 // Step 4/7 — first cheque due date. Stored as Lease.start_date; the schedule
 // engine counts forward from here.
@@ -47,7 +47,7 @@ export default function DueDateStep() {
           }}
         >
           <Ionicons name="calendar" size={18} color={tentzu.primary} />
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.inkVariant, flex: 1 }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.inkVariant, flex: 1 }}>
             Next cheque due{' '}
             <Text style={{ fontFamily: tentzuFont.label, color: tentzu.primary }}>
               {formatLongDate(draft.start_date)}

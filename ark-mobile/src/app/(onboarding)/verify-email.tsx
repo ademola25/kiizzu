@@ -9,7 +9,7 @@ import { mascotPortrait } from '@/components/onboarding/mascots';
 import { useAuth } from '@/store/auth';
 import { finishOnboarding } from '@/lib/finishOnboarding';
 import { errorMessage } from '@/lib/errors';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 const RESEND_COOLDOWN = 30;
 
@@ -108,7 +108,7 @@ export default function VerifyEmailScreen() {
 
       {error ? (
         <Text
-          style={{ fontFamily: tentzuFont.body, fontSize: 13.5, color: tentzu.danger, marginTop: 16, textAlign: 'center' }}
+          style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.danger, marginTop: 16, textAlign: 'center' }}
         >
           {error}
         </Text>
@@ -119,7 +119,7 @@ export default function VerifyEmailScreen() {
           <Text
             style={{
               fontFamily: tentzuFont.label,
-              fontSize: 14,
+              fontSize: fontSize.label,
               color: cooldown > 0 ? tentzu.mutedInk : tentzu.primary,
             }}
           >
@@ -148,11 +148,11 @@ export default function VerifyEmailScreen() {
             gap: 4,
           }}
         >
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 12, color: tentzu.inkVariant, textAlign: 'center' }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.micro, color: tentzu.inkVariant, textAlign: 'center' }}>
             Testing mode — email delivery isn&apos;t configured yet, so your code is:
           </Text>
           <Text
-            style={{ fontFamily: tentzuFont.headlineBold, fontSize: 26, letterSpacing: 4, color: tentzu.primary }}
+            style={{ fontFamily: tentzuFont.headlineBold, fontSize: fontSize.title, letterSpacing: 4, color: tentzu.primary }}
             accessibilityLabel={`Your verification code is ${devCode.split('').join(' ')}`}
             selectable
           >

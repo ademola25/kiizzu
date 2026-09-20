@@ -7,7 +7,7 @@ import { TentzuButton } from '@/components/onboarding/TentzuButton';
 import { MascotHero } from '@/components/onboarding/MascotHero';
 import { TentzuBackground } from '@/components/onboarding/TentzuBackground';
 import { useOnboarding } from '@/store/onboarding';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 const MASCOT = require('../../../assets/images/mascot-tentzu-full.png');
 
@@ -41,7 +41,7 @@ export default function CelebrateStep() {
         <Text
           style={{
             fontFamily: tentzuFont.headline,
-            fontSize: 29,
+            fontSize: fontSize.display,
             lineHeight: 35,
             letterSpacing: -0.6,
             color: tentzu.ink,
@@ -54,7 +54,7 @@ export default function CelebrateStep() {
         <Text
           style={{
             fontFamily: tentzuFont.body,
-            fontSize: 15,
+            fontSize: fontSize.body,
             lineHeight: 23,
             color: tentzu.inkVariant,
             textAlign: 'center',

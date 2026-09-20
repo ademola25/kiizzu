@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Frost } from '@/components/ui/Frost';
 import { Ionicons } from '@expo/vector-icons';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   title: string;
@@ -61,9 +61,9 @@ export function TentzuOption({ title, subtitle, selected, onPress, icon }: Props
       ) : null}
 
       <View style={{ flex: 1 }}>
-        <Text style={{ fontFamily: tentzuFont.label, fontSize: 16, color: tentzu.ink }}>{title}</Text>
+        <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.subtitle, color: tentzu.ink }}>{title}</Text>
         {subtitle ? (
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk, marginTop: 2 }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk, marginTop: 2 }}>
             {subtitle}
           </Text>
         ) : null}

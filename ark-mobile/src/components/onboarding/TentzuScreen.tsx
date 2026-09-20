@@ -109,7 +109,7 @@ export function TentzuScreen({
             fontFamily: tentzuFont.headlineBold,
             // Chrome, not content: this repeats on all 14 onboarding screens and
             // at 26 it competed with the headline underneath it.
-            fontSize: 20,
+            fontSize: fontSize.section,
             letterSpacing: 1.5,
             color: tentzu.ink,
             marginBottom: step && total ? 14 : 18,
@@ -123,7 +123,7 @@ export function TentzuScreen({
           <Text
             style={{
               fontFamily: tentzuFont.label,
-              fontSize: 14,
+              fontSize: fontSize.label,
               color: tentzu.primaryBright,
               marginBottom: 6,
             }}
@@ -151,7 +151,7 @@ export function TentzuScreen({
           <Text
             style={{
               fontFamily: tentzuFont.body,
-              fontSize: 16,
+              fontSize: fontSize.subtitle,
               lineHeight: 23,
               color: tentzu.mutedInk,
               marginTop: 10,
@@ -209,7 +209,7 @@ export function TentzuScreen({
             <Text
               style={{
                 fontFamily: tentzuFont.label,
-                fontSize: 13,
+                fontSize: fontSize.caption,
                 color: tentzu.mutedInk,
                 textAlign: 'center',
                 marginTop: 7,
@@ -230,7 +230,7 @@ export function TentzuScreen({
         />
         {secondaryLabel && onSecondary ? (
           <Pressable onPress={onSecondary} style={{ paddingVertical: 14, alignItems: 'center' }} hitSlop={6}>
-            <Text style={{ fontFamily: tentzuFont.label, fontSize: 14, color: tentzu.primary }}>
+            <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.label, color: tentzu.primary }}>
               {secondaryLabel}
             </Text>
           </Pressable>

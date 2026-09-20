@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COUNTRIES, SUGGESTED, countryByCode, type Country } from '@/lib/countries';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   /** Drop the country name from the trigger, leaving flag + dial code. Lets the
@@ -65,7 +65,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
         <Text
           style={{
             fontFamily: tentzuFont.label,
-            fontSize: 13,
+            fontSize: fontSize.caption,
             color: tentzu.inkVariant,
             marginBottom: 8,
             marginLeft: 2,
@@ -106,7 +106,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
           // the part the user is actually choosing, so it takes the space.
           <Text
             numberOfLines={1}
-            style={{ flex: 1, fontFamily: tentzuFont.label, fontSize: 15, color: tentzu.ink }}
+            style={{ flex: 1, fontFamily: tentzuFont.label, fontSize: fontSize.body, color: tentzu.ink }}
           >
             {trailing}
           </Text>
@@ -114,11 +114,11 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
           <>
             <Text
               numberOfLines={1}
-              style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 16, color: tentzu.ink }}
+              style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: fontSize.subtitle, color: tentzu.ink }}
             >
               {selected.name}
             </Text>
-            <Text style={{ fontFamily: tentzuFont.label, fontSize: 14, color: tentzu.mutedInk }}>
+            <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.label, color: tentzu.mutedInk }}>
               {trailing}
             </Text>
           </>
@@ -130,7 +130,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
         <Text
           style={{
             fontFamily: tentzuFont.body,
-            fontSize: 13,
+            fontSize: fontSize.caption,
             color: tentzu.mutedInk,
             marginTop: 6,
             marginLeft: 2,
@@ -156,7 +156,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
               gap: 12,
             }}
           >
-            <Text style={{ flex: 1, fontFamily: tentzuFont.headlineBold, fontSize: 20, color: tentzu.ink }}>
+            <Text style={{ flex: 1, fontFamily: tentzuFont.headlineBold, fontSize: fontSize.section, color: tentzu.ink }}>
               Select country
             </Text>
             <Pressable onPress={() => setOpen(false)} hitSlop={10} accessibilityLabel="Close">
@@ -190,7 +190,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
                 style={{
                   flex: 1,
                   fontFamily: tentzuFont.body,
-                  fontSize: 16,
+                  fontSize: fontSize.subtitle,
                   color: tentzu.ink,
                   paddingVertical: 0,
                 }}
@@ -207,7 +207,7 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
               <Text
                 style={{
                   fontFamily: tentzuFont.body,
-                  fontSize: 15,
+                  fontSize: fontSize.body,
                   color: tentzu.mutedInk,
                   textAlign: 'center',
                   marginTop: 32,
@@ -235,14 +235,14 @@ export function CountrySelect({ label, value, onChange, mode = 'country', hint, 
                     backgroundColor: isSelected ? tentzu.tintSurface : 'transparent',
                   }}
                 >
-                  <Text style={{ fontSize: 22 }}>{item.flag}</Text>
+                  <Text style={{ fontSize: fontSize.section }}>{item.flag}</Text>
                   <Text
-                    style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 16, color: tentzu.ink }}
+                    style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: fontSize.subtitle, color: tentzu.ink }}
                   >
                     {item.name}
                   </Text>
                   <Text
-                    style={{ fontFamily: tentzuFont.label, fontSize: 14, color: tentzu.mutedInk }}
+                    style={{ fontFamily: tentzuFont.label, fontSize: fontSize.label, color: tentzu.mutedInk }}
                   >
                     {mode === 'dial' ? item.dial : item.currency}
                   </Text>

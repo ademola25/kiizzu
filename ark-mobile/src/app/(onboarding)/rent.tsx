@@ -8,7 +8,7 @@ import { currencyForCountry } from '@/lib/countries';
 import { useOnboarding } from '@/store/onboarding';
 import { formatMoney, patternLabel } from '@/lib/schedule';
 import { currencySymbol } from '@/lib/format';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 // Total yearly rent. Stored as Lease.rent_amount (annual); the backend
 // divides it by the cheque pattern. The prefix is the symbol for the country
@@ -58,7 +58,7 @@ export default function RentStep() {
             marginTop: 4,
           }}
         >
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.inkVariant, flex: 1 }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.inkVariant, flex: 1 }}>
             That's{' '}
             <Text style={{ fontFamily: tentzuFont.label, color: tentzu.primary }}>{formatMoney(perCheque, currency)}</Text> per
             cheque, {patternLabel[pattern].sub.toLowerCase()}.

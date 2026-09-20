@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   /** Days remaining. Negative means overdue. */
@@ -75,7 +75,7 @@ export function CountdownRing({ days, cycleDays = 90, size = 132 }: Props) {
       <Text
         style={{
           fontFamily: tentzuFont.headlineBold,
-          fontSize: 42,
+          fontSize: fontSize.hero,
           lineHeight: 46,
           letterSpacing: -1.5,
           color: overdue ? '#c62828' : tentzu.ink,
@@ -86,7 +86,7 @@ export function CountdownRing({ days, cycleDays = 90, size = 132 }: Props) {
       <Text
         style={{
           fontFamily: tentzuFont.label,
-          fontSize: 13,
+          fontSize: fontSize.caption,
           color: tentzu.mutedInk,
           marginTop: 2,
         }}

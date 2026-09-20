@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Tentzu — Accounts Needed for Launch</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm; }
+  body { font: 10pt/1.45 -apple-system, "Segoe UI", Roboto, sans-serif; color: #17231b; margin: 0; }
+  h1 { font-size: 19pt; margin: 0 0 3px; letter-spacing: -.02em; }
+  h2 { font-size: 12pt; margin: 20px 0 7px; padding-bottom: 4px;
+       border-bottom: 2px solid #263b2d; page-break-after: avoid; }
+  p, li { margin: 0 0 6px; }
+  ul { margin: 0 0 8px; padding-left: 17px; }
+  .sub { color: #6b6459; margin: 0 0 1px; }
+  .meta { color: #6b6459; font-size: 8.5pt; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 8.6pt; margin: 6px 0 10px; }
+  tr { page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  th { background: #263b2d; color: #fff; text-align: left; padding: 5px 7px; font-weight: 600; }
+  td { border-bottom: 1px solid #dfd4c4; padding: 5px 7px; vertical-align: top; }
+  tr:nth-child(even) td { background: #faf7f2; }
+  .box { background: #f7f1e8; border-left: 3px solid #263b2d; padding: 8px 11px; margin: 9px 0 12px; }
+  .warn { background: #fdf3f9; border-left-color: #a3324f; }
+  .warn strong { color: #a3324f; }
+  .pill { display: inline-block; padding: 0 6px; border-radius: 99px; font-size: 7.4pt;
+          font-weight: 700; white-space: nowrap; }
+  .p1 { background: #a3324f; color: #fff; }
+  .p2 { background: #b9762a; color: #fff; }
+  .p3 { background: #4a6b55; color: #fff; }
+  .u { font: 7.8pt ui-monospace, Menlo, monospace; color: #2d5b6b; overflow-wrap: anywhere; }
+  .muted { color: #6b6459; }
+  footer { margin-top: 18px; padding-top: 6px; border-top: 1px solid #dfd4c4;
+           font-size: 8pt; color: #6b6459; }
+</style></head><body>
+
+<h1>Tentzu — Accounts Needed for Launch</h1>
+<p class="sub">Third-party services the company must open, and what still blocks release</p>
+<p class="meta">13 September 2026 · Tentzu mobile app (iOS + Android) and backend API</p>
+
+<p>The app is feature-complete. What stands between it and paying users is mostly
+<strong>commercial accounts only the company can open</strong> — several with approval waits of
+weeks.</p>
+
+<div class="box warn">
+  <strong>Start these three today:</strong> Apple Developer, WhatsApp Business and Stripe.
+  All three wait on third-party verification. Nothing we build shortens those queues, and
+  the launch date is set by them.
+</div>
+
+<h2>Accounts to open</h2>
+
+<table>
+  <thead><tr>
+    <th style="width:15%">Service</th><th style="width:8%">Priority</th>
+    <th style="width:19%">Unlocks</th><th style="width:13%">Cost</th><th>Register at</th>
+  </tr></thead>
+  <tr><td><strong>Apple Developer</strong></td><td><span class="pill p1">Blocker</span></td>
+      <td>All iOS distribution, TestFlight, push</td><td>USD 99 / year</td>
+      <td><span class="u">developer.apple.com/programs/enroll/</span><br>
+          <span class="muted">Company account needs a D-U-N-S number (1–2 weeks):</span><br>
+          <span class="u">developer.apple.com/support/D-U-N-S/</span></td></tr>
+
+  <tr><td><strong>WhatsApp Business</strong><br><span class="muted">Meta</span></td>
+      <td><span class="pill p1">Blocker</span></td>
+      <td>WhatsApp reminders — the headline feature</td><td>Per message</td>
+      <td><span class="u">business.facebook.com</span><br>
+          <span class="muted">Longest wait: verification, then separate template approval</span></td></tr>
+
+  <tr><td><strong>Stripe</strong></td><td><span class="pill p1">Blocker</span></td>
+      <td>Taking payment, paid tiers</td><td>Per transaction</td>
+      <td><span class="u">dashboard.stripe.com/register</span><br>
+          <span class="muted">Needs entity, bank account, ID</span></td></tr>
+
+  <tr><td><strong>Google Play</strong></td><td><span class="pill p1">Blocker</span></td>
+      <td>All Android distribution</td><td>USD 25 once</td>
+      <td><span class="u">play.google.com/console/signup</span></td></tr>
+
+  <tr><td><strong>Twilio</strong></td><td><span class="pill p2">High</span></td>
+      <td>SMS reminders; hosts the WhatsApp sender</td><td>Per message<br>+ number</td>
+      <td><span class="u">twilio.com/try-twilio</span></td></tr>
+
+  <tr><td><strong>Resend</strong></td><td><span class="pill p2">High</span></td>
+      <td>Verification codes, password reset, email reminders</td><td>Free to 3,000/mo</td>
+      <td><span class="u">resend.com/signup</span><br>
+          <span class="muted">Company account, not personal</span></td></tr>
+
+  <tr><td><strong>Firebase</strong><br><span class="muted">Google Cloud</span></td>
+      <td><span class="pill p2">High</span></td>
+      <td><strong>Android push notifications.</strong> Google owns Android delivery — there is
+          no alternative</td><td>Free at our scale</td>
+      <td><span class="u">console.firebase.google.com</span></td></tr>
+
+  <tr><td><strong>Document storage</strong></td><td><span class="pill p2">High</span></td>
+      <td>Tenancy contracts that survive a deployment</td><td>See below</td>
+      <td><span class="u">dash.cloudflare.com/sign-up</span> (R2)<br>
+          <span class="u">hostinger.com/vps-hosting</span> (VPS)</td></tr>
+
+  <tr><td><strong>Hosting</strong></td><td><span class="pill p2">High</span></td>
+      <td>The API and database</td><td>Approx. USD 20–30/mo</td>
+      <td><span class="u">hostinger.com/vps-hosting</span><br>
+          <span class="muted">Currently on Render; moving to Hostinger under review</span></td></tr>
+
+  <tr><td><strong>Anthropic</strong></td><td><span class="pill p3">Planned</span></td>
+      <td>AI assistant that registers a lease by conversation</td><td>Usage-based</td>
+      <td><span class="u">console.anthropic.com</span><br>
+          <span class="muted">Only when that feature ships</span></td></tr>
+
+  <tr><td><strong>Expo / EAS</strong></td><td><span class="pill p3">Have it</span></td>
+      <td>Building the app binaries</td><td>Free tier</td>
+      <td><span class="u">expo.dev</span> — account exists</td></tr>
+</table>
+
+<p class="muted">Costs are indicative; confirm at sign-up. Per-message and per-transaction
+pricing varies by country.</p>
+
+<h2>Two notes on choices</h2>
+
+<p><strong>Document storage — two options.</strong> Users upload tenancy contracts; today they are
+written to the server's own disk and erased on every deployment.</p>
+<ul>
+  <li><strong>Cloudflare R2</strong> — free tier, and no charge for downloads. Storage stays
+      independent of the server, so rebuilding or moving the server cannot lose documents.
+      <span class="muted">Recommended.</span></li>
+  <li><strong>Hostinger VPS disk</strong> — included with the VPS at no extra cost, but the
+      contracts then exist in one place only and backups become our responsibility. These are
+      legal documents a tenant may need years later.</li>
+</ul>
+
+<p><strong>Google sign-in is optional; Firebase is not.</strong> Firebase is required for Android
+push and has no substitute. "Sign in with Google" is a separate, optional choice — and if we
+skip it, Apple's rules no longer oblige us to add "Sign in with Apple" either, removing work
+from both platforms.</p>
+
+<h2>Still to finish — no account needed</h2>
+<table>
+  <thead><tr><th style="width:34%">Item</th><th style="width:11%"></th><th>Why</th></tr></thead>
+  <tr><td>Privacy Policy &amp; Terms of Service</td><td><span class="pill p1">Blocker</span></td>
+      <td>Apple and Google both refuse submission without a public privacy policy. Neither exists yet</td></tr>
+  <tr><td>Documents moved off local disk</td><td><span class="pill p1">Blocker</span></td>
+      <td>Uploaded contracts are lost on every deployment</td></tr>
+  <tr><td>Hosting off the free tier</td><td><span class="pill p1">Blocker</span></td>
+      <td>First request after idle takes ~70 seconds; testers will call the app broken</td></tr>
+  <tr><td>Full UAT cycle</td><td><span class="pill p1">Blocker</span></td>
+      <td>QA gated launch on one complete pass. Cannot start until builds reach testers</td></tr>
+  <tr><td>Real Stripe prices</td><td><span class="pill p2">High</span></td>
+      <td>Checkout fails today — the prices are placeholders</td></tr>
+  <tr><td>Push delivery</td><td><span class="pill p2">High</span></td>
+      <td>The app collects a device token; nothing stores it or sends to it</td></tr>
+  <tr><td>Sign-in buttons</td><td><span class="pill p2">High</span></td>
+      <td>Apple and Google both show "Coming soon"</td></tr>
+  <tr><td>Duplicate-payment prevention<br>Notification deep-linking</td><td><span class="pill p3">Medium</span></td>
+      <td>Both raised in the QA review and still open</td></tr>
+</table>
+
+<h2>What the company needs to supply</h2>
+<p>The same details recur across sign-ups — gathering them once avoids repeated delays:</p>
+<ul>
+  <li>Legal entity name, trade licence, registered address</li>
+  <li>D-U-N-S number for the entity, or an application started</li>
+  <li>Business bank account for Stripe payouts</li>
+  <li>Identity documents for the authorised signatory</li>
+  <li>Confirmed public pricing for the Starter and Pro tiers</li>
+  <li><strong>A company email address to own every account</strong> — not a personal one.
+      Accounts opened on personal addresses cannot be transferred later, and are a common way
+      businesses lose control of their own app store listing and payment processor.</li>
+</ul>
+
+<footer>Tentzu — Accounts Needed for Launch · 13 September 2026 · Costs indicative, confirm at sign-up</footer>
+</body></html>

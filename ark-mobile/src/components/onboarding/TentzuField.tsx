@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Frost } from '@/components/ui/Frost';
 import { Platform, StyleSheet } from 'react-native';
 import type { TextInputProps, ViewStyle } from 'react-native';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = TextInputProps & {
   label?: string;
@@ -35,7 +35,7 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
         <Text
           style={{
             fontFamily: tentzuFont.label,
-            fontSize: 13,
+            fontSize: fontSize.caption,
             color: tentzu.inkVariant,
             marginBottom: 8,
             marginLeft: 2,
@@ -71,7 +71,7 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
           <Text
             style={{
               fontFamily: tentzuFont.label,
-              fontSize: 16,
+              fontSize: fontSize.subtitle,
               color: tentzu.mutedInk,
               marginRight: 8,
             }}
@@ -96,7 +96,7 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
             {
               flex: 1,
               fontFamily: tentzuFont.body,
-              fontSize: 16,
+              fontSize: fontSize.subtitle,
               color: tentzu.ink,
               height: '100%',
               paddingVertical: 0,
@@ -125,11 +125,11 @@ export const TentzuField = forwardRef<TextInput, Props>(function TentzuField(
       </View>
 
       {error ? (
-        <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.danger, marginTop: 6, marginLeft: 2 }}>
+        <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.danger, marginTop: 6, marginLeft: 2 }}>
           {error}
         </Text>
       ) : hint ? (
-        <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk, marginTop: 6, marginLeft: 2 }}>
+        <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk, marginTop: 6, marginLeft: 2 }}>
           {hint}
         </Text>
       ) : null}

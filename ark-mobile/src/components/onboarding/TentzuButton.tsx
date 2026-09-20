@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   label: string;
@@ -47,7 +47,7 @@ export function TentzuButton({ label, onPress, loading, disabled, variant = 'pri
           <Text
             style={{
               fontFamily: tentzuFont.headlineBold,
-              fontSize: 17,
+              fontSize: fontSize.subtitle,
               color: isPrimary ? '#ffffff' : tentzu.ink,
             }}
           >

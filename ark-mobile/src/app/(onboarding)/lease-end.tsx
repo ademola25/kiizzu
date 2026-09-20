@@ -7,7 +7,7 @@ import { TentzuScreen } from '@/components/onboarding/TentzuScreen';
 import { TentzuCalendar } from '@/components/onboarding/TentzuCalendar';
 import { useOnboarding } from '@/store/onboarding';
 import { addMonths, formatLongDate, isValidISODate, todayISO } from '@/lib/schedule';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 /**
  * Step 10/14 — "Your lease ends…"
@@ -81,7 +81,7 @@ export default function LeaseEndStep() {
           }}
         >
           <Ionicons name="notifications-outline" size={18} color={tentzu.primary} />
-          <Text style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.inkVariant }}>
+          <Text style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.inkVariant }}>
             I'll nudge you from {formatLongDate(addMonths(draft.lease_end_date, -3))}.
           </Text>
         </View>

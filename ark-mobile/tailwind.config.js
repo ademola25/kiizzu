@@ -37,6 +37,20 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'System'],
       },
+      // Mirrors `fontSize` in src/theme/tokens.ts. Declared rather than
+      // inherited from Tailwind so the className path and the inline-style
+      // path resolve to one scale; these are the values already in use, so
+      // nothing moves.
+      fontSize: {
+        xs: '12px',    // fine
+        sm: '14px',    // label
+        base: '16px',  // subtitle
+        lg: '18px',    // lead
+        xl: '20px',    // section
+        '2xl': '24px', // title
+        '3xl': '30px', // display
+        '4xl': '36px', // jumbo
+      },
     },
   },
   plugins: [],

@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Frost } from '@/components/ui/Frost';
 import { CountdownRing } from './CountdownRing';
 import { daysUntil, formatMoney, formatDate } from '@/lib/format';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 import type { PaymentSchedule } from '@/lib/types';
 
 type Props = {
@@ -124,16 +124,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     elevation: 3,
   },
-  eyebrow: { fontFamily: tentzuFont.label, fontSize: 13, color: tentzu.mutedInk },
+  eyebrow: { fontFamily: tentzuFont.label, fontSize: fontSize.caption, color: tentzu.mutedInk },
   amount: {
     fontFamily: tentzuFont.headlineBold,
-    fontSize: 32,
+    fontSize: fontSize.display,
     lineHeight: 37,
     letterSpacing: -1,
     color: tentzu.ink,
     marginTop: 2,
   },
-  due: { fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.mutedInk, marginTop: 3 },
+  due: { fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.mutedInk, marginTop: 3 },
   readyPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -145,14 +145,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: tentzu.tintSurface,
   },
-  readyText: { fontFamily: tentzuFont.label, fontSize: 12.5, color: tentzu.primary },
+  readyText: { fontFamily: tentzuFont.label, fontSize: fontSize.caption, color: tentzu.primary },
   reassure: {
     fontFamily: tentzuFont.body,
-    fontSize: 15,
+    fontSize: fontSize.body,
     color: tentzu.inkVariant,
     textAlign: 'center',
     maxWidth: 250,
   },
-  cta: { fontFamily: tentzuFont.headlineBold, fontSize: 16, color: '#ffffff' },
-  link: { fontFamily: tentzuFont.label, fontSize: 14, color: tentzu.primary },
+  cta: { fontFamily: tentzuFont.headlineBold, fontSize: fontSize.subtitle, color: '#ffffff' },
+  link: { fontFamily: tentzuFont.label, fontSize: fontSize.label, color: tentzu.primary },
 });

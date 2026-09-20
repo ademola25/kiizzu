@@ -18,7 +18,7 @@ export function ScreenHeader({ title, subtitle, right }: ScreenHeaderProps) {
           {title}
         </Text>
         {subtitle ? (
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 15, color: tentzu.mutedInk, marginTop: 4 }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.body, color: tentzu.mutedInk, marginTop: 4 }}>
             {subtitle}
           </Text>
         ) : null}

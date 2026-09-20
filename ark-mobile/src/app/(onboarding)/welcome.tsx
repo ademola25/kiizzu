@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { MascotHero } from '@/components/onboarding/MascotHero';
 import { TentzuBackground } from '@/components/onboarding/TentzuBackground';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 const MASCOT = require('../../../assets/images/mascot-tentzu-full.png');
 
@@ -35,7 +35,7 @@ export default function WelcomeScreen() {
           <Text
             style={{
               fontFamily: tentzuFont.headline,
-              fontSize: 28,
+              fontSize: fontSize.display,
               lineHeight: 34,
               letterSpacing: -0.6,
               color: tentzu.ink,
@@ -52,7 +52,7 @@ export default function WelcomeScreen() {
           <Text
             style={{
               fontFamily: tentzuFont.body,
-              fontSize: 15,
+              fontSize: fontSize.body,
               lineHeight: 23,
               color: tentzu.inkVariant,
               textAlign: 'center',
@@ -106,7 +106,7 @@ export default function WelcomeScreen() {
               borderRadius: 28,
             }}
           >
-            <Text style={{ fontFamily: tentzuFont.headlineBold, fontSize: 18, color: '#ffffff' }}>
+            <Text style={{ fontFamily: tentzuFont.headlineBold, fontSize: fontSize.subtitle, color: '#ffffff' }}>
               Get started
             </Text>
             <Ionicons name="arrow-forward" size={20} color="#ffffff" />
@@ -118,7 +118,7 @@ export default function WelcomeScreen() {
           style={{ paddingVertical: 14, alignItems: 'center' }}
           hitSlop={6}
         >
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.inkVariant }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.inkVariant }}>
             I already have an account{'  '}
             <Text style={{ fontFamily: tentzuFont.label, color: tentzu.primary }}>Log in</Text>
           </Text>
@@ -148,7 +148,7 @@ function Feature({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label:
       <View style={{ backgroundColor: tentzu.tintSurface, padding: 10, borderRadius: 12 }}>
         <Ionicons name={icon} size={20} color={tentzu.primary} />
       </View>
-      <Text style={{ fontFamily: tentzuFont.label, fontSize: 12.5, color: tentzu.ink }}>{label}</Text>
+      <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.caption, color: tentzu.ink }}>{label}</Text>
     </View>
   );
 }

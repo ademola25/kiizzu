@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { TentzuField } from './TentzuField';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props<T> = {
   label: string;
@@ -106,7 +106,7 @@ export function AutocompleteField<T>({
       {loading && !items.length ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: -8, marginBottom: 12, marginLeft: 4 }}>
           <ActivityIndicator size="small" color={tentzu.primary} />
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk }}>
             Looking up addresses…
           </Text>
         </View>
@@ -138,7 +138,7 @@ export function AutocompleteField<T>({
             >
               <Text
                 numberOfLines={2}
-                style={{ fontFamily: tentzuFont.body, fontSize: 15, color: tentzu.ink }}
+                style={{ fontFamily: tentzuFont.body, fontSize: fontSize.body, color: tentzu.ink }}
               >
                 {render(item)}
               </Text>

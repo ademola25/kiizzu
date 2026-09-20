@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
 import { formatTimeOfDay } from '@/lib/format';
 import type { ReminderLog } from '@/lib/types';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   log: ReminderLog;
@@ -49,7 +49,7 @@ export function NotificationRow({ log, onPress }: Props) {
                 style={{
                   flex: 1,
                   fontFamily: unread ? tentzuFont.label : tentzuFont.body,
-                  fontSize: 15,
+                  fontSize: fontSize.body,
                   color: tentzu.ink,
                 }}
               >
@@ -73,7 +73,7 @@ export function NotificationRow({ log, onPress }: Props) {
               <Text
                 style={{
                   fontFamily: tentzuFont.body,
-                  fontSize: 13,
+                  fontSize: fontSize.caption,
                   color: tentzu.mutedInk,
                   marginTop: 3,
                 }}
@@ -85,7 +85,7 @@ export function NotificationRow({ log, onPress }: Props) {
             <Text
               style={{
                 fontFamily: tentzuFont.body,
-                fontSize: 11,
+                fontSize: fontSize.micro,
                 color: tentzu.mutedInk,
                 marginTop: 6,
               }}

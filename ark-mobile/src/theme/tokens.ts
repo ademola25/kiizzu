@@ -71,18 +71,26 @@ export const tentzuFont = {
 // as inconsistent hierarchy rather than any single element being wrong. New
 // work should reference these; existing screens are being migrated as they are
 // touched.
+// Every size the app uses has a name here, and nothing outside this set is
+// allowed. tailwind.config.js reads the same values, so the inline-style and
+// className paths cannot drift apart — which is how 13, 13.5 and 14 all ended
+// up in use at once.
 export const fontSize = {
   /** Dashboard countdown — the one number the whole app exists to show. */
   hero: 42,
+  jumbo: 36,
   /** Onboarding headline. */
   display: 30,
   /** Tab screen titles. */
   title: 24,
   section: 20,
+  lead: 18,
   subtitle: 16,
   body: 15,
   label: 14,
   caption: 13,
+  /** Smallest size still comfortable to read — badges, meta rows. */
+  fine: 12,
   micro: 11,
 } as const;
 

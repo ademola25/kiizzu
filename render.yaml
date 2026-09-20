@@ -51,6 +51,10 @@ services:
       - key: EMAIL_HOST_PASSWORD
         sync: false
       # Fill these in the Render dashboard when ready (kept out of the repo):
+      # Resend is the preferred provider — outbound SMTP is blocked on this
+      # host, so only an HTTPS-API provider can deliver.
+      - key: RESEND_API_KEY
+        sync: false
       - key: SENDGRID_API_KEY
         sync: false
       - key: TWILIO_ACCOUNT_SID
@@ -62,4 +66,47 @@ services:
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+  # Reminders are a once-a-day batch, so they run as a scheduled command rather
+  # than a Celery worker + Redis. Nothing in the codebase calls .delay(); the
+  # broker existed to run this one job. A cron job also ports directly to a
+  # VPS crontab if the backend ever moves off Render.
+  - type: cron
+    name: tentzu-reminders
+    runtime: python
+    plan: starter
+    rootDir: ark-backend
+    # 04:00 UTC daily. The sweep measures each window against the tenant's own
+    # local day, so the fire time only decides what hour the message lands in.
+    schedule: "0 4 * * *"
+    buildCommand: "pip install -r requirements/production.txt"
+    startCommand: "python manage.py send_reminders"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: DJANGO_DEBUG
+        value: "False"
+      # Shared with the web service rather than generated: a second random key
+      # would not match anything the API signed.
+      - key: DJANGO_SECRET_KEY
+        fromService:
+          name: tentzu-api
+          type: web
+          envVarKey: DJANGO_SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tentzu-db
+          property: connectionString
+      - key: RESEND_API_KEY
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
         sync: false

@@ -12,7 +12,7 @@ import {
   isValidISODate,
   previewSchedule,
 } from '@/lib/schedule';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 // Step 6/7 — a preview of the cheque plan Tentzu will track. Computed locally to
 // mirror the backend engine; the real schedule is created on submit.
@@ -74,10 +74,10 @@ export default function PlanStep() {
           <Ionicons name="home" size={20} color={tentzu.primary} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontFamily: tentzuFont.label, fontSize: 15, color: tentzu.ink }}>
+          <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.body, color: tentzu.ink }}>
             {draft.building_name.trim() || 'Your home'}
           </Text>
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk, marginTop: 2 }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk, marginTop: 2 }}>
             {composeAddress(draft)}
           </Text>
         </View>
@@ -116,14 +116,14 @@ export default function PlanStep() {
                 backgroundColor: tentzu.tintSurface,
               }}
             >
-              <Text style={{ fontFamily: tentzuFont.label, fontSize: 13, color: tentzu.primary }}>
+              <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.caption, color: tentzu.primary }}>
                 {c.cheque_number}
               </Text>
             </View>
-            <Text style={{ fontFamily: tentzuFont.body, fontSize: 14.5, color: tentzu.ink, flex: 1 }}>
+            <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.ink, flex: 1 }}>
               {formatLongDate(c.due_date)}
             </Text>
-            <Text style={{ fontFamily: tentzuFont.label, fontSize: 14.5, color: tentzu.ink }}>
+            <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.label, color: tentzu.ink }}>
               {formatMoney(c.amount, currency)}
             </Text>
           </View>
@@ -133,7 +133,7 @@ export default function PlanStep() {
       {/* Reminder note */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16, paddingHorizontal: 2 }}>
         <Ionicons name="notifications-outline" size={16} color={tentzu.primary} />
-        <Text style={{ fontFamily: tentzuFont.body, fontSize: 13, color: tentzu.mutedInk, flex: 1 }}>
+        <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk, flex: 1 }}>
           Tentzu reminds you 30, 7 and 1 day before each cheque
           {draft.notify_in_app ? ', right here in the app' : ''}.
         </Text>

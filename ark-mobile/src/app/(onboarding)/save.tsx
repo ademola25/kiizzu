@@ -12,7 +12,7 @@ import { useOnboarding } from '@/store/onboarding';
 import { dialForCountry } from '@/lib/countries';
 import { composeE164, isValidPhone, phonePlaceholder } from '@/lib/phone';
 import { CountrySelect } from '@/components/onboarding/CountrySelect';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -130,10 +130,10 @@ export default function SaveStep() {
       footerNote={
         error ? (
           <View style={{ backgroundColor: tentzu.dangerBg, borderRadius: 12, padding: 12 }}>
-            <Text style={{ fontFamily: tentzuFont.body, fontSize: 13.5, color: tentzu.danger }}>{error}</Text>
+            <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.danger }}>{error}</Text>
           </View>
         ) : (
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 12.5, color: tentzu.mutedInk, textAlign: 'center' }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.caption, color: tentzu.mutedInk, textAlign: 'center' }}>
             No spam — just reminders before your rent is due.
           </Text>
         )
@@ -141,7 +141,7 @@ export default function SaveStep() {
     >
       {alreadySignedIn ? (
         <View style={{ backgroundColor: tentzu.tintSurface, borderRadius: 14, padding: 16 }}>
-          <Text style={{ fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.inkVariant }}>
+          <Text style={{ fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.inkVariant }}>
             You're signed in. Tap below to save your rent plan and open your dashboard.
           </Text>
         </View>
@@ -193,7 +193,7 @@ export default function SaveStep() {
               <Text
                 style={{
                   fontFamily: tentzuFont.body,
-                  fontSize: 13,
+                  fontSize: fontSize.caption,
                   color: phoneLocal.length > 0 && !isValidPhone(cleanPhone) ? tentzu.danger : tentzu.mutedInk,
                   marginTop: -8,
                   marginBottom: 16,
@@ -237,7 +237,7 @@ export default function SaveStep() {
                 hitSlop={6}
                 style={{ alignSelf: 'flex-end', paddingVertical: 4 }}
               >
-                <Text style={{ fontFamily: tentzuFont.label, fontSize: 13.5, color: tentzu.primary }}>
+                <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.caption, color: tentzu.primary }}>
                   Forgot password?
                 </Text>
               </Pressable>
@@ -283,7 +283,7 @@ function Segmented({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void
             <Text
               style={{
                 fontFamily: tentzuFont.label,
-                fontSize: 14,
+                fontSize: fontSize.label,
                 color: active ? tentzu.primary : tentzu.mutedInk,
               }}
             >

@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 
 import { TentzuBackground } from './TentzuBackground';
 import { mascotAssistant } from './mascots';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   visible: boolean;
@@ -92,7 +92,7 @@ export function OrganizingOverlay({ visible, onDone, duration = 3000 }: Props) {
         <Text
           style={{
             fontFamily: tentzuFont.headlineBold,
-            fontSize: 24,
+            fontSize: fontSize.title,
             lineHeight: 30,
             letterSpacing: -0.6,
             color: tentzu.ink,
@@ -106,7 +106,7 @@ export function OrganizingOverlay({ visible, onDone, duration = 3000 }: Props) {
         <Text
           style={{
             fontFamily: tentzuFont.body,
-            fontSize: 15,
+            fontSize: fontSize.body,
             color: tentzu.mutedInk,
             textAlign: 'center',
             marginTop: 10,

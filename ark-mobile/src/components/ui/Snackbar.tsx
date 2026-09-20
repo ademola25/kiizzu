@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 type Props = {
   /** Rendered when set; pass null to dismiss. */
@@ -74,7 +74,7 @@ export function Snackbar({ message, actionLabel, onAction, onDismiss, duration =
         }}
       >
         <Text
-          style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 14, color: tentzu.white }}
+          style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: fontSize.label, color: tentzu.white }}
           numberOfLines={2}
         >
           {message}
@@ -89,7 +89,7 @@ export function Snackbar({ message, actionLabel, onAction, onDismiss, duration =
             <Text
               style={{
                 fontFamily: tentzuFont.label,
-                fontSize: 14,
+                fontSize: fontSize.label,
                 color: tentzu.primary,
                 letterSpacing: 0.2,
               }}

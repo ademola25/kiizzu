@@ -4,7 +4,7 @@ import { Frost } from '@/components/ui/Frost';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 export type Option = { code: string; name: string };
 
@@ -58,7 +58,7 @@ export function SelectField({
       <Text
         style={{
           fontFamily: tentzuFont.label,
-          fontSize: 13,
+          fontSize: fontSize.caption,
           color: tentzu.inkVariant,
           marginBottom: 8,
           marginLeft: 2,
@@ -97,7 +97,7 @@ export function SelectField({
           style={{
             flex: 1,
             fontFamily: tentzuFont.body,
-            fontSize: 16,
+            fontSize: fontSize.subtitle,
             color: selected ? tentzu.ink : tentzu.mutedInk,
           }}
         >
@@ -110,7 +110,7 @@ export function SelectField({
         <Text
           style={{
             fontFamily: tentzuFont.body,
-            fontSize: 13,
+            fontSize: fontSize.caption,
             color: tentzu.danger,
             marginTop: 6,
             marginLeft: 2,
@@ -122,7 +122,7 @@ export function SelectField({
         <Text
           style={{
             fontFamily: tentzuFont.body,
-            fontSize: 13,
+            fontSize: fontSize.caption,
             color: tentzu.mutedInk,
             marginTop: 6,
             marginLeft: 2,
@@ -149,7 +149,7 @@ export function SelectField({
             }}
           >
             <Text
-              style={{ flex: 1, fontFamily: tentzuFont.headlineBold, fontSize: 20, color: tentzu.ink }}
+              style={{ flex: 1, fontFamily: tentzuFont.headlineBold, fontSize: fontSize.section, color: tentzu.ink }}
             >
               {label}
             </Text>
@@ -184,7 +184,7 @@ export function SelectField({
                   style={{
                     flex: 1,
                     fontFamily: tentzuFont.body,
-                    fontSize: 16,
+                    fontSize: fontSize.subtitle,
                     color: tentzu.ink,
                     paddingVertical: 0,
                   }}
@@ -202,7 +202,7 @@ export function SelectField({
               <Text
                 style={{
                   fontFamily: tentzuFont.body,
-                  fontSize: 15,
+                  fontSize: fontSize.body,
                   color: tentzu.mutedInk,
                   textAlign: 'center',
                   marginTop: 32,
@@ -231,7 +231,7 @@ export function SelectField({
                   }}
                 >
                   <Text
-                    style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: 16, color: tentzu.ink }}
+                    style={{ flex: 1, fontFamily: tentzuFont.body, fontSize: fontSize.subtitle, color: tentzu.ink }}
                   >
                     {item.name}
                   </Text>

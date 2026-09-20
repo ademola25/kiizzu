@@ -5,10 +5,13 @@ local calendar day, not the server's. With users outside the Gulf, a window
 computed in Asia/Dubai lands a day early or late for most of the Americas and
 Australia — "1 day away" would arrive after the cheque was due.
 
-Note: the *send hour* is still whatever the beat schedule fires at. Localising
-that as well needs the beat entry to run hourly and filter on each user's local
-hour. Not done here because no Celery worker is deployed yet (render.yaml has
-no worker service), so this task does not currently run in production.
+The work itself lives in run_daily_reminders(), a plain function, so it can be
+driven by `manage.py send_reminders` under any scheduler. The Celery task below
+is a thin wrapper kept for compatibility — nothing calls it with .delay(), and
+no worker is deployed.
+
+Note: the *send hour* is still whatever the scheduler fires at. Localising that
+as well needs an hourly run filtered on each user's local hour.
 """
 import logging
 from datetime import timedelta
@@ -22,7 +25,7 @@ from ark.common.dates import local_today as _local_today
 from ark.payments.models import PaymentSchedule
 from ark.reminders.models import ReminderLog
 from ark.reminders.services.whatsapp import TwilioWhatsAppService
-from ark.reminders.services.email import SendGridEmailService
+from ark.reminders.services.email import EmailReminderService
 from ark.reminders.services.sms import TwilioSMSService
 from ark.reminders.services.channels import active_channels
 from ark.reminders.services.inapp import build_copy
@@ -36,14 +39,13 @@ REMINDER_WINDOWS = [
 ]
 
 whatsapp_service = TwilioWhatsAppService()
-email_service = SendGridEmailService()
+email_service = EmailReminderService()
 sms_service = TwilioSMSService()
 
 
 
 
-@shared_task(name="reminders.send_daily_reminders")
-def send_daily_reminders():
+def run_daily_reminders():
     """Send reminders for due dates hitting the 30d/7d/1d windows.
 
     Grouped by timezone so each tenant's window is measured against their own
@@ -119,6 +121,12 @@ def send_daily_reminders():
 
     logger.info(f"Daily reminders complete: {total_sent} reminders processed")
     return total_sent
+
+
+@shared_task(name="reminders.send_daily_reminders")
+def send_daily_reminders():
+    """Celery entry point. Kept so an existing beat schedule still resolves."""
+    return run_daily_reminders()
 
 
 def _build_notification(payment, days_before):

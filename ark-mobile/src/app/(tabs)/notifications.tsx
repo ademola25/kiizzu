@@ -8,7 +8,7 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StateCard } from '@/components/ui/StateCard';
 import { formatDayKey, localDayKey } from '@/lib/format';
 import type { ReminderLog } from '@/lib/types';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 
 /**
  * The in-app notification feed — what the bell opens.
@@ -56,7 +56,7 @@ export default function NotificationsScreen() {
           accessibilityLabel={`Mark all ${unreadCount} as read`}
           style={{ alignSelf: 'flex-start', paddingVertical: 4 }}
         >
-          <Text style={{ fontFamily: tentzuFont.label, fontSize: 13, color: tentzu.primary }}>
+          <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.caption, color: tentzu.primary }}>
             Mark all as read ({unreadCount})
           </Text>
         </Pressable>

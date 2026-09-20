@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { tentzu, tentzuFont } from '@/theme/tokens';
+import { fontSize, tentzu, tentzuFont } from '@/theme/tokens';
 import { todayISO } from '@/lib/schedule';
 
 const MONTHS = [
@@ -74,7 +74,7 @@ export function TentzuCalendar({ value, onChange, minISO }: Props) {
         >
           <Ionicons name="chevron-back" size={20} color={tentzu.ink} />
         </Pressable>
-        <Text style={{ fontFamily: tentzuFont.label, fontSize: 15, color: tentzu.ink }}>
+        <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.body, color: tentzu.ink }}>
           {MONTHS[view.month0]} {view.year}
         </Text>
         <Pressable
@@ -91,7 +91,7 @@ export function TentzuCalendar({ value, onChange, minISO }: Props) {
       <View style={{ flexDirection: 'row', marginBottom: 6 }}>
         {WEEKDAYS.map((d, i) => (
           <View key={i} style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ fontFamily: tentzuFont.label, fontSize: 11, color: tentzu.mutedInk }}>{d}</Text>
+            <Text style={{ fontFamily: tentzuFont.label, fontSize: fontSize.micro, color: tentzu.mutedInk }}>{d}</Text>
           </View>
         ))}
       </View>
@@ -122,7 +122,7 @@ export function TentzuCalendar({ value, onChange, minISO }: Props) {
                 <Text
                   style={{
                     fontFamily: selected ? tentzuFont.label : tentzuFont.body,
-                    fontSize: 15,
+                    fontSize: fontSize.body,
                     color: selected ? '#ffffff' : disabled ? '#c4d0cf' : tentzu.ink,
                   }}
                 >
